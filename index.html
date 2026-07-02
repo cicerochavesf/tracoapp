@@ -266,7 +266,22 @@
     .task-entrega.entregue-prazo{background:#E6F7EE;color:var(--green)}
     .task-entrega.entregue-atraso{background:var(--orange-50);color:#8A4A00}
     .task-comp{display:inline-block;background:var(--blue-100);color:var(--blue-900);padding:1px 6px;border-radius:999px;font-size:10px;font-weight:800}
-    .dt-num{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--blue-700);color:#fff;font-size:10px;font-weight:800;margin-right:3px;vertical-align:middle}
+    /* ═══ DATAS — lista vertical numerada (Etapa 2) ═══ */
+    .date-row{display:flex;align-items:center;gap:13px;padding:11px 2px;border-bottom:1px solid var(--line-2)}
+    .date-row:last-of-type{border-bottom:none}
+    .date-row-num{width:24px;height:24px;border-radius:50%;background:var(--blue-700);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800;flex-shrink:0}
+    .date-row-num.auto{background:var(--orange-700)}
+    .date-row-body{flex:1;min-width:0}
+    .date-row-body label{font-size:12.5px;font-weight:600;color:var(--ink);display:block;line-height:1.35}
+    .date-row-hint{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+    .date-row input[type="date"]{width:152px;flex-shrink:0}
+    .auto-hint{font-size:11px;margin-top:2px;line-height:1.4;font-weight:600}
+    .auto-hint.info{color:var(--muted);font-weight:400}
+    .auto-hint.ok{color:var(--green)}
+    @media(max-width:560px){
+      .date-row{flex-wrap:wrap}
+      .date-row input[type="date"]{width:100%;margin-left:37px}
+    }
     .nao-enviado-check{display:flex;align-items:center;gap:9px;padding:10px 12px;background:var(--orange-50);border:1px solid rgba(255,107,0,.25);border-radius:var(--r);cursor:pointer;font-size:12.5px;color:#8A4A00}
     .nao-enviado-check input{width:16px;height:16px;accent-color:var(--orange-700);cursor:pointer}
     .field input:disabled{background:var(--sf2);color:var(--muted);cursor:not-allowed;opacity:.6}
@@ -660,6 +675,10 @@
       </div>
       <!-- ITEM 14: filtros ANTES dos KPIs -->
       <div class="panel" style="margin-bottom:14px;padding:14px 16px">
+        <div class="ffield" style="margin-bottom:12px">
+          <label style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px;display:block">Buscar demanda</label>
+          <input id="demandaSearch" type="text" placeholder="Buscar por código, obra ou descrição…" oninput="renderKanban()">
+        </div>
         <div class="filter-bar" style="margin-bottom:0">
           <div class="field"><label>Sprint</label><select id="sprintFilter"></select></div>
           <div class="field"><label>Analista</label><select id="analistaFilter"></select></div>
@@ -672,6 +691,13 @@
               <option value="atrasada">🔴 Atrasada</option>
               <option value="entregue-prazo">✓ Entregue no prazo</option>
               <option value="entregue-atraso">⚠ Entregue fora do prazo</option>
+            </select>
+          </div>
+          <div class="field"><label>Pendência de cotação</label>
+            <select id="pendenciaFilter">
+              <option value="">Todas</option>
+              <option value="com">⚠️ Com pendência</option>
+              <option value="sem">Sem pendência</option>
             </select>
           </div>
         </div>
@@ -1075,10 +1101,12 @@
       <div id="eiEtapa2" style="display:none">
 
       <!-- Status + transições inline -->
-      <div class="sblock" id="eiTransitions"></div>
+      <div class="fsec" id="eiTransitionsWrap">
+        <div id="eiTransitions"></div>
+      </div>
 
-      <!-- Resumo da identificação -->
-      <div class="sblock" id="eiResumoTopo" style="display:flex;align-items:center;gap:11px">
+      <!-- Resumo da identificação (só durante o fluxo de criação) -->
+      <div class="fsec" id="eiResumoTopo" style="display:flex;align-items:center;gap:11px">
         <button class="btn btn-ghost btn-sm" onclick="voltarEtapa1()" style="flex-shrink:0">← Voltar</button>
         <div style="min-width:0">
           <div class="sc-label">Demanda</div>
@@ -1086,93 +1114,107 @@
         </div>
       </div>
 
-      <!-- Prioridade -->
-      <div class="sblock">
-        <h4>Prioridade</h4>
-        <div class="field" style="max-width:240px">
+      <!-- Detalhes: prioridade -->
+      <div class="fsec">
+        <div class="fsec-head"><span class="fsec-ico">📌</span><span class="fsec-title">Detalhes</span></div>
+        <div class="ffield" style="max-width:220px">
+          <label>Prioridade</label>
           <select id="ei_prioridade" onchange="autosaveEI()"><option>Alta</option><option selected>Média</option><option>Baixa</option></select>
         </div>
       </div>
 
-      <!-- Datas (ordem 1-7) -->
-      <div class="sblock">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <h4 style="margin:0">Datas</h4>
-          <span id="eiAutosaveIndicator" style="font-size:11px;color:var(--green);opacity:0;transition:opacity .3s;font-weight:700"></span>
+      <!-- Datas (ordem 1-7) — lista vertical numerada -->
+      <div class="fsec">
+        <div class="fsec-head">
+          <span class="fsec-ico">📅</span><span class="fsec-title">Datas</span>
+          <span id="eiAutosaveIndicator" style="margin-left:auto;font-size:11px;color:var(--green);opacity:0;transition:opacity .3s;font-weight:700"></span>
         </div>
-        <div class="g2">
-          <div class="field"><label><span class="dt-num">1</span> Data prevista de início</label><input id="ei_dataPrevInicio" type="date" onchange="registrarMudancaData(this);prefillEntrega();autosaveEI()"></div>
-          <div class="field"><label><span class="dt-num">2</span> Data de início real</label><input id="ei_dataInicio" type="date" onchange="registrarMudancaData(this);autosaveEI()"></div>
+
+        <div class="date-row">
+          <div class="date-row-num">1</div>
+          <div class="date-row-body"><label>Data prevista de início</label></div>
+          <input id="ei_dataPrevInicio" type="date" onchange="registrarMudancaData(this);prefillEntrega();autosaveEI()">
         </div>
-        <div class="g2" style="margin-top:9px">
-          <div class="field">
-            <label><span class="dt-num">3</span> 🎯 Data prevista de envio p/ validação Obras</label>
-            <input id="ei_dataMetaObras" type="date" onchange="registrarMudancaData(this);autosaveEI()">
-            <div style="font-size:11px;color:var(--muted);margin-top:4px">Meta exibida no kanban. Pré-preenchida com 48h antes da entrega prevista.</div>
-          </div>
-          <div class="field auto-field-wrap">
-            <label><span class="dt-num">4</span> <span class="auto-icon">⚡</span> Data real de envio p/ validação Obras</label>
-            <input id="ei_dataEnvioObras" type="date"
-              onchange="registrarMudancaData(this);onAutoDate('ei_dataEnvioObras','Aguardando Validação Obras');autosaveEI()">
-            <div class="auto-hint info" id="ei_hintObras"></div>
-          </div>
+        <div class="date-row">
+          <div class="date-row-num">2</div>
+          <div class="date-row-body"><label>Data de início real</label></div>
+          <input id="ei_dataInicio" type="date" onchange="registrarMudancaData(this);autosaveEI()">
         </div>
-        <div class="g2" style="margin-top:9px">
-          <div class="field">
-            <label><span class="dt-num">5</span> Data de validação da equipe de Obras</label>
-            <input id="ei_dataValidacaoObras" type="date" onchange="registrarMudancaData(this);autosaveEI()">
+        <div class="date-row">
+          <div class="date-row-num">3</div>
+          <div class="date-row-body">
+            <label>🎯 Data prevista de envio p/ validação Obras</label>
+            <div class="date-row-hint">Meta exibida no kanban · pré-preenchida 48h antes da entrega prevista</div>
           </div>
-          <div class="field">
-            <label><span class="dt-num">6</span> Data prevista da entrega da demanda</label>
-            <input id="ei_dataPrevista" type="date" onchange="registrarMudancaData(this);prefillMetaObras();autosaveEI()">
-            <div style="font-size:11px;color:var(--muted);margin-top:4px">Pré-preenchida com 14 dias após o início real.</div>
-          </div>
+          <input id="ei_dataMetaObras" type="date" onchange="registrarMudancaData(this);autosaveEI()">
         </div>
-        <div class="g2" style="margin-top:9px">
-          <div class="field auto-field-wrap">
-            <label><span class="dt-num">7</span> <span class="auto-icon">⚡</span> Data de entrega real</label>
-            <input id="ei_dataEntregaReal" type="date"
-              onchange="registrarMudancaData(this);onAutoDate('ei_dataEntregaReal','Concluído');autosaveEI()">
-            <div class="auto-hint info" id="ei_hintEntrega"></div>
+        <div class="date-row">
+          <div class="date-row-num auto">4</div>
+          <div class="date-row-body">
+            <label><span class="auto-icon">⚡</span> Data real de envio p/ validação Obras</label>
+            <div class="date-row-hint" id="ei_hintObras"></div>
           </div>
-          <div></div>
+          <input id="ei_dataEnvioObras" type="date"
+            onchange="registrarMudancaData(this);onAutoDate('ei_dataEnvioObras','Aguardando Validação Obras');autosaveEI()">
         </div>
-        <label class="nao-enviado-check" style="margin-top:12px">
+        <div class="date-row">
+          <div class="date-row-num">5</div>
+          <div class="date-row-body"><label>Data de validação da equipe de Obras</label></div>
+          <input id="ei_dataValidacaoObras" type="date" onchange="registrarMudancaData(this);autosaveEI()">
+        </div>
+        <div class="date-row">
+          <div class="date-row-num">6</div>
+          <div class="date-row-body">
+            <label>Data prevista da entrega da demanda</label>
+            <div class="date-row-hint">Pré-preenchida com 14 dias após o início previsto</div>
+          </div>
+          <input id="ei_dataPrevista" type="date" onchange="registrarMudancaData(this);prefillMetaObras();autosaveEI()">
+        </div>
+        <div class="date-row">
+          <div class="date-row-num auto">7</div>
+          <div class="date-row-body">
+            <label><span class="auto-icon">⚡</span> Data de entrega real</label>
+            <div class="date-row-hint" id="ei_hintEntrega"></div>
+          </div>
+          <input id="ei_dataEntregaReal" type="date"
+            onchange="registrarMudancaData(this);onAutoDate('ei_dataEntregaReal','Concluído');autosaveEI()">
+        </div>
+
+        <label class="nao-enviado-check" style="margin-top:14px">
           <input type="checkbox" id="ei_naoEnviadoObras" onchange="toggleNaoEnviadoObras();autosaveEI()">
           <span>Esta demanda <strong>não foi enviada</strong> para validação da equipe de Obras</span>
         </label>
       </div>
 
-
-      <!-- ITEM 6+12: Histórico -->
-      <div class="sblock">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h4 style="margin:0">📜 Histórico de alterações</h4>
-          <button class="btn btn-ghost btn-sm" onclick="toggleHistoricoDemanda()">Ver histórico</button>
+      <!-- Histórico -->
+      <div class="fsec">
+        <div class="fsec-head">
+          <span class="fsec-ico">📜</span><span class="fsec-title">Histórico de alterações</span>
+          <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="toggleHistoricoDemanda()">Ver histórico</button>
         </div>
-        <div id="eiHistoricoSec" style="display:none;margin-top:10px">
+        <div id="eiHistoricoSec" style="display:none;margin-top:4px">
           <div id="eiHistoricoLista" style="max-height:220px;overflow-y:auto"></div>
         </div>
       </div>
 
       <!-- Observação -->
-      <div class="sblock">
-        <h4>Observação</h4>
-        <div class="field">
+      <div class="fsec">
+        <div class="fsec-head"><span class="fsec-ico">🗒</span><span class="fsec-title">Observação</span></div>
+        <div class="ffield">
           <textarea id="ei_observacao" rows="3" placeholder="Registre observações relevantes sobre esta demanda…" oninput="autosaveEI()"></textarea>
         </div>
       </div>
 
-      <!-- Checklist de projetos (acordeão) -->
-      <div class="sblock">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <h4 style="margin:0">Projetos envolvidos</h4>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-ghost btn-sm" onclick="recolherTodosProjetos()">Recolher abertas</button>
-            <button class="btn btn-ghost btn-sm" id="btnRecolherGrupo" onclick="toggleGrupoProjetos()">⯅ Recolher grupo</button>
-          </div>
+      <!-- Checklist de projetos (acordeão, recolhido por padrão) -->
+      <div class="fsec">
+        <div class="fsec-head">
+          <span class="fsec-ico">📁</span><span class="fsec-title">Projetos envolvidos</span>
+          <button class="btn btn-ghost btn-sm" id="btnRecolherGrupo" style="margin-left:auto" onclick="toggleGrupoProjetos()">⯆ Expandir grupo</button>
         </div>
-        <div id="eiProjetosGrupo">
+        <div id="eiProjetosGrupo" style="display:none">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+            <button class="btn btn-ghost btn-sm" onclick="recolherTodosProjetos()">Recolher abertas</button>
+          </div>
           <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Marque a caixinha de cada projeto envolvido para preencher suas informações.</p>
           <div id="eiProjetosLista"></div>
           <div class="add-row" style="margin-top:12px">
@@ -1183,10 +1225,9 @@
         </div>
       </div>
 
-
       <!-- EV da obra -->
-      <div class="sblock">
-        <h4>Estudo de Viabilidade (EV)</h4>
+      <div class="fsec">
+        <div class="fsec-head"><span class="fsec-ico">💰</span><span class="fsec-title">Estudo de Viabilidade (EV)</span></div>
         <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Esta demanda alimenta diretamente o EV da obra vinculada. Para a emissão inicial, o EV nasce zerado — abra para preencher os custos.</p>
         <button class="btn btn-primary" onclick="abrirEVdaDemanda()" style="width:100%;justify-content:center">
           📄 Abrir EV da obra vinculada
@@ -1198,7 +1239,7 @@
         <button class="btn btn-danger" id="btnExcluirDemanda" style="display:none;margin-right:auto"
           onclick="excluirDemanda(_eiCodigo)">🗑 Excluir demanda</button>
         <button class="btn btn-ghost" onclick="closeDrawer('eiOverlay')">Fechar</button>
-        <button class="btn btn-primary" onclick="salvarEI()">Salvar</button>
+        <button class="btn btn-primary" id="btnSalvarEI" onclick="salvarEI()">Salvar</button>
       </div>
 
       </div><!-- /eiEtapa2 -->
@@ -1383,8 +1424,8 @@ function dbSave(table, data){
   });
 }
 function dbDelete(table, col, val){
-  if(!_sb) return;
-  _sb.from(table).delete().eq(col,val).then(({error})=>{
+  if(!_sb) return Promise.resolve();
+  return _sb.from(table).delete().eq(col,val).then(({error})=>{
     if(error) console.error('DB delete ['+table+']:', error.message);
   });
 }
@@ -1857,9 +1898,9 @@ function openNovaDemanda(tipoInicial){
 
   _eiProjetosList = [...PROJETOS_PADRAO];
   _projAberto = null;
-  _grupoProjRecolhido = false;
-  const gp=document.getElementById('eiProjetosGrupo'); if(gp) gp.style.display='block';
-  const bg=document.getElementById('btnRecolherGrupo'); if(bg) bg.textContent='⯅ Recolher grupo';
+  _grupoProjRecolhido = true;
+  const gp=document.getElementById('eiProjetosGrupo'); if(gp) gp.style.display='none';
+  const bg=document.getElementById('btnRecolherGrupo'); if(bg) bg.textContent='⯆ Expandir grupo';
   renderProjetosGrid(ei);
 
   trocarTipoAtividade(); // ajusta visibilidade conforme tipo
@@ -2216,9 +2257,9 @@ function openEIForm(codigo){
     ...(ei.projetosCustom||[]).map(cod=>({cod,nome:cod}))
   ];
   _projAberto = null;
-  _grupoProjRecolhido = false;
-  const gp=document.getElementById('eiProjetosGrupo'); if(gp) gp.style.display='block';
-  const bg=document.getElementById('btnRecolherGrupo'); if(bg) bg.textContent='⯅ Recolher grupo';
+  _grupoProjRecolhido = true;
+  const gp=document.getElementById('eiProjetosGrupo'); if(gp) gp.style.display='none';
+  const bg=document.getElementById('btnRecolherGrupo'); if(bg) bg.textContent='⯆ Expandir grupo';
   renderProjetosGrid(ei);
 
   document.getElementById('eiOverlay').classList.add('open');
@@ -2253,6 +2294,14 @@ function aplicarModoSomenteLeituraForm(somenteLeitura){
   // já recusa a ação de qualquer forma — isso é só o reforço visual)
   const listaProj = document.getElementById('eiProjetosLista');
   if(listaProj) listaProj.classList.toggle('proj-readonly', somenteLeitura);
+
+  // Botão "Salvar" — não faz sentido oferecer ação que será recusada
+  const btnSalvar = document.getElementById('btnSalvarEI');
+  if(btnSalvar){
+    btnSalvar.disabled = somenteLeitura;
+    btnSalvar.style.opacity = somenteLeitura ? '.5' : '1';
+    btnSalvar.style.cursor = somenteLeitura ? 'not-allowed' : 'pointer';
+  }
 }
 
 function renderEIStatus(d){
@@ -2634,7 +2683,7 @@ function recolherTodosProjetos(){
 }
 
 // ITEM 15: colapsa/expande o grupo inteiro de projetos
-let _grupoProjRecolhido = false;
+let _grupoProjRecolhido = true; // recolhido por padrão
 function toggleGrupoProjetos(){
   _grupoProjRecolhido = !_grupoProjRecolhido;
   document.getElementById('eiProjetosGrupo').style.display = _grupoProjRecolhido ? 'none' : 'block';
@@ -2702,6 +2751,15 @@ function salvarEI(){
     _eiCodigo = novoId;
     _eiModoCriacao = false;
     _eiCriadorNestaSessao = true; // dá acesso de preenchimento a quem criou, nesta sessão
+  }
+
+  // Defesa em profundidade: analista não atribuído não pode salvar (mesmo que
+  // algum campo tenha escapado do bloqueio visual)
+  const dGuardSalvar = demandas.find(x=>x.codigo===_eiCodigo);
+  if(!podeMexerNaDemanda(dGuardSalvar)){
+    alert('Você não está atribuído a esta demanda. Apenas o(s) analista(s) responsável(is) ou Gestão/Administrador podem salvá-la.');
+    closeDrawer('eiOverlay');
+    return;
   }
 
   const ei = getEIData(_eiCodigo);
@@ -2885,15 +2943,84 @@ function aplicarPermissoes(){
 /* ══ EXCLUIR DEMANDA ══ */
 async function excluirDemanda(codigo){
   if(!pode(['Administrador','Gestão'])){ alert('Sem permissão.'); return; }
-  if(!confirm('Excluir esta demanda permanentemente?\n\nEsta ação não pode ser desfeita.')) return;
+
+  const d = demandas.find(x=>x.codigo===codigo);
+  if(!d){ alert('Demanda não encontrada.'); return; }
+  const obra = obras.find(o=>o.nome===d.obra);
+  const versoesLigadas = obra ? evVersions.filter(v=>v.obraId===obra.id && v.demandaCodigo===codigo) : [];
+
+  let msg = 'Excluir esta demanda permanentemente?\n\nEsta ação não pode ser desfeita.';
+  if(versoesLigadas.length>0){
+    msg += `\n\n⚠ Esta demanda gerou ${versoesLigadas.length} versão(ões) do EV da obra "${d.obra}".\n` +
+      'Essas versões também serão excluídas, e o EV atual pode retroceder para a versão anterior.';
+  }
+  if(!confirm(msg)) return;
+
   // Remove local
-  demandas=demandas.filter(d=>d.codigo!==codigo);
+  demandas=demandas.filter(x=>x.codigo!==codigo);
   if(formData[codigo]) delete formData[codigo];
-  // Remove do Supabase
-  dbDelete('form_data_ei','demanda_codigo',codigo);
-  dbDelete('demandas','codigo',codigo);
+
+  // Remove do Supabase (demanda + formulário)
+  await dbDelete('form_data_ei','demanda_codigo',codigo);
+  await dbDelete('demandas','codigo',codigo);
+
+  // Limpa registros de auditoria vinculados (ficariam órfãos)
+  movLog = movLog.filter(m=>m.demandaCodigo!==codigo);
+  dateLog = dateLog.filter(m=>m.demandaCodigo!==codigo);
+  await dbDelete('mov_log','demanda_codigo',codigo);
+  await dbDelete('date_log','demanda_codigo',codigo);
+
+  // ITEM: remove em cascata as informações que essa demanda gerou no EV
+  if(versoesLigadas.length>0 && obra){
+    await limparEVDaDemandaExcluida(codigo, obra.id);
+  }
+
   closeDrawer('eiOverlay');
   renderKanban();
+  renderObras();
+}
+
+// Remove as versões de EV geradas por uma demanda excluída, renumera as
+// versões restantes daquela obra (sem buracos na sequência) e, se a versão
+// removida era a mais recente, faz o EV atual retroceder para a anterior.
+async function limparEVDaDemandaExcluida(codigo, obraId){
+  const todasAntes = evVersions.filter(v=>v.obraId===obraId).sort((a,b)=>a.versao-b.versao);
+  if(todasAntes.length===0) return;
+  const maisRecenteAntes = todasAntes[todasAntes.length-1];
+  const removendoAMaisRecente = todasAntes.some(v=>v.demandaCodigo===codigo && v.versao===maisRecenteAntes.versao);
+
+  // Remove as versões geradas por esta demanda
+  evVersions = evVersions.filter(v=>!(v.obraId===obraId && v.demandaCodigo===codigo));
+
+  // Renumera as restantes em ordem cronológica, sem buracos
+  const restantes = evVersions.filter(v=>v.obraId===obraId).sort((a,b)=>a.versao-b.versao);
+  restantes.forEach((v,i)=>{ v.versao = i+1; });
+
+  // Persiste: limpa todas as versões antigas desta obra e reinsere já renumeradas
+  await dbDelete('ev_versions','obra_id',obraId);
+  for(let i=0;i<restantes.length;i+=25){
+    const lote = restantes.slice(i,i+25).map(evVersionToDb);
+    if(lote.length) await _sb?.from('ev_versions').insert(lote);
+  }
+
+  // Se a versão removida era a mais recente, o EV "ao vivo" retrocede
+  if(removendoAMaisRecente){
+    const novaMaisRecente = restantes[restantes.length-1];
+    if(novaMaisRecente){
+      evStore[obraId] = {
+        obra: novaMaisRecente.obraVals, outros: novaMaisRecente.outrosVals,
+        statusObra: novaMaisRecente.statusObra, statusOutros: novaMaisRecente.statusOutros,
+        areaEq: novaMaisRecente.areaEq, areaConst: novaMaisRecente.areaConst,
+        valorTotal: novaMaisRecente.valorTotal, custoM2: novaMaisRecente.custoM2,
+        valorTotalSemRisco: novaMaisRecente.valorTotalSemRisco, custoM2SemRisco: novaMaisRecente.custoM2SemRisco
+      };
+      await dbSave('ev_store', evToDb(obraId, evStore[obraId]));
+    } else {
+      // Não sobrou nenhuma versão: a obra volta a não ter EV nenhum
+      delete evStore[obraId];
+      await dbDelete('ev_store','obra_id',obraId);
+    }
+  }
 }
 
 /* ══ USUÁRIOS (Admin) ══ */
@@ -3313,6 +3440,8 @@ function filteredDemandas(){
   const analista=document.getElementById("analistaFilter").value;
   const tipo=document.getElementById("tipoAtividadeFilter").value;
   const entrega=document.getElementById("entregaFilter") ? document.getElementById("entregaFilter").value : "";
+  const pendenciaF=document.getElementById("pendenciaFilter") ? document.getElementById("pendenciaFilter").value : "";
+  const busca=document.getElementById("demandaSearch") ? document.getElementById("demandaSearch").value.trim().toLowerCase() : "";
   return demandas.filter(d=>{
     const okSprint = sprint==="Todas"||d.sprint===sprint;
     // Analista: líder OU complementar
@@ -3323,7 +3452,16 @@ function filteredDemandas(){
       const se = statusEntrega(d.codigo);
       okEntrega = se ? se.classe===entrega : false;
     }
-    return okSprint && okAnalista && okTipo && okEntrega;
+    let okPendencia = true;
+    if(pendenciaF==='com') okPendencia = !!d.pendencia;
+    else if(pendenciaF==='sem') okPendencia = !d.pendencia;
+    let okBusca = true;
+    if(busca){
+      const eiB = (formData[d.codigo]||{}).ei || {};
+      const alvo = [d.codigo, d.obra, eiB.descricao||''].join(' ').toLowerCase();
+      okBusca = alvo.includes(busca);
+    }
+    return okSprint && okAnalista && okTipo && okEntrega && okPendencia && okBusca;
   });
 }
 
@@ -4290,6 +4428,7 @@ document.getElementById("sprintFilter").addEventListener("change",()=>{renderKan
 document.getElementById("analistaFilter").addEventListener("change",()=>{renderKanban();});
 document.getElementById("tipoAtividadeFilter").addEventListener("change",()=>{renderKanban();});
 document.getElementById("entregaFilter").addEventListener("change",()=>{renderKanban();});
+document.getElementById("pendenciaFilter").addEventListener("change",()=>{renderKanban();});
 /* Item 1: drawers só fecham pelo botão X, não ao clicar fora */
 ["newTipoUnidade","newUF","newClassificacao","newTipologia"].forEach(id=>document.getElementById(id).addEventListener("change",updateKeyPreview));
 
