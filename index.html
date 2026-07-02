@@ -284,6 +284,15 @@
     .evv-diff-table thead th{background:var(--blue-700);color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;padding:9px 10px;text-align:left}
     .evv-diff-table tbody td{padding:9px 10px;border-bottom:1px solid var(--line-2)}
     .evv-diff-table tbody tr:hover td{background:var(--sf2)}
+    .tipo-demanda-opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px;border:1.5px solid var(--line);border-radius:var(--r-lg);background:var(--surface);cursor:pointer;transition:all .15s;font-family:inherit}
+    .tipo-demanda-opt:hover{border-color:var(--blue-600);background:var(--blue-d);transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,75,147,.12)}
+    .tdo-ico{font-size:28px;flex-shrink:0}
+    .tdo-txt{display:flex;flex-direction:column;gap:3px}
+    .tdo-txt strong{font-size:14.5px;color:var(--ink)}
+    .tdo-txt small{font-size:12px;color:var(--muted);line-height:1.4}
+    .backup-row{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;background:var(--sf2);border:1px solid var(--line);border-radius:var(--r);}
+    .backup-data{font-size:13px;font-weight:700;color:var(--ink);text-transform:capitalize}
+    .backup-resumo{font-size:11px;color:var(--muted);margin-top:2px}
     .ev-pend-dot{display:inline-block;margin-left:6px;color:var(--orange-700);font-size:13px;cursor:help}
 
     /* ═══ SECTION BLOCK ═══ */
@@ -308,6 +317,8 @@
     .sidebar-user{padding:11px 13px;border-radius:13px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13)}
     .sidebar-user-nome{font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .sidebar-user-nivel{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
+    .btn-refresh{appearance:none;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);padding:7px 12px;border-radius:9px;font-family:inherit;font-size:11.5px;cursor:pointer;width:100%;margin-top:10px;transition:all .13s;font-weight:600}
+    .btn-refresh:hover{background:rgba(255,255,255,.14)}
     .btn-logout{appearance:none;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.6);padding:6px 12px;border-radius:9px;font-family:inherit;font-size:11.5px;cursor:pointer;width:100%;margin-top:8px;transition:all .13s;font-weight:600}
     .btn-logout:hover{background:rgba(229,72,63,.18);border-color:rgba(229,72,63,.4);color:#FFB3AF}
     /* Nivel badge */
@@ -611,6 +622,7 @@
     <div class="sidebar-user" id="sidebarUser" style="display:none">
       <div class="sidebar-user-nome" id="sideUserNome">—</div>
       <div class="sidebar-user-nivel" id="sideUserNivel">—</div>
+      <button class="btn-refresh" onclick="atualizarDadosNuvem()" title="Buscar dados atualizados da nuvem">🔄 Atualizar dados</button>
       <button class="btn-logout" onclick="logout()">Sair →</button>
     </div>
     <div class="sidebar-footer">
@@ -628,7 +640,7 @@
         <div class="topbar-actions">
           <span class="pill" id="activeSprintChip">Sprint 11</span>
           <button class="btn btn-ghost">Exportar</button>
-          <button class="btn btn-primary btn-nova-demanda" onclick="openNovaDemanda()">+ Nova demanda</button>
+          <button class="btn btn-primary btn-nova-demanda" onclick="escolherTipoDemanda()">+ Nova demanda</button>
         </div>
       </div>
       <!-- ITEM 14: filtros ANTES dos KPIs -->
@@ -826,6 +838,31 @@
         </div>
       </div>
 
+      <!-- BACKUPS -->
+      <div class="panel" id="panelBackups" style="display:none">
+        <div class="panel-head">
+          <div class="panel-title">🗄 Backup e Segurança dos Dados</div>
+          <span class="pill neutral">Atualizado sempre que o app abre</span>
+        </div>
+        <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px">
+          Os dados são sempre buscados direto da nuvem ao entrar ou clicar em "🔄 Atualizar dados" no menu lateral — nunca de uma cópia antiga guardada no navegador.
+          Além disso, um snapshot automático é salvo uma vez por dia, mantendo o histórico dos últimos 14 dias.
+        </p>
+
+        <div class="fsec">
+          <div class="fsec-head"><span class="fsec-ico">📥</span><span class="fsec-title">Exportar backup completo agora</span></div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Baixa um arquivo JSON com todo o estado atual do sistema — obras, demandas, EVs, versões e configurações. Guarde num lugar seguro (Google Drive, por exemplo) de tempos em tempos.</p>
+          <button class="btn btn-primary" onclick="exportarBackupJSON()">⬇ Exportar backup completo (JSON)</button>
+        </div>
+
+        <div class="fsec" style="margin-top:16px">
+          <div class="fsec-head"><span class="fsec-ico">🕐</span><span class="fsec-title">Backups automáticos diários</span></div>
+          <div id="backupsDiariosLista" style="display:flex;flex-direction:column;gap:8px">
+            <div style="padding:14px;color:var(--muted);font-size:12px">Carregando…</div>
+          </div>
+        </div>
+      </div>
+
       <!-- LEGENDA DA CHAVE -->
       <div class="panel">
         <div class="panel-head">
@@ -907,7 +944,30 @@
 
 
 <!-- DRAWER: EMISSÃO INICIAL -->
-<div class="overlay" id="eiOverlay">
+<!-- Modal: escolher tipo de demanda -->
+    <div class="overlay" id="tipoDemandaOverlay" style="z-index:105">
+      <div class="drawer" style="width:min(460px,92vw);height:auto;max-height:80vh">
+        <div class="drawer-head">
+          <div>
+            <div class="drawer-title">Nova Demanda</div>
+            <div class="drawer-sub">Qual o tipo desta demanda?</div>
+          </div>
+          <button class="close-btn" onclick="closeDrawer('tipoDemandaOverlay')">✕</button>
+        </div>
+        <div class="drawer-body" style="gap:12px">
+          <button class="tipo-demanda-opt" onclick="openNovaDemanda('Emissão inicial')">
+            <span class="tdo-ico">📝</span>
+            <span class="tdo-txt"><strong>Emissão Inicial</strong><small>Primeira análise orçamentária de uma obra nova</small></span>
+          </button>
+          <button class="tipo-demanda-opt" onclick="openNovaDemanda('Revisão de orçamento')">
+            <span class="tdo-ico">🔄</span>
+            <span class="tdo-txt"><strong>Revisão de Orçamento</strong><small>Atualiza o EV de uma obra que já possui estudo de viabilidade</small></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" id="eiOverlay">
   <div class="drawer">
     <div class="drawer-head">
       <div>
@@ -1356,14 +1416,16 @@ function demandaToDb(d){
     analistas_comp:d.analistasComp||[],
     prioridade:d.prioridade||'Média', valor:d.valor||'—', prazo:d.prazo||'—',
     status:d.status, tipo:d.tipo, sprint:d.sprint||'',
-    pendencia:!!d.pendencia, pendencia_desc:d.pendenciaDesc||''};
+    pendencia:!!d.pendencia, pendencia_desc:d.pendenciaDesc||'',
+    valor_alteracao_ev: (d.valorAlteracaoEV!==undefined && d.valorAlteracaoEV!==null) ? d.valorAlteracaoEV : null};
 }
 function demandaFromDb(r){
   return {codigo:r.codigo, obra:r.obra, analista:r.analista,
     analistasComp:r.analistas_comp||[],
     prioridade:r.prioridade,
     valor:r.valor, prazo:r.prazo, status:r.status, tipo:r.tipo, sprint:r.sprint,
-    pendencia:r.pendencia, pendenciaDesc:r.pendencia_desc};
+    pendencia:r.pendencia, pendenciaDesc:r.pendencia_desc,
+    valorAlteracaoEV: r.valor_alteracao_ev};
 }
 function sprintToDb(s){return {nome:s.nome, inicio:s.inicio||null, fim:s.fim||null, status:s.status};}
 function sprintFromDb(r){return {nome:r.nome, inicio:r.inicio, fim:r.fim, status:r.status};}
@@ -1466,6 +1528,181 @@ async function initDB(){
   renderAll();
   aplicarPermissoes();
   if(pode(['Administrador'])) renderUsuarios();
+  verificarBackupDiario(); // ITEM 2: snapshot automático se passaram 24h
+}
+
+/* ══════════════════════════════════════════════════════════
+   SISTEMA DE BACKUP
+   ══════════════════════════════════════════════════════════ */
+
+// Monta um retrato completo do estado operacional do app (sem dados de login/usuários)
+function montarSnapshotCompleto(){
+  return {
+    versao_app: 'Traço v1',
+    gerado_em: new Date().toISOString(),
+    obras: obras.map(obraToDb),
+    demandas: demandas.map(demandaToDb),
+    sprints: sprints.map(sprintToDb),
+    ev_store: Object.keys(evStore).map(obraId=>evToDb(obraId, evStore[obraId])),
+    ev_versions: evVersions.map(evVersionToDb),
+    form_data_ei: Object.keys(formData).map(codigo=> eiToDb(codigo, (formData[codigo]||{}).ei||{})),
+    configuracoes: [
+      {chave:'analistas', valor:analistas}, {chave:'tiposUnidade', valor:tiposUnidade},
+      {chave:'classificacoes', valor:classificacoes}, {chave:'tipologias', valor:tipologias},
+      {chave:'tiposAtividade', valor:tiposAtividade}, {chave:'statusList', valor:statusList}
+    ],
+    mov_log: movLog.map(movLogToDb),
+    date_log: dateLog.map(dateLogToDb)
+  };
+}
+
+// Chaves primárias de cada tabela — necessárias para limpar antes de restaurar
+const TABLE_PK = {
+  obras:'id', demandas:'codigo', sprints:'nome', ev_store:'obra_id',
+  ev_versions:'id', form_data_ei:'demanda_codigo', configuracoes:'chave',
+  mov_log:'id', date_log:'id'
+};
+
+/* ── ITEM 2: BACKUP DIÁRIO AUTOMÁTICO ── */
+async function verificarBackupDiario(){
+  if(!_sb) return;
+  try{
+    const hoje = new Date().toISOString().slice(0,10);
+    const {data:ultimos} = await _sb.from('backups_diarios').select('data').order('data',{ascending:false}).limit(1);
+    const ultimaData = ultimos && ultimos[0] ? ultimos[0].data : null;
+    if(ultimaData === hoje) return; // já existe backup de hoje
+
+    const snapshot = montarSnapshotCompleto();
+    await _sb.from('backups_diarios').insert({data:hoje, estado:snapshot});
+
+    // Mantém só os últimos 14 dias
+    const limite = new Date(); limite.setDate(limite.getDate()-14);
+    const limiteStr = limite.toISOString().slice(0,10);
+    await _sb.from('backups_diarios').delete().lt('data', limiteStr);
+
+    console.log('✓ Backup diário criado:', hoje);
+  }catch(err){
+    console.warn('Backup diário não pôde ser criado:', err);
+  }
+}
+
+/* ── Listar backups diários (para exibir na tela) ── */
+async function listarBackupsDiarios(){
+  if(!_sb) return [];
+  const {data, error} = await _sb.from('backups_diarios').select('data,criado_em,estado').order('data',{ascending:false}).limit(14);
+  if(error){ console.warn(error); return []; }
+  return data || [];
+}
+
+async function renderBackupsDiarios(){
+  const el = document.getElementById('backupsDiariosLista');
+  if(!el) return;
+  el.innerHTML = '<div style="padding:14px;color:var(--muted);font-size:12px">Carregando…</div>';
+  const backups = await listarBackupsDiarios();
+  if(backups.length===0){
+    el.innerHTML = '<div style="padding:14px;color:var(--muted);font-size:12px">Nenhum backup automático ainda. O primeiro é criado automaticamente ao abrir o app.</div>';
+    return;
+  }
+  el.innerHTML = backups.map(b=>{
+    const est = b.estado || {};
+    const resumo = `${(est.obras||[]).length} obras · ${(est.demandas||[]).length} demandas · ${(est.ev_store||[]).length} EVs`;
+    const dataFmt = new Date(b.data+'T00:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});
+    return `<div class="backup-row">
+      <div>
+        <div class="backup-data">${dataFmt}</div>
+        <div class="backup-resumo">${resumo}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="baixarBackupEspecifico('${b.data}')">⬇ Baixar</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--red);border-color:#FDECEA" onclick="restaurarBackup('${b.data}')">↺ Restaurar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Restaurar um backup diário (destrutivo, com confirmação forte) ── */
+async function restaurarBackup(dataBackup){
+  if(!pode(['Administrador'])){ alert('Somente o Administrador pode restaurar um backup.'); return; }
+  const conf1 = confirm(
+    `⚠️ ATENÇÃO — RESTAURAÇÃO DE BACKUP\\n\\n` +
+    `Isso vai APAGAR todos os dados atuais e substituir pelo estado salvo em ${new Date(dataBackup+'T00:00:00').toLocaleDateString('pt-BR')}.\\n\\n` +
+    `Esta ação NÃO PODE ser desfeita.\\n\\nDeseja continuar?`
+  );
+  if(!conf1) return;
+  const digitado = prompt('Para confirmar, digite RESTAURAR (em maiúsculas):');
+  if(digitado !== 'RESTAURAR'){ alert('Restauração cancelada.'); return; }
+
+  showLoading(true, 'Restaurando backup…');
+  try{
+    const {data} = await _sb.from('backups_diarios').select('estado').eq('data',dataBackup).single();
+    if(!data){ alert('Backup não encontrado.'); showLoading(false); return; }
+    await restaurarSnapshot(data.estado);
+    alert('✓ Backup restaurado com sucesso. A página será recarregada.');
+    location.reload();
+  }catch(err){
+    console.error(err);
+    alert('Erro ao restaurar backup: '+err.message);
+    showLoading(false);
+  }
+}
+
+// Substitui o conteúdo de cada tabela pelo snapshot (limpa e reinsere)
+async function restaurarSnapshot(snapshot){
+  for(const tabela of Object.keys(TABLE_PK)){
+    const linhas = snapshot[tabela] || [];
+    const pk = TABLE_PK[tabela];
+    // Limpa a tabela inteira
+    await _sb.from(tabela).delete().not(pk,'is',null);
+    // Reinsere em lotes de 50
+    for(let i=0;i<linhas.length;i+=50){
+      const lote = linhas.slice(i,i+50);
+      if(lote.length) await _sb.from(tabela).insert(lote);
+    }
+  }
+}
+
+/* ── ITEM 3: exportar backup completo em JSON (manual, sob demanda) ── */
+function exportarBackupJSON(){
+  const snapshot = montarSnapshotCompleto();
+  const blob = new Blob([JSON.stringify(snapshot, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const hoje = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `traco-backup-${hoje}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Baixa um backup diário específico já salvo no Supabase (não o estado atual)
+async function baixarBackupEspecifico(dataBackup){
+  showLoading(true, 'Preparando download…');
+  try{
+    const {data} = await _sb.from('backups_diarios').select('estado').eq('data',dataBackup).single();
+    showLoading(false);
+    if(!data){ alert('Backup não encontrado.'); return; }
+    const blob = new Blob([JSON.stringify(data.estado, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `traco-backup-${dataBackup}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }catch(err){ showLoading(false); alert('Erro ao baixar backup: '+err.message); }
+}
+
+/* ── ITEM 1: atualização manual (força buscar tudo de novo na nuvem) ── */
+async function atualizarDadosNuvem(){
+  const algumDrawerAberto = ['eiOverlay','evOverlay','novaObraOverlay'].some(id=>{
+    const el = document.getElementById(id);
+    return el && el.classList.contains('open');
+  });
+  if(algumDrawerAberto){
+    if(!confirm('Há uma tela de edição aberta. Atualizar agora pode descartar alterações não salvas.\\n\\nDeseja continuar mesmo assim?')) return;
+  }
+  showLoading(true, 'Atualizando dados da nuvem…');
+  await initDB();
 }
 
 function renderAll(){
@@ -1583,7 +1820,12 @@ function mostrarEtapa(n){
   document.getElementById('eiEtapa2').style.display = n===2 ? 'block' : 'none';
 }
 
-function openNovaDemanda(){
+function escolherTipoDemanda(){
+  document.getElementById('tipoDemandaOverlay').classList.add('open');
+}
+
+function openNovaDemanda(tipoInicial){
+  closeDrawer('tipoDemandaOverlay');
   _eiModoCriacao = true;
   _eiObraSelecionada = null;
   _eiCodigo = '__novo__';
@@ -1597,7 +1839,7 @@ function openNovaDemanda(){
   document.getElementById('ei_obraList').innerHTML = '';
   document.getElementById('ei_obraSelecionada').style.display = 'none';
   fillSelect('ei_tipoAtividade', tiposAtividade);
-  document.getElementById('ei_tipoAtividade').value = 'Emissão inicial';
+  document.getElementById('ei_tipoAtividade').value = tipoInicial || 'Emissão inicial';
 
   document.getElementById('eiTransitions').style.display = 'none';
 
@@ -1637,8 +1879,16 @@ function avancarEtapa2(){
     return;
   }
   const tipo = document.getElementById('ei_tipoAtividade').value;
-  if(tipo !== 'Emissão inicial'){
+  if(tipo !== 'Emissão inicial' && tipo !== 'Revisão de orçamento'){
     return; // tipos em construção não avançam
+  }
+  // PREMISSA 1: revalida que a obra escolhida realmente tem EV
+  if(tipo === 'Revisão de orçamento'){
+    const temEV = evStore[_eiObraSelecionada.id] || evVersions.some(v=>v.obraId===_eiObraSelecionada.id);
+    if(!temEV){
+      alert('Esta obra ainda não possui um EV (Estudo de Viabilidade).\\n\\nRevisão de orçamento só pode ser aberta para obras que já têm EV. Selecione outra obra.');
+      return;
+    }
   }
   if(!document.getElementById('ei_descricao').value.trim()){
     alert('Informe a descrição da atividade.');
@@ -1771,13 +2021,29 @@ function voltarEtapa1(){
 function filtrarObrasEI(){
   const q = document.getElementById('ei_obraSearch').value.toLowerCase().trim();
   const list = document.getElementById('ei_obraList');
-  if(!q){ list.innerHTML = ''; return; }
-  const results = obras.filter(o=>{
+  const tipo = document.getElementById('ei_tipoAtividade') ? document.getElementById('ei_tipoAtividade').value : '';
+  const ehRevisao = tipo === 'Revisão de orçamento';
+
+  // PREMISSA 1: Revisão de orçamento só pode ser aberta para obra que já tem EV
+  let candidatas = obras;
+  if(ehRevisao){
+    candidatas = obras.filter(o => evStore[o.id] || evVersions.some(v=>v.obraId===o.id));
+  }
+
+  if(!q){
+    list.innerHTML = ehRevisao
+      ? `<div style="padding:10px 12px;font-size:12px;color:var(--muted)">Digite para buscar. Só aparecem obras que já possuem EV (${candidatas.length} disponível${candidatas.length!==1?'is':''}).</div>`
+      : '';
+    return;
+  }
+  const results = candidatas.filter(o=>{
     const chave = gerarChave(o);
     return [o.nome, o.cidade, o.uf, o.tipo, chave].join(' ').toLowerCase().includes(q);
   }).slice(0, 8);
   if(results.length === 0){
-    list.innerHTML = '<div style="padding:10px 12px;font-size:13px;color:var(--muted)">Nenhuma obra encontrada.</div>';
+    list.innerHTML = ehRevisao
+      ? '<div style="padding:10px 12px;font-size:13px;color:var(--muted)">Nenhuma obra com EV encontrada para esse termo.<br>Revisão de orçamento só pode ser aberta para obras que já possuem Estudo de Viabilidade.</div>'
+      : '<div style="padding:10px 12px;font-size:13px;color:var(--muted)">Nenhuma obra encontrada.</div>';
     return;
   }
   list.innerHTML = results.map(o=>{
@@ -1809,7 +2075,8 @@ function limparObraEI(){
 function trocarTipoAtividade(){
   const tipo = document.getElementById('ei_tipoAtividade').value;
   document.getElementById('eiTitle').textContent = 'Nova Demanda — ' + tipo;
-  const emConstrucao = (tipo !== 'Emissão inicial');
+  const TIPOS_FUNCIONAIS = ['Emissão inicial','Revisão de orçamento'];
+  const emConstrucao = !TIPOS_FUNCIONAIS.includes(tipo);
   // Mostra aviso e esconde os dados básicos quando o tipo ainda não tem formulário
   document.getElementById('eiAvisoConstrucao').style.display = emConstrucao ? 'block' : 'none';
   document.getElementById('eiAvisoTitulo').textContent = 'Formulário "' + tipo + '" em construção';
@@ -1818,6 +2085,8 @@ function trocarTipoAtividade(){
   const btn = document.getElementById('eiBtnAvancar');
   btn.style.opacity = emConstrucao ? '.45' : '1';
   btn.style.pointerEvents = emConstrucao ? 'none' : 'auto';
+  // PREMISSA 1: Revisão de orçamento só busca obras que já têm EV
+  filtrarObrasEI();
 }
 
 /* ══ EMISSÃO INICIAL ══ */
@@ -2001,7 +2270,17 @@ function processarConclusao(codigo){
   {
     const dConcl = demandas.find(x=>x.codigo===codigo);
     const obraConcl = dConcl ? obras.find(o=>o.nome===dConcl.obra) : null;
-    if(obraConcl) criarVersaoEV(obraConcl.id, {demandaCodigo:codigo});
+    if(obraConcl){
+      const novaVersao = criarVersaoEV(obraConcl.id, {demandaCodigo:codigo});
+      // PREMISSA 2: Revisão de orçamento exibe a DIFERENÇA em relação à versão anterior
+      if(dConcl.tipo === 'Revisão de orçamento' && novaVersao){
+        const anterior = evVersions.find(v=>v.obraId===obraConcl.id && v.versao===novaVersao.versao-1);
+        const valorNovo = novaVersao.valorTotalSemRisco || novaVersao.valorTotal || 0;
+        const valorAnterior = anterior ? (anterior.valorTotalSemRisco || anterior.valorTotal || 0) : 0;
+        dConcl.valorAlteracaoEV = valorNovo - valorAnterior;
+        dbSave('demandas', demandaToDb(dConcl));
+      }
+    }
   }
 
   return true;
@@ -2465,6 +2744,8 @@ function aplicarPermissoes(){
   // Painel usuários (só Admin)
   const pu=document.getElementById('panelUsuarios');
   if(pu) pu.style.display=pode(['Administrador'])?'block':'none';
+  const pb=document.getElementById('panelBackups');
+  if(pb) pb.style.display=pode(['Administrador'])?'block':'none';
   // Botão excluir demanda (Admin + Gestão)
   const bex=document.getElementById('btnExcluirDemanda');
   if(bex) bex.style.display=podeAgir?'block':'none';
@@ -2782,6 +3063,7 @@ function closeMobileMenu(){
 function showView(view){
   closeMobileMenu(); // fecha o menu ao navegar no celular
   if(view==='evs' && typeof renderListaEVs==='function') setTimeout(renderListaEVs, 30);
+  if(view==='configuracoes' && typeof renderBackupsDiarios==='function' && pode(['Administrador'])) setTimeout(renderBackupsDiarios, 30);
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   document.getElementById("view-"+view).classList.add("active");
@@ -2945,9 +3227,16 @@ function renderKanban(){
         const concluida = item.status==='Concluído';
         const ev = concluida ? getEVdaObraPorDemanda(item.codigo) : null;
         const evValorRef = ev ? (ev.valorTotalSemRisco||ev.valorTotal||0) : 0;
-        const evBadge = (concluida && ev && evValorRef>0)
-          ? `<div class="task-ev-total">Valor total do EV<strong>${moneyBR(evValorRef)}</strong></div>`
-          : '';
+        // PREMISSA 2: Revisão de orçamento mostra a DIFERENÇA da alteração, não o total
+        let evBadge = '';
+        if(concluida && item.tipo==='Revisão de orçamento' && item.valorAlteracaoEV!==undefined && item.valorAlteracaoEV!==null){
+          const diff = item.valorAlteracaoEV;
+          const sinal = diff>0 ? '+' : (diff<0 ? '−' : '');
+          const cor = diff>0 ? 'var(--red)' : (diff<0 ? 'var(--green)' : 'var(--muted)');
+          evBadge = `<div class="task-ev-total" style="border-color:${cor}33">Valor da Alteração do EV<strong style="color:${cor}">${sinal}${moneyBR(Math.abs(diff))}</strong></div>`;
+        } else if(concluida && ev && evValorRef>0){
+          evBadge = `<div class="task-ev-total">Valor total do EV<strong>${moneyBR(evValorRef)}</strong></div>`;
+        }
         const pendBadge = (concluida && item.pendencia)
           ? `<div class="task-pendencia" title="${(item.pendenciaDesc||'').replace(/"/g,'&quot;')}">⚠️ Pendência de cotação<span>${item.pendenciaDesc||''}</span></div>`
           : '';
