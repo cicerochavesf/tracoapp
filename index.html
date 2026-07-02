@@ -345,6 +345,11 @@
     /* ═══ CHIPS ═══ */
     .chip-list{display:flex;flex-wrap:wrap;gap:5px}
     .chip-item{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 9px;font-size:11.5px;color:var(--text);font-weight:500}
+    .chip-editable{display:inline-flex;align-items:center;gap:5px;padding:3px 5px 3px 10px}
+    .chip-txt{white-space:nowrap}
+    .chip-edit,.chip-del{appearance:none;border:none;background:transparent;width:18px;height:18px;border-radius:50%;font-size:10px;cursor:pointer;display:grid;place-items:center;color:var(--muted);flex-shrink:0;transition:all .13s}
+    .chip-edit:hover{background:var(--blue-d);color:var(--blue-700)}
+    .chip-del:hover{background:#FDECEA;color:var(--red)}
     .add-row{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:9px;padding-top:9px;border-top:1px solid var(--line-2)}
 
 
@@ -734,7 +739,7 @@
         </div>
         <div class="table-scroll" style="max-height:calc(100vh - 300px)">
           <table>
-            <thead><tr><th>Obra</th><th>Cidade/UF</th><th>Versão atual</th><th>Última atualização</th><th>Valor total</th><th>Pendência</th><th>Versões</th></tr></thead>
+            <thead><tr><th>Obra</th><th>Cidade/UF</th><th>Versão</th><th>Última atualização</th><th>Valor total</th><th>Pendência</th></tr></thead>
             <tbody id="evListaBody"></tbody>
           </table>
         </div>
@@ -743,7 +748,10 @@
       <div class="panel" id="evVersoesPanel" style="display:none">
         <div class="panel-head">
           <div class="panel-title" id="evVersoesTitulo">—</div>
-          <span class="pill neutral" id="evVersoesCount">0 versões</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="pill neutral" id="evVersoesCount">0 versões</span>
+            <button class="close-btn" style="width:32px;height:32px;font-size:14px" onclick="fecharVersoesEV()" title="Fechar">✕</button>
+          </div>
         </div>
         <div class="table-scroll" style="max-height:420px">
           <table>
@@ -3104,38 +3112,127 @@ function addSprint(){
 function deleteSprint(i){if(!confirm("Excluir esta sprint?"))return;const nome=sprints[i].nome;sprints.splice(i,1);dbDelete('sprints','nome',nome);renderSprints();}
 
 /* CONFIG LISTS */
-function renderChips(id,values){document.getElementById(id).innerHTML=values.map(v=>`<span class="chip-item">${v}</span>`).join("")}
-function renderConfigLists(){
-  renderChips("analistasChips",analistas);renderChips("tiposUnidadeChips",tiposUnidade);
-  renderChips("classificacoesChips",classificacoes);renderChips("tipologiasChips",tipologias);
-  renderChips("tiposAtividadeChips",tiposAtividade);renderChips("statusChips",statusList);
+function renderChips(id,values,listName){
+  document.getElementById(id).innerHTML=values.map(v=>`
+    <span class="chip-item chip-editable">
+      <span class="chip-txt">${v}</span>
+      <button class="chip-edit" onclick="editarListItem('${listName}','${v.replace(/'/g,"\\'")}')" title="Editar">✎</button>
+      <button class="chip-del" onclick="excluirListItem('${listName}','${v.replace(/'/g,"\\'")}')" title="Excluir">✕</button>
+    </span>`).join("");
 }
+function renderConfigLists(){
+  renderChips("analistasChips",analistas,'analistas');renderChips("tiposUnidadeChips",tiposUnidade,'tiposUnidade');
+  renderChips("classificacoesChips",classificacoes,'classificacoes');renderChips("tipologiasChips",tipologias,'tipologias');
+  renderChips("tiposAtividadeChips",tiposAtividade,'tiposAtividade');renderChips("statusChips",statusList,'statusList');
+}
+const LISTAS_CONFIG = {analistas,tiposUnidade,classificacoes,tipologias,tiposAtividade,statusList};
+
+function salvarListaConfig(listName){
+  const list = LISTAS_CONFIG[listName];
+  if(list) dbSave('configuracoes', {chave:listName, valor:list});
+}
+
 function addListItem(listName,inputId){
   const input=document.getElementById(inputId);const value=(input.value||"").trim();
   if(!value){alert("Digite um valor.");return}
-  const lists={analistas,tiposUnidade,classificacoes,tipologias,tiposAtividade,statusList};
-  const list=lists[listName];if(!list){return}
+  const list=LISTAS_CONFIG[listName];if(!list){return}
   if(list.some(item=>item.toLowerCase()===value.toLowerCase())){alert("Item já existe.");return}
   list.push(value);list.sort((a,b)=>a.localeCompare(b,"pt-BR"));input.value="";
-  
-// Kanban horizontal drag
-(function(){
-  const k = document.getElementById('kanban');
-  if(!k) return;
-  let down=false, sx=0, sl=0;
-  k.addEventListener('mousedown',e=>{
-    if(e.target.closest('.task,.proj-head,.proj-check,.proj-caret-btn,.move-select,.btn,.anal-chip')) return;
-    down=true; sx=e.pageX; sl=k.scrollLeft; k.classList.add('dragging');
-  });
-  document.addEventListener('mouseup',()=>{ down=false; k.classList.remove('dragging'); });
-  k.addEventListener('mousemove',e=>{ if(!down) return; e.preventDefault(); k.scrollLeft=sl-(e.pageX-sx); });
-  // Touch
-  let tx=0,tl=0;
-  k.addEventListener('touchstart',e=>{ tx=e.touches[0].pageX; tl=k.scrollLeft; },{passive:true});
-  k.addEventListener('touchmove',e=>{ k.scrollLeft=tl-(e.touches[0].pageX-tx); },{passive:true});
-})();
+  salvarListaConfig(listName);
+  fillAllSelects();renderSprintSelects();renderConfigLists();renderKanban();renderObras();
+}
 
-fillAllSelects();renderSprintSelects();renderConfigLists();renderKanban();renderObras();
+/* ══ EDITAR ITEM (com atualização em cascata) ══ */
+function editarListItem(listName, valorAntigo){
+  const list=LISTAS_CONFIG[listName]; if(!list) return;
+  const novoValor = prompt('Editar item:', valorAntigo);
+  if(novoValor===null) return; // cancelou
+  const novo = novoValor.trim();
+  if(!novo){ alert('O valor não pode ficar vazio.'); return; }
+  if(novo === valorAntigo) return; // sem mudança
+  if(list.some(item=>item.toLowerCase()===novo.toLowerCase() && item!==valorAntigo)){
+    alert('Já existe um item com esse nome na lista.');
+    return;
+  }
+
+  const idx = list.indexOf(valorAntigo);
+  if(idx===-1) return;
+  list[idx] = novo;
+  list.sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  salvarListaConfig(listName);
+
+  // ITEM: atualização em cascata — corrige o valor em todos os registros que o usavam
+  const n = cascatearRenomeioLista(listName, valorAntigo, novo);
+
+  fillAllSelects();renderSprintSelects();renderConfigLists();renderKanban();renderObras();
+  if(n>0) alert(`"${valorAntigo}" renomeado para "${novo}".\n\n${n} registro(s) atualizado(s) automaticamente.`);
+}
+
+// Mapeia cada lista de apoio para os campos que a referenciam nos dados, e aplica o rename
+function cascatearRenomeioLista(listName, de, para){
+  let count = 0;
+  const salvarDemanda = d => dbSave('demandas', demandaToDb(d));
+  const salvarObra = o => dbSave('obras', obraToDb(o));
+
+  if(listName==='analistas'){
+    demandas.forEach(d=>{
+      let mudou=false;
+      if(d.analista===de){ d.analista=para; mudou=true; }
+      if(d.analistasComp && d.analistasComp.includes(de)){
+        d.analistasComp = d.analistasComp.map(a=>a===de?para:a); mudou=true;
+      }
+      if(mudou){ count++; salvarDemanda(d); }
+    });
+  }
+  if(listName==='tiposUnidade'){
+    obras.forEach(o=>{ if(o.tipo===de){ o.tipo=para; count++; salvarObra(o); } });
+  }
+  if(listName==='classificacoes'){
+    obras.forEach(o=>{ if(o.classificacao===de){ o.classificacao=para; count++; salvarObra(o); } });
+  }
+  if(listName==='tipologias'){
+    obras.forEach(o=>{ if(o.tipologia===de){ o.tipologia=para; count++; salvarObra(o); } });
+  }
+  if(listName==='tiposAtividade'){
+    demandas.forEach(d=>{ if(d.tipo===de){ d.tipo=para; count++; salvarDemanda(d); } });
+  }
+  if(listName==='statusList'){
+    demandas.forEach(d=>{ if(d.status===de){ d.status=para; count++; salvarDemanda(d); } });
+    // Também atualiza as regras de transição e as cores associadas ao status renomeado
+    const renomearChave = (obj)=>{ if(obj[de]!==undefined){ obj[para]=obj[de]; delete obj[de]; } };
+    renomearChave(TRANSITIONS);
+    renomearChave(STATUS_COLORS);
+    renomearChave(STATUS_DIM);
+    Object.keys(TRANSITIONS).forEach(k=>{
+      TRANSITIONS[k] = TRANSITIONS[k].map(s=>s===de?para:s);
+    });
+  }
+  return count;
+}
+
+/* ══ EXCLUIR ITEM ══ */
+function excluirListItem(listName, valor){
+  const list=LISTAS_CONFIG[listName]; if(!list) return;
+  const emUso = contarUsosLista(listName, valor);
+  const aviso = emUso>0
+    ? `\n\n⚠ Este item está em uso em ${emUso} registro(s). Os registros existentes manterão o valor "${valor}", mas ele deixará de aparecer nas opções de seleção.`
+    : '';
+  if(!confirm(`Excluir "${valor}" desta lista?${aviso}`)) return;
+  const idx = list.indexOf(valor);
+  if(idx===-1) return;
+  list.splice(idx,1);
+  salvarListaConfig(listName);
+  fillAllSelects();renderSprintSelects();renderConfigLists();renderKanban();renderObras();
+}
+
+function contarUsosLista(listName, valor){
+  if(listName==='analistas') return demandas.filter(d=>d.analista===valor || (d.analistasComp||[]).includes(valor)).length;
+  if(listName==='tiposUnidade') return obras.filter(o=>o.tipo===valor).length;
+  if(listName==='classificacoes') return obras.filter(o=>o.classificacao===valor).length;
+  if(listName==='tipologias') return obras.filter(o=>o.tipologia===valor).length;
+  if(listName==='tiposAtividade') return demandas.filter(d=>d.tipo===valor).length;
+  if(listName==='statusList') return demandas.filter(d=>d.status===valor).length;
+  return 0;
 }
 
 /* DRAWERS */
@@ -3234,7 +3331,7 @@ function renderListaEVs(){
 
   const body = document.getElementById('evListaBody');
   if(filtradas.length===0){
-    body.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:26px;color:var(--muted)">'+
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:26px;color:var(--muted)">'+
       (comEV.length===0
         ? 'Nenhuma obra possui EV ainda.<br>O EV é criado ao ser preenchido pela primeira vez dentro de uma demanda.'
         : 'Nenhuma obra encontrada com esse filtro.')+'</td></tr>';
@@ -3251,16 +3348,28 @@ function renderListaEVs(){
     return `<tr style="cursor:pointer" onclick="openEV('${o.id}')">
       <td style="font-weight:700;color:var(--blue-700)">${o.nome}</td>
       <td>${o.cidade||'—'}/${o.uf||'—'}</td>
-      <td><span class="badge badge-blue">${rev}</span></td>
+      <td><button class="badge badge-blue" style="cursor:pointer;border:none;font:inherit;letter-spacing:inherit" onclick="event.stopPropagation();verVersoesEV('${o.id}')" title="Ver histórico de versões">${rev} · ${versoes.length} ${versoes.length===1?'versão':'versões'} ▾</button></td>
       <td style="font-family:'DM Mono',monospace;font-size:12px">${dataAtt}</td>
       <td style="font-weight:700;color:var(--green)">${moneyBR(valor)}</td>
       <td>${pend?'<span class="badge" style="background:var(--orange-50);color:var(--orange-700)">⚠ Pendente</span>':'<span class="badge badge-green">✓ OK</span>'}</td>
-      <td><button class="link-btn" onclick="event.stopPropagation();verVersoesEV('${o.id}')">${versoes.length} ${versoes.length===1?'versão':'versões'}</button></td>
     </tr>`;
   }).join('');
 }
 
+let _evVersoesObraAtual = null; // controla toggle do painel
+
+function fecharVersoesEV(){
+  document.getElementById('evVersoesPanel').style.display = 'none';
+  _evVersoesObraAtual = null;
+}
+
 function verVersoesEV(obraId){
+  // Toggle: clicar de novo na mesma obra fecha o painel
+  if(_evVersoesObraAtual === obraId && document.getElementById('evVersoesPanel').style.display==='block'){
+    fecharVersoesEV();
+    return;
+  }
+  _evVersoesObraAtual = obraId;
   const obra = obras.find(o=>o.id===obraId);
   if(!obra) return;
   const versoes = evVersions.filter(v=>v.obraId===obraId).sort((a,b)=>b.versao-a.versao);
