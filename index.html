@@ -294,6 +294,10 @@
     .backup-data{font-size:13px;font-weight:700;color:var(--ink);text-transform:capitalize}
     .backup-resumo{font-size:11px;color:var(--muted);margin-top:2px}
     .ev-pend-dot{display:inline-block;margin-left:6px;color:var(--orange-700);font-size:13px;cursor:help}
+    .obra-edit-btn{width:30px;padding:0;flex-shrink:0}
+    .kanban-status-legend{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:11.5px;color:var(--muted);margin-bottom:12px;padding:9px 13px;background:var(--sf2);border:1px solid var(--line-2);border-radius:var(--r)}
+    .kanban-status-legend strong{color:var(--ink)}
+    .ksl-sep{color:var(--line)}
 
     /* ═══ SECTION BLOCK ═══ */
     .sblock{background:var(--sf2);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px}
@@ -636,12 +640,17 @@
     <!-- OPERACIONAL -->
     <section id="view-operacional" class="view active">
       <div class="topbar">
-        <div class="page-heading"><h2>Visão Operacional</h2><p>Demandas organizadas por sprint e status — fluxo em tempo real da equipe.</p></div>
+        <div class="page-heading"><h2>Visão Operacional</h2><p>Demandas organizadas por sprint e etapa do fluxo — acompanhamento em tempo real da equipe.</p></div>
         <div class="topbar-actions">
           <span class="pill" id="activeSprintChip">Sprint 11</span>
           <button class="btn btn-ghost">Exportar</button>
           <button class="btn btn-primary btn-nova-demanda" onclick="escolherTipoDemanda()">+ Nova demanda</button>
         </div>
+      </div>
+      <div class="kanban-status-legend">
+        <span><strong>Kanban</strong> = etapa do fluxo de trabalho (coluna onde o card está)</span>
+        <span class="ksl-sep">·</span>
+        <span><strong>Badge colorido no card</strong> = situação de prazo de entrega (em dia, atrasada, entregue…)</span>
       </div>
       <!-- ITEM 14: filtros ANTES dos KPIs -->
       <div class="panel" style="margin-bottom:14px;padding:14px 16px">
@@ -649,7 +658,7 @@
           <div class="field"><label>Sprint</label><select id="sprintFilter"></select></div>
           <div class="field"><label>Analista</label><select id="analistaFilter"></select></div>
           <div class="field"><label>Tipo de atividade</label><select id="tipoAtividadeFilter"></select></div>
-          <div class="field"><label>Status da entrega</label>
+          <div class="field"><label>Situação de prazo</label>
             <select id="entregaFilter">
               <option value="">Todos</option>
               <option value="em-dia">🟢 Em dia</option>
@@ -751,7 +760,7 @@
         </div>
         <div class="table-scroll" style="max-height:calc(100vh - 300px)">
           <table>
-            <thead><tr><th>Obra</th><th>Cidade/UF</th><th>Versão</th><th>Última atualização</th><th>Valor total</th><th>Pendência</th></tr></thead>
+            <thead><tr><th>Obra</th><th>Cidade/UF</th><th>Versão</th><th>Última atualização</th><th>Pendência</th><th>Valor total</th></tr></thead>
             <tbody id="evListaBody"></tbody>
           </table>
         </div>
@@ -1082,8 +1091,8 @@
           <span id="eiAutosaveIndicator" style="font-size:11px;color:var(--green);opacity:0;transition:opacity .3s;font-weight:700"></span>
         </div>
         <div class="g2">
-          <div class="field"><label><span class="dt-num">1</span> Data prevista de início</label><input id="ei_dataPrevInicio" type="date" onchange="registrarMudancaData(this);autosaveEI()"></div>
-          <div class="field"><label><span class="dt-num">2</span> Data de início real</label><input id="ei_dataInicio" type="date" onchange="registrarMudancaData(this);prefillEntrega();autosaveEI()"></div>
+          <div class="field"><label><span class="dt-num">1</span> Data prevista de início</label><input id="ei_dataPrevInicio" type="date" onchange="registrarMudancaData(this);prefillEntrega();autosaveEI()"></div>
+          <div class="field"><label><span class="dt-num">2</span> Data de início real</label><input id="ei_dataInicio" type="date" onchange="registrarMudancaData(this);autosaveEI()"></div>
         </div>
         <div class="g2" style="margin-top:9px">
           <div class="field">
@@ -1276,8 +1285,8 @@
   <div class="drawer">
     <div class="drawer-head">
       <div>
-        <div class="drawer-title">Nova Obra</div>
-        <div class="drawer-sub">ID e EV gerados automaticamente. Preencha os atributos para gerar a chave.</div>
+        <div class="drawer-title" id="obraFormTitulo">Nova Obra</div>
+        <div class="drawer-sub" id="obraFormSubtitulo">ID e EV gerados automaticamente. Preencha os atributos para gerar a chave.</div>
       </div>
       <button class="close-btn" onclick="closeDrawer('novaObraOverlay')">✕</button>
     </div>
@@ -1309,19 +1318,6 @@
           <div class="field"><label>Classificação</label><select id="newClassificacao"></select></div>
           <div class="field"><label>Tipologia</label><select id="newTipologia"></select></div>
         </div>
-        <div class="g2" style="margin-top:9px">
-          <div class="field"><label>⚡ Precisa de nova subestação?</label>
-            <select id="newSubestacao" onchange="toggleCapacidadeSubestacao()">
-              <option value="">Não informado</option>
-              <option value="nao">Não</option>
-              <option value="sim">Sim</option>
-            </select>
-          </div>
-          <div class="field" id="fieldCapacidadeSub" style="display:none">
-            <label>Capacidade da subestação</label>
-            <input id="newCapacidadeSub" placeholder="Ex.: 500 kVA">
-          </div>
-        </div>
       </div>
 
       <div class="sblock">
@@ -1343,20 +1339,9 @@
       </div>
 
 
-      <div class="sblock">
-        <h4>Demanda inicial vinculada</h4>
-        <p style="font-size:11.5px;color:var(--muted);margin-bottom:10px">Campos da demanda operacional criada junto com a obra.</p>
-        <div class="g4">
-          <div class="field"><label>Analista</label><select id="newAnalista"></select></div>
-          <div class="field"><label>Tipo de atividade</label><select id="newTipoAtividade"></select></div>
-          <div class="field"><label>Sprint</label><select id="newSprint"></select></div>
-          <div class="field"><label>Status inicial</label><select id="newStatus"></select></div>
-        </div>
-      </div>
-
       <div style="display:flex;gap:8px;justify-content:flex-end">
         <button class="btn btn-ghost" onclick="closeDrawer('novaObraOverlay')">Cancelar</button>
-        <button class="btn btn-primary" onclick="createObra()">Criar obra</button>
+        <button class="btn btn-primary" id="obraFormBtnSalvar" onclick="salvarObra()">Criar obra</button>
       </div>
     </div>
   </div>
@@ -1382,8 +1367,8 @@ function showLoading(visible, msg){
 }
 
 function dbSave(table, data){
-  if(!_sb) return;
-  _sb.from(table).upsert(data).then(({error})=>{
+  if(!_sb) return Promise.resolve();
+  return _sb.from(table).upsert(data).then(({error})=>{
     if(error) console.error('DB save ['+table+']:', error.message);
   });
 }
@@ -1945,8 +1930,9 @@ function addDias(dateStr, dias){
   return d.toISOString().slice(0,10);
 }
 // Campo 6 = início real + 14 dias (só se vazio)
+// ITEM 3: Campo 6 = data PREVISTA de início (campo 1) + 14 dias (só se vazio)
 function prefillEntrega(){
-  const ini = valOf('ei_dataInicio');
+  const ini = valOf('ei_dataPrevInicio');
   const prev = document.getElementById('ei_dataPrevista');
   if(ini && prev && !prev.value){
     prev.value = addDias(ini, 14);
@@ -2364,7 +2350,7 @@ function transicaoPermitida(deStatus, paraStatus){
   return !!_currentUser;
 }
 
-function moverDemandaEI(codigo, novoStatus){
+async function moverDemandaEI(codigo, novoStatus){
   const d = demandas.find(x=>x.codigo===codigo);
   if(!d) return;
   const allowed = TRANSITIONS[d.status]||[];
@@ -2381,7 +2367,7 @@ function moverDemandaEI(codigo, novoStatus){
   const statusAnterior = d.status;
   d.status = novoStatus;
   registrarMovimentacao(codigo, statusAnterior, novoStatus);
-  dbSave('demandas', demandaToDb(d));
+  await dbSave('demandas', demandaToDb(d)); // aguarda gravar antes de seguir (evita condição de corrida)
   renderKanban();
   renderEIStatus(d);
   updateEIHints(d);
@@ -2405,7 +2391,7 @@ function updateEIHints(d){
   });
 }
 
-function onAutoDate(fieldId, targetStatus){
+async function onAutoDate(fieldId, targetStatus){
   const val = document.getElementById(fieldId).value;
   const d = demandas.find(x=>x.codigo===_eiCodigo);
   if(!d || !val) return;
@@ -2414,6 +2400,12 @@ function onAutoDate(fieldId, targetStatus){
     alert('Você não tem permissão para esta transição.\n\nApenas Gestão ou Administrador podem '+
       (targetStatus==='Concluído' ? 'concluir demandas.' : 'mover para "Validação Obras".'));
     document.getElementById(fieldId).value = '';
+    return;
+  }
+  // CONFIRMAÇÃO EXPLÍCITA: informar esta data move o card de coluna no kanban
+  const confMsg = 'Ao informar esta data, o card será movido no kanban de\n"'+d.status+'" → "'+targetStatus+'"\n\nDeseja continuar?';
+  if(!confirm(confMsg)){
+    document.getElementById(fieldId).value = ''; // reverte a data
     return;
   }
   if(targetStatus === 'Concluído'){
@@ -2425,7 +2417,7 @@ function onAutoDate(fieldId, targetStatus){
   const anterior = d.status;
   d.status = targetStatus;
   registrarMovimentacao(_eiCodigo, anterior, targetStatus);
-  dbSave('demandas', demandaToDb(d));
+  await dbSave('demandas', demandaToDb(d)); // aguarda gravar antes de seguir (evita condição de corrida)
   renderKanban();
   renderEIStatus(d);
   updateEIHints(d);
@@ -2848,6 +2840,9 @@ function registrarMudancaData(input){
   const novo = input.value;
   if(_eiModoCriacao || _eiCodigo==='__novo__') return; // criação: livre
   if(anterior === novo) return; // sem mudança real
+  // ITEM: "Data prevista de início" pode ser mudada livremente por qualquer usuário,
+  // sem exigir permissão, motivo ou registro em histórico.
+  if(id === 'ei_dataPrevInicio'){ _datasOriginais[id] = novo; return; }
   if(!anterior){ _datasOriginais[id] = novo; return; } // primeiro preenchimento: livre
 
   // Mudança de data existente: só Gestão/Admin
@@ -2993,7 +2988,7 @@ function openDemandaDrawer(codigo){
   document.getElementById('demandaOverlay').classList.add('open');
 }
 
-function moverDemanda(codigo, novoStatus){
+async function moverDemanda(codigo, novoStatus){
   const d = demandas.find(x=>x.codigo===codigo);
   if(!d) return;
   const allowed = TRANSITIONS[d.status] || [];
@@ -3005,7 +3000,7 @@ function moverDemanda(codigo, novoStatus){
   const anterior = d.status;
   d.status = novoStatus;
   registrarMovimentacao(codigo, anterior, novoStatus);
-  dbSave('demandas', demandaToDb(d));
+  await dbSave('demandas', demandaToDb(d));
   closeDrawer('demandaOverlay');
   renderKanban();
 }
@@ -3037,18 +3032,14 @@ function fillAllSelects(){
   fillSelect("newRegiao",regioes);
   fillSelect("newClassificacao",classificacoes);
   fillSelect("newTipologia",tipologias);
-  fillSelect("newAnalista",analistas);
-  fillSelect("newTipoAtividade",tiposAtividade);
-  fillSelect("newStatus",statusList);
 }
 function activeSprint(){return sprints.find(s=>s.status==="Ativa")?.nome||sprints[0]?.nome||"Sprint 11"}
 function renderSprintSelects(){
   const names=sprints.map(s=>s.nome);
   fillSelect("sprintFilter",["Todas",...names]);
   document.getElementById("sprintFilter").value=activeSprint();
-  fillSelect("newSprint",names);
-  document.getElementById("newSprint").value=activeSprint();
-  document.getElementById("activeSprintChip").textContent="Sprint atual: "+activeSprint();
+  const chipEl = document.getElementById("activeSprintChip");
+  if(chipEl) chipEl.textContent="Sprint atual: "+activeSprint();
 }
 /* ══ MENU MOBILE ══ */
 function toggleMobileMenu(){
@@ -3243,9 +3234,12 @@ function renderKanban(){
         // ITEM 11: badge de status de entrega
         const se = statusEntrega(item.codigo);
         const seBadge = se ? `<div class="task-entrega ${se.classe}">${se.label}</div>` : '';
-        // ITEM 16: se concluída, mostra data de conclusão em vez do prazo
+        // ITEM 6: card mostra "Data prevista de envio p/ validação Obras" enquanto não concluída;
+        // vira "Data de entrega real" assim que a demanda é concluída
         const eiCard = (formData[item.codigo]||{}).ei || {};
-        let dataCard = '📅 ' + item.prazo;
+        let dataCard = eiCard.dataMetaObras
+          ? '🎯 ' + new Date(eiCard.dataMetaObras+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})
+          : '📅 —';
         if(concluida && eiCard.dataEntregaReal){
           dataCard = '✅ Concluída em ' + new Date(eiCard.dataEntregaReal+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
         }
@@ -3346,10 +3340,12 @@ function renderObras(){
       <td style="font-family:'DM Mono',monospace;font-size:12px">${o.ordemSAP||"—"}</td>
       <td style="font-size:12px">${o.cnpj||"—"}</td>
       <td style="font-size:12px;min-width:200px">${o.endereco||"—"}</td>
-      <td><button class="action-btn" onclick="openEV('${o.id}')">Abrir EV</button>${
+      <td style="display:flex;gap:6px;align-items:center">
+        <button class="action-btn" onclick="openEV('${o.id}')">Abrir EV</button>${
         demandas.some(d=>d.obra===o.nome) && temPendenciaEV(o.id)
           ? '<span class="ev-pend-dot" title="EV com itens pendentes de cotação">⚠</span>' : ''
-      }</td>
+      }${pode(['Administrador','Gestão']) ? `<button class="action-btn obra-edit-btn" onclick="editarObra('${o.id}')" title="Editar dados da obra">✎</button>` : ''}
+      </td>
     </tr>`;
   }).join("");
 }
@@ -3526,29 +3522,105 @@ function contarUsosLista(listName, valor){
 
 /* DRAWERS */
 function closeDrawer(id){document.getElementById(id).classList.remove("open")}
+let _obraEditandoId = null; // null = modo criação; caso contrário, ID da obra sendo editada
+
 function openNovaObra(){
+  _obraEditandoId = null;
   const next=obras.length+1;
   document.getElementById("newObraId").value=`OBR-${String(next).padStart(4,"0")}`;
-  document.getElementById("newStatus").value="Fazer";
-  document.getElementById("newTipoAtividade").value="Emissão inicial";
+  document.getElementById("newObraId").disabled = true;
+  document.getElementById('obraFormTitulo').textContent = 'Nova Obra';
+  document.getElementById('obraFormSubtitulo').textContent = 'ID e EV gerados automaticamente. Preencha os atributos para gerar a chave.';
+  document.getElementById('obraFormBtnSalvar').textContent = 'Criar obra';
   updateKeyPreview();
   document.getElementById("novaObraOverlay").classList.add("open");
 }
-function toggleCapacidadeSubestacao(){
-  const v = document.getElementById('newSubestacao').value;
-  document.getElementById('fieldCapacidadeSub').style.display = v==='sim' ? 'block' : 'none';
-  if(v!=='sim') document.getElementById('newCapacidadeSub').value='';
+
+// ITEM 1: editar uma obra já cadastrada
+function editarObra(obraId){
+  if(!pode(['Administrador','Gestão'])){ alert('Somente Gestão ou Administrador podem editar obras.'); return; }
+  const o = obras.find(x=>x.id===obraId);
+  if(!o) return;
+  _obraEditandoId = obraId;
+
+  document.getElementById('newObraId').value = o.id;
+  document.getElementById('newObraId').disabled = true; // ID é estável, não editável
+  document.getElementById('newCodigoOriginal').value = o.codigoOriginal || '';
+  document.getElementById('newTempoObra').value = o.tempoObra || '';
+  document.getElementById('newNomeObra').value = o.nome || '';
+  document.getElementById('newTipoUnidade').value = o.tipo || '';
+  document.getElementById('newCidade').value = o.cidade || '';
+  document.getElementById('newUF').value = o.uf || '';
+  document.getElementById('newRegiao').value = o.regiao || '';
+  document.getElementById('newClassificacao').value = o.classificacao || '';
+  document.getElementById('newTipologia').value = o.tipologia || '';
+  document.getElementById('newAreaEq').value = o.areaEquivalente || '';
+  document.getElementById('newAreaConst').value = o.areaConstruida || '';
+  document.getElementById('newOrdemSAP').value = o.ordemSAP || '';
+  document.getElementById('newCNPJ').value = o.cnpj || '';
+  document.getElementById('newEndereco').value = o.endereco || '';
+
+  document.getElementById('obraFormTitulo').textContent = 'Editar Obra';
+  document.getElementById('obraFormSubtitulo').textContent = `${o.id} — alterações são salvas diretamente na obra.`;
+  document.getElementById('obraFormBtnSalvar').textContent = 'Salvar alterações';
+
+  updateKeyPreview();
+  document.getElementById("novaObraOverlay").classList.add("open");
 }
 
-function createObra(){
+async function salvarObra(){
   const nome=document.getElementById("newNomeObra").value.trim();
   if(!nome){alert("Informe o nome da obra.");return}
+
+  if(_obraEditandoId){
+    // ═══ MODO EDIÇÃO ═══
+    const o = obras.find(x=>x.id===_obraEditandoId);
+    if(!o){ alert('Obra não encontrada.'); closeDrawer('novaObraOverlay'); return; }
+    const nomeAntigo = o.nome;
+
+    o.codigoOriginal = document.getElementById("newCodigoOriginal").value.trim();
+    o.tempoObra = document.getElementById("newTempoObra").value;
+    o.nome = nome;
+    o.tipo = document.getElementById("newTipoUnidade").value;
+    o.cidade = document.getElementById("newCidade").value.trim();
+    o.uf = document.getElementById("newUF").value;
+    o.regiao = document.getElementById("newRegiao").value;
+    o.classificacao = document.getElementById("newClassificacao").value;
+    o.tipologia = document.getElementById("newTipologia").value;
+    o.areaEquivalente = Number(document.getElementById("newAreaEq").value)||0;
+    o.areaConstruida = Number(document.getElementById("newAreaConst").value)||0;
+    o.ordemSAP = document.getElementById("newOrdemSAP").value.trim();
+    o.cnpj = document.getElementById("newCNPJ").value.trim();
+    o.endereco = document.getElementById("newEndereco").value.trim();
+
+    await dbSave("obras", obraToDb(o));
+
+    // Se o NOME mudou, propaga em cascata para as demandas vinculadas
+    // (demandas guardam o nome da obra como texto, não o ID)
+    if(nomeAntigo !== nome){
+      const afetadas = demandas.filter(d=>d.obra===nomeAntigo);
+      for(const d of afetadas){
+        d.obra = nome;
+        await dbSave('demandas', demandaToDb(d));
+      }
+      if(afetadas.length>0){
+        alert(`Nome da obra atualizado de "${nomeAntigo}" para "${nome}".\n\n${afetadas.length} demanda(s) vinculada(s) foram atualizadas automaticamente.`);
+      }
+    }
+
+    _obraEditandoId = null;
+    closeDrawer("novaObraOverlay"); renderObras(); renderKanban(); showView("obras");
+    return;
+  }
+
+  // ═══ MODO CRIAÇÃO ═══
+  // Item 7/8: novaSubestacao/capacidadeSubestacao não são mais pedidos aqui —
+  // são perguntados automaticamente ao gerar a 1ª versão do EV (criarVersaoEV)
   const id=document.getElementById("newObraId").value;
   const evNumber=id.replace("OBR-","EV-");
-  const novaObra={id,evId:evNumber,codigoOriginal:document.getElementById("newCodigoOriginal").value.trim(),nome,tipo:document.getElementById("newTipoUnidade").value,cidade:document.getElementById("newCidade").value.trim(),uf:document.getElementById("newUF").value,regiao:document.getElementById("newRegiao").value,tempoObra:document.getElementById("newTempoObra").value,classificacao:document.getElementById("newClassificacao").value,tipologia:document.getElementById("newTipologia").value,novaSubestacao:document.getElementById("newSubestacao").value,capacidadeSubestacao:document.getElementById("newCapacidadeSub").value.trim()};
+  const novaObra={id,evId:evNumber,codigoOriginal:document.getElementById("newCodigoOriginal").value.trim(),nome,tipo:document.getElementById("newTipoUnidade").value,cidade:document.getElementById("newCidade").value.trim(),uf:document.getElementById("newUF").value,regiao:document.getElementById("newRegiao").value,tempoObra:document.getElementById("newTempoObra").value,classificacao:document.getElementById("newClassificacao").value,tipologia:document.getElementById("newTipologia").value};
   obras.push(novaObra);
   dbSave("obras", obraToDb(novaObra));
-  demandas.push({codigo:`DEM-${String(demandas.length+1).padStart(3,"0")}`,obra:nome,analista:document.getElementById("newAnalista").value,prioridade:"Média",valor:"R$ 0",prazo:"—",status:document.getElementById("newStatus").value,tipo:document.getElementById("newTipoAtividade").value,sprint:document.getElementById("newSprint").value});
   ["newCodigoOriginal","newNomeObra","newCidade","newTempoObra"].forEach(i=>document.getElementById(i).value="");
   closeDrawer("novaObraOverlay");renderObras();renderKanban();showView("obras");
 }
@@ -3639,8 +3711,8 @@ function renderListaEVs(){
       <td>${o.cidade||'—'}/${o.uf||'—'}</td>
       <td><button class="badge badge-blue" style="cursor:pointer;border:none;font:inherit;letter-spacing:inherit" onclick="event.stopPropagation();verVersoesEV('${o.id}')" title="Ver histórico de versões">${rev} · ${versoes.length} ${versoes.length===1?'versão':'versões'} ▾</button></td>
       <td style="font-family:'DM Mono',monospace;font-size:12px">${dataAtt}</td>
-      <td style="font-weight:700;color:var(--green)">${moneyBR(valor)}</td>
       <td>${pend?'<span class="badge" style="background:var(--orange-50);color:var(--orange-700)">⚠ Pendente</span>':'<span class="badge badge-green">✓ OK</span>'}</td>
+      <td style="font-weight:700;color:var(--green)">${moneyBR(valor)}</td>
     </tr>`;
   }).join('');
 }
@@ -3773,16 +3845,25 @@ function abrirDiffEV(obraId, versaoNum){
   } else {
     document.getElementById('evvBody').innerHTML = `
       <table class="evv-diff-table"><thead>
-        <tr><th>Item</th><th>Antes (v${versaoNum-1})</th><th></th><th>Depois (v${versaoNum})</th></tr>
+        <tr><th>Item</th><th>Antes (v${versaoNum-1})</th><th>Depois (v${versaoNum})</th><th>Diferença</th></tr>
       </thead><tbody>
-        ${linhas.map(l=>`
+        ${linhas.map(l=>{
+          const diff = l.para - l.de;
+          const sinal = diff>0 ? '+' : (diff<0 ? '−' : '');
+          const corDiff = diff>0 ? 'var(--red)' : (diff<0 ? 'var(--green)' : 'var(--muted)');
+          return `
           <tr>
             <td style="font-weight:600">${l.label}</td>
             <td>${moneyBR(l.de)} <span style="color:${corStatus(l.deSt)};font-weight:700;font-size:10.5px">(${l.deSt})</span></td>
-            <td style="text-align:center;color:var(--muted)">→</td>
             <td style="font-weight:700">${moneyBR(l.para)} <span style="color:${corStatus(l.paraSt)};font-weight:700;font-size:10.5px">(${l.paraSt})</span></td>
-          </tr>`).join('')}
+            <td style="font-weight:800;color:${corDiff}">${sinal}${moneyBR(Math.abs(diff))}</td>
+          </tr>`;
+        }).join('')}
       </tbody></table>
+      <div style="margin-top:14px;padding:12px 14px;background:var(--sf2);border-radius:var(--r);display:flex;justify-content:space-between;font-size:12.5px">
+        <strong>Diferença total nas linhas alteradas</strong>
+        <strong style="color:${(linhas.reduce((s,l)=>s+(l.para-l.de),0))>0?'var(--red)':'var(--green)'}">${(()=>{const t=linhas.reduce((s,l)=>s+(l.para-l.de),0);return (t>0?'+':t<0?'−':'')+moneyBR(Math.abs(t));})()}</strong>
+      </div>
     `;
   }
   document.getElementById('evVersionOverlay').classList.add('open');
