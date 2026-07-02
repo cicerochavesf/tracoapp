@@ -229,9 +229,10 @@
 
     /* ═══ EV TABLE ═══ */
     .ev-table-wrap{border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;flex-shrink:0}
-    .ev-table{width:100%;border-collapse:collapse;font-size:12.5px}
+    .ev-table{width:auto;max-width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
     .ev-table thead th{background:var(--blue-700);color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:9px 10px;text-align:left}
     .ev-col-item{width:42px;text-align:center!important}
+    .ev-col-desc{width:340px}
     .ev-col-valor,.ev-col-pct,.ev-col-m2{text-align:right!important;width:110px}
     .ev-col-status{width:130px}
     .ev-table tbody td{padding:6px 10px;border-bottom:1px solid var(--line-2);vertical-align:middle}
@@ -730,7 +731,7 @@
         </div>
         <div class="table-scroll" style="max-height:420px">
           <table>
-            <thead><tr><th>Versão</th><th>Data</th><th>Gerada por</th><th>Valor total</th><th>Custo/m²</th><th>Pendência</th></tr></thead>
+            <thead><tr><th>Versão</th><th>Data</th><th>Origem</th><th>Valor total</th><th>Custo/m²</th><th>Pendência</th><th>Quem/Motivo</th><th>Mudanças</th></tr></thead>
             <tbody id="evVersoesTable"></tbody>
           </table>
         </div>
@@ -1332,7 +1333,8 @@ function evToDb(obraId, ev){
   return {obra_id:obraId, obra_vals:ev.obra||[], outros_vals:ev.outros||[],
     status_obra:ev.statusObra||[], status_outros:ev.statusOutros||[],
     area_eq:ev.areaEq||0, area_const:ev.areaConst||0,
-    valor_total:ev.valorTotal||0, custo_m2:ev.custoM2||0};
+    valor_total:ev.valorTotal||0, custo_m2:ev.custoM2||0,
+    valor_total_sem_risco:ev.valorTotalSemRisco||0, custo_m2_sem_risco:ev.custoM2SemRisco||0};
 }
 function eiToDb(codigo, ei){
   return {demanda_codigo:codigo, descricao:ei.descricao||'', analista:ei.analista||'',
@@ -1385,7 +1387,8 @@ async function initDB(){
     const {data:evData}=await _sb.from('ev_store').select('*');
     if(evData) evData.forEach(r=>{ evStore[r.obra_id]={obra:r.obra_vals||[],outros:r.outros_vals||[],
       statusObra:r.status_obra||[],statusOutros:r.status_outros||[],
-      areaEq:r.area_eq,areaConst:r.area_const,valorTotal:r.valor_total,custoM2:r.custo_m2}; });
+      areaEq:r.area_eq,areaConst:r.area_const,valorTotal:r.valor_total,custoM2:r.custo_m2,
+      valorTotalSemRisco:r.valor_total_sem_risco||0,custoM2SemRisco:r.custo_m2_sem_risco||0}; });
     const {data:evVerData}=await _sb.from('ev_versions').select('*').order('versao');
     if(evVerData) evVersions = evVerData.map(evVersionFromDb);
     try{
@@ -1923,7 +1926,7 @@ function avisarEVincompleto(faltando, obraId){
   alert('Antes de concluir, revise o EV desta obra.\n\nOs seguintes itens ainda estão como "Estimado" — marque "Orçado", "Cotado" ou "Não se aplica" para cada um:\n\n• ' +
     faltando.slice(0,8).join('\n• ') + (faltando.length>8 ? `\n… e mais ${faltando.length-8} item(ns)` : '') +
     '\n\nO EV será aberto agora para você revisar.');
-  if(obraId) openEV(obraId);
+  if(obraId) openEV(obraId, true); // ITEM 4: parte do fluxo de conclusão do analista
 }
 
 // Processa a conclusão: valida EV linha a linha, pergunta pendência, registra.
@@ -1957,7 +1960,11 @@ function processarConclusao(codigo){
   dbSave('demandas', demandaToDb(d));
 
   // 3. Cria uma nova versão do EV da obra (premissa: toda conclusão gera versão)
-  criarVersaoEV(codigo);
+  {
+    const dConcl = demandas.find(x=>x.codigo===codigo);
+    const obraConcl = dConcl ? obras.find(o=>o.nome===dConcl.obra) : null;
+    if(obraConcl) criarVersaoEV(obraConcl.id, {demandaCodigo:codigo});
+  }
 
   return true;
 }
@@ -1968,23 +1975,29 @@ let evVersions = []; // {obraId, versao, data, demandaCodigo, valorTotal, custoM
 function evVersionToDb(v){
   return {obra_id:v.obraId, versao:v.versao, data:v.data, demanda_codigo:v.demandaCodigo,
     valor_total:v.valorTotal, custo_m2:v.custoM2, area_eq:v.areaEq, area_const:v.areaConst,
-    obra_vals:v.obraVals||[], outros_vals:v.outrosVals||[], tem_pendencia:!!v.temPendencia};
+    obra_vals:v.obraVals||[], outros_vals:v.outrosVals||[], tem_pendencia:!!v.temPendencia,
+    valor_total_sem_risco:v.valorTotalSemRisco||0, custo_m2_sem_risco:v.custoM2SemRisco||0,
+    status_obra:v.statusObra||[], status_outros:v.statusOutros||[],
+    quem:v.quem||'', motivo:v.motivo||''};
 }
 function evVersionFromDb(r){
   return {obraId:r.obra_id, versao:r.versao, data:r.data, demandaCodigo:r.demanda_codigo,
     valorTotal:r.valor_total, custoM2:r.custo_m2, areaEq:r.area_eq, areaConst:r.area_const,
-    obraVals:r.obra_vals||[], outrosVals:r.outros_vals||[], temPendencia:!!r.tem_pendencia};
+    obraVals:r.obra_vals||[], outrosVals:r.outros_vals||[], temPendencia:!!r.tem_pendencia,
+    valorTotalSemRisco:r.valor_total_sem_risco||0, custoM2SemRisco:r.custo_m2_sem_risco||0,
+    statusObra:r.status_obra||[], statusOutros:r.status_outros||[],
+    quem:r.quem||'', motivo:r.motivo||''};
 }
 
-function criarVersaoEV(codigo){
-  const d = demandas.find(x=>x.codigo===codigo);
-  if(!d) return;
-  const obra = obras.find(o=>o.nome===d.obra);
+// obraId direto; opts.demandaCodigo (se veio de conclusão) e opts.motivo (revisão manual)
+function criarVersaoEV(obraId, opts){
+  opts = opts || {};
+  const obra = obras.find(o=>o.id===obraId);
   if(!obra) return;
-  const ev = evStore[obra.id];
-  if(!ev) return; // sem EV preenchido, não há o que versionar (não deveria ocorrer pois é bloqueado antes)
+  const ev = evStore[obraId];
+  if(!ev) return; // sem EV preenchido, não há o que versionar
 
-  const versaoNum = evVersions.filter(v=>v.obraId===obra.id).length + 1;
+  const versaoNum = evVersions.filter(v=>v.obraId===obraId).length + 1;
 
   // ITEM 7/8: na primeira versão, perguntar sobre subestação se ainda não informado
   if(versaoNum === 1 && !obra.novaSubestacao){
@@ -2001,20 +2014,27 @@ function criarVersaoEV(codigo){
   }
 
   const novaVersao = {
-    obraId: obra.id,
+    obraId: obraId,
     versao: versaoNum,
     data: new Date().toISOString().slice(0,10),
-    demandaCodigo: codigo,
+    demandaCodigo: opts.demandaCodigo || null,
     valorTotal: ev.valorTotal||0,
     custoM2: ev.custoM2||0,
+    valorTotalSemRisco: ev.valorTotalSemRisco||0,
+    custoM2SemRisco: ev.custoM2SemRisco||0,
     areaEq: ev.areaEq||0,
     areaConst: ev.areaConst||0,
     obraVals: ev.obra||[],
     outrosVals: ev.outros||[],
-    temPendencia: temPendenciaEV(obra.id)
+    statusObra: ev.statusObra||[],
+    statusOutros: ev.statusOutros||[],
+    temPendencia: temPendenciaEV(obraId),
+    quem: _currentUser ? _currentUser.nome : 'Sistema',
+    motivo: opts.motivo || ''
   };
   evVersions.push(novaVersao);
   dbSave('ev_versions', evVersionToDb(novaVersao));
+  return novaVersao;
 }
 
 function transicaoPermitida(deStatus, paraStatus){
@@ -2804,7 +2824,7 @@ function renderKPIsSprint(){
   };
 
   const valorTotal=concluido.reduce((s,d)=>{
-    const ev=getEVdaObraPorDemanda(d.codigo);return s+(ev?.valorTotal||0);},0);
+    const ev=getEVdaObraPorDemanda(d.codigo);return s+(ev?.valorTotalSemRisco||ev?.valorTotal||0);},0);
   const pendentes=data.filter(d=>d.pendencia).length;
 
   const cards=[
@@ -2886,8 +2906,9 @@ function renderKanban(){
       <div class="kanban-body">${list.map(item=>{
         const concluida = item.status==='Concluído';
         const ev = concluida ? getEVdaObraPorDemanda(item.codigo) : null;
-        const evBadge = (concluida && ev && ev.valorTotal>0)
-          ? `<div class="task-ev-total">Valor total do EV<strong>${moneyBR(ev.valorTotal)}</strong></div>`
+        const evValorRef = ev ? (ev.valorTotalSemRisco||ev.valorTotal||0) : 0;
+        const evBadge = (concluida && ev && evValorRef>0)
+          ? `<div class="task-ev-total">Valor total do EV<strong>${moneyBR(evValorRef)}</strong></div>`
           : '';
         const pendBadge = (concluida && item.pendencia)
           ? `<div class="task-pendencia" title="${(item.pendenciaDesc||'').replace(/"/g,'&quot;')}">⚠️ Pendência de cotação<span>${item.pendenciaDesc||''}</span></div>`
@@ -3117,7 +3138,7 @@ function createObra(){
 }
 
 /* EV */
-const obraCostFields=["Fundações","Contenções","Estruturas","Adequações Civis","Adequações Civis Áreas Externas","Fachadas","Instalações Elétricas","Instalações Hidrossanitárias","Instalações de Gases Medicinais","Instalações de Combate a Incêndio","Instalações de SPDA","Instalações de Climatização","Instalações de Exaustão","Infraestrutura de Dados/Voz/Seg. Patrimonial/CFTV/Chamada","Custos Indiretos"];
+const obraCostFields=["Fundações","Contenções","Estruturas","Adequações Civis","Adequações Civis Áreas Externas","Fachadas","Instalações Elétricas","Instalações Hidrossanitárias","Instalações de Gases Medicinais","Instalações de Combate a Incêndio","Instalações de SPDA","Instalações de Climatização e Exaustão","Infraestrutura de Dados/Voz/Seg. Patrimonial/CFTV/Chamada","Custos Indiretos"];
 const otherCostFields=["Projetos Técnicos","Projetos Legalização","Dados e Voz/Segurança Patrimonial/Chamada Hospitalar","Equipamentos de Climatização","Artefatos em Inox","Marcenaria","Réguas Medicinais","Gerador/Subestação/Transformador/Cubículos","Elevadores/Plataforma Elevatória","Compressor/Bomba de Vácuo/Driox","IT Médico/Nobreak","ETE/ETA","Correio Pneumático","Controle de Acessos","Planejamento de Obras","Contas de Consumo","Comunicação Visual Externa e Interna","Quadros Elétricos","SIC's","Sistemas de Automação","Taxa de Risco (5%)","Blindagem","Paisagismo e/ou Compensação Ambiental","Câmara Fria"];
 
 /* ══ ITEM 10: COLAR VALORES MONETÁRIOS NO EV ══ */
@@ -3193,7 +3214,7 @@ function renderListaEVs(){
     const versoes = evVersions.filter(v=>v.obraId===o.id).sort((a,b)=>b.versao-a.versao);
     const atual = versoes[0] || null;
     const ev = evStore[o.id];
-    const valor = ev ? (ev.valorTotal||0) : (atual ? atual.valorTotal||0 : 0);
+    const valor = ev ? (ev.valorTotalSemRisco||ev.valorTotal||0) : (atual ? (atual.valorTotalSemRisco||atual.valorTotal||0) : 0);
     const dataAtt = atual ? new Date(atual.data+'T00:00:00').toLocaleDateString('pt-BR') : 'Rascunho';
     const rev = atual ? 'REV'+String(atual.versao).padStart(2,'0') : 'REV00';
     const pend = temPendenciaEV(o.id);
@@ -3220,18 +3241,81 @@ function verVersoesEV(obraId){
 
   if(versoes.length===0){
     document.getElementById('evVersoesTable').innerHTML =
-      '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Nenhuma versão registrada ainda.<br>As versões são criadas automaticamente quando uma demanda vinculada a esta obra é concluída.</td></tr>';
+      '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Nenhuma versão registrada ainda.<br>As versões são criadas automaticamente quando uma demanda vinculada a esta obra é concluída.</td></tr>';
     return;
   }
-  document.getElementById('evVersoesTable').innerHTML = versoes.map(v=>`
+  document.getElementById('evVersoesTable').innerHTML = versoes.map((v,idx)=>{
+    const origem = v.demandaCodigo
+      ? `<button class="link-btn" onclick="abrirDemandaOrigemEV('${v.demandaCodigo}')">${v.demandaCodigo}</button>`
+      : `<span class="badge" style="background:var(--sf2);color:var(--muted)">Revisão manual</span>`;
+    const quemMotivo = v.quem
+      ? `<div style="font-size:11px"><strong>${v.quem}</strong>${v.motivo?`<div style="color:var(--muted);font-style:italic;margin-top:2px">"${v.motivo}"</div>`:''}</div>`
+      : '—';
+    // Botão "O que mudou" só se existir versão anterior
+    const temAnterior = versoes.find(x=>x.versao===v.versao-1);
+    const btnDiff = temAnterior
+      ? `<button class="link-btn" onclick="mostrarDiffEV('${obraId}',${v.versao})">🔍 O que mudou</button>`
+      : `<span style="font-size:11px;color:var(--muted)">Versão inicial</span>`;
+    return `
     <tr>
       <td><span class="badge badge-blue">v${v.versao}</span></td>
       <td style="font-family:'DM Mono',monospace;font-size:12px">${v.data?new Date(v.data+'T00:00:00').toLocaleDateString('pt-BR'):'—'}</td>
-      <td><button class="link-btn" onclick="abrirDemandaOrigemEV('${v.demandaCodigo}')">${v.demandaCodigo}</button></td>
-      <td style="font-weight:700;color:var(--green)">${moneyBR(v.valorTotal||0)}</td>
-      <td style="font-family:'DM Mono',monospace">${moneyBR(v.custoM2||0)}</td>
+      <td>${origem}</td>
+      <td style="font-weight:700;color:var(--green)">${moneyBR(v.valorTotalSemRisco||v.valorTotal||0)}</td>
+      <td style="font-family:'DM Mono',monospace">${moneyBR(v.custoM2SemRisco||v.custoM2||0)}</td>
       <td>${v.temPendencia?'<span class="badge" style="background:var(--orange-50);color:var(--orange-700)">⚠ Pendente</span>':'<span class="badge badge-green">✓ Completo</span>'}</td>
-    </tr>`).join('');
+      <td>${quemMotivo}</td>
+      <td>${btnDiff}</td>
+    </tr>
+    <tr id="diffRow-${obraId}-${v.versao}" class="diff-row" style="display:none">
+      <td colspan="8" style="background:var(--sf2);padding:0"><div id="diffContent-${obraId}-${v.versao}"></div></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ══ ITEM 5: DIFF ENTRE VERSÕES — "O que mudou" ══ */
+function mostrarDiffEV(obraId, versaoNum){
+  const row = document.getElementById(`diffRow-${obraId}-${versaoNum}`);
+  const content = document.getElementById(`diffContent-${obraId}-${versaoNum}`);
+  const visivel = row.style.display !== 'none';
+  // Esconde qualquer outro diff aberto
+  document.querySelectorAll('.diff-row').forEach(r=>r.style.display='none');
+  if(visivel){ return; } // já estava aberto → só fecha (feito acima)
+
+  const versoes = evVersions.filter(v=>v.obraId===obraId);
+  const atual = versoes.find(v=>v.versao===versaoNum);
+  const anterior = versoes.find(v=>v.versao===versaoNum-1);
+  if(!atual || !anterior){ content.innerHTML=''; row.style.display='none'; return; }
+
+  const linhas = [];
+  obraCostFields.forEach((label,i)=>{
+    const de = anterior.obraVals[i]||0, para = atual.obraVals[i]||0;
+    const deSt = anterior.statusObra[i]||'Estimado', paraSt = atual.statusObra[i]||'Estimado';
+    if(de!==para || deSt!==paraSt) linhas.push({label, de, para, deSt, paraSt});
+  });
+  otherCostFields.forEach((label,i)=>{
+    const de = anterior.outrosVals[i]||0, para = atual.outrosVals[i]||0;
+    const deSt = anterior.statusOutros[i]||'Estimado', paraSt = atual.statusOutros[i]||'Estimado';
+    if(de!==para || deSt!==paraSt) linhas.push({label, de, para, deSt, paraSt});
+  });
+
+  if(linhas.length===0){
+    content.innerHTML = '<div style="padding:14px 18px;color:var(--muted);font-size:12px">Nenhuma mudança de valor ou status entre as versões v'+(versaoNum-1)+' e v'+versaoNum+'.</div>';
+  } else {
+    content.innerHTML = `<div style="padding:12px 18px">
+      <div style="font-size:11px;font-weight:800;color:var(--blue-700);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Mudanças de v${versaoNum-1} → v${versaoNum}</div>
+      <table style="width:100%;font-size:12px"><tbody>
+      ${linhas.map(l=>`
+        <tr style="border-bottom:1px solid var(--line-2)">
+          <td style="padding:6px 8px;font-weight:600">${l.label}</td>
+          <td style="padding:6px 8px;color:var(--muted)">${moneyBR(l.de)} <span style="color:${l.deSt==='Cotado'?'var(--green)':l.deSt==='Orçado'?'var(--blue-700)':'var(--muted)'}">(${l.deSt})</span></td>
+          <td style="padding:6px 8px;text-align:center;color:var(--muted)">→</td>
+          <td style="padding:6px 8px;font-weight:700">${moneyBR(l.para)} <span style="color:${l.paraSt==='Cotado'?'var(--green)':l.paraSt==='Orçado'?'var(--blue-700)':'var(--muted)'}">(${l.paraSt})</span></td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>`;
+  }
+  row.style.display = 'table-row';
 }
 
 function abrirDemandaOrigemEV(codigo){
@@ -3295,10 +3379,22 @@ function calculateEV(){
   const aeq = Number(document.getElementById('areaEquivalente').value||0);
   const m2 = aeq>0 ? total/aeq : 0;
 
+  // ITEM 3: Taxa de risco calculada ANTES dos cards de resumo, pois o "Total do EV"
+  // exibido nos cards e em todas as outras telas do app é sempre SEM a taxa de risco.
+  let taxaRisco = 0;
+  otherRows.forEach((row,i)=>{
+    const sel = row.querySelector('select[data-status]');
+    if(otherCostFields[i]==='Taxa de Risco (5%)' && !(sel && sel.value==='Não se aplica')){
+      taxaRisco = Number(row.querySelector('input').value||0);
+    }
+  });
+  const totalSemRisco = total - taxaRisco;
+  const m2SemRisco = aeq>0 ? totalSemRisco/aeq : 0;
+
   document.getElementById('sumValorObra').textContent=moneyBR(vo);
   document.getElementById('sumOutros').textContent=moneyBR(ou);
-  document.getElementById('sumEV').textContent=moneyBR(total);
-  document.getElementById('sumM2').textContent=moneyBR(m2);
+  document.getElementById('sumEV').textContent=moneyBR(totalSemRisco); // ITEM 3: sem risco é o valor de referência
+  document.getElementById('sumM2').textContent=moneyBR(m2SemRisco);
 
   // % e R$/m² por linha (N/A mostra "—")
   allRows.forEach(row=>{
@@ -3317,17 +3413,7 @@ function calculateEV(){
     row.querySelector('[data-m2]').textContent = moneyBR(rm2);
   });
 
-  // Total geral e total sem taxa de risco
-  let taxaRisco = 0;
-  otherRows.forEach((row,i)=>{
-    const sel = row.querySelector('select[data-status]');
-    if(otherCostFields[i]==='Taxa de Risco (5%)' && !(sel && sel.value==='Não se aplica')){
-      taxaRisco = Number(row.querySelector('input').value||0);
-    }
-  });
-  const totalSemRisco = total - taxaRisco;
-  const m2SemRisco = aeq>0 ? totalSemRisco/aeq : 0;
-
+  // Rodapé da tabela: mostra as DUAS contas (com e sem taxa de risco) — só aqui, dentro do EV
   document.getElementById('evTotalGeral').textContent = moneyBR(total);
   document.getElementById('evTotalM2').textContent = moneyBR(m2);
   document.getElementById('evTotalSemRisco').textContent = moneyBR(totalSemRisco);
@@ -3349,15 +3435,26 @@ function abrirEVdaDemanda(){
     return;
   }
   // Mantém o formulário da demanda aberto por trás; abre o EV por cima
-  openEV(obra.id);
+  openEV(obra.id, true); // ITEM 4: acesso via demanda, sempre liberado ao analista
 }
 
 const evStore = {}; // evStore[obraId] = {obra:[...], outros:[...], areaEq, areaConst, valorTotal, custoM2}
 let _evObraAtual = null;
 
-function openEV(obraId){
-  _evMostrarNA = false;
+let _evViaDemanda = false; // true = aberto de dentro da demanda (fluxo normal do analista)
+function openEV(obraId, viaDemanda){
   const obra=obras.find(o=>o.id===obraId);if(!obra)return;
+
+  // ITEM 4: acesso DIRETO (Gestão de Obras / Gestão de EVs) a um EV já salvo
+  // é bloqueado para Analistas. Só Gestão/Admin editam diretamente.
+  const jaSalvo = !!evStore[obraId];
+  if(!viaDemanda && jaSalvo && !pode(['Administrador','Gestão'])){
+    alert('Este EV já foi salvo e não pode ser alterado diretamente por aqui.\n\nPara ajustar valores, faça isso através da demanda vinculada a esta obra.\n\nAlterações diretas em EVs já salvos são permitidas apenas para Gestão ou Administrador.');
+    return;
+  }
+
+  _evMostrarNA = false;
+  _evViaDemanda = !!viaDemanda;
   _evObraAtual = obraId;
   const chave=gerarChave(obra);
   document.getElementById("evTitle").textContent=obra.nome;
@@ -3411,27 +3508,47 @@ function temPendenciaEV(obraId){
   return getItensPendentesEV(obraId).length > 0;
 }
 
+// Helper único: calcula os totais do EV (com e sem taxa de risco), respeitando "Não se aplica"
+function computeEVTotals(obraVals, otherVals, statusObra, statusOutros, areaEq){
+  const soma = (vals, status) => vals.reduce((s,v,i)=> (status[i]==='Não se aplica' ? s : s+v), 0);
+  const valorTotal = soma(obraVals, statusObra) + soma(otherVals, statusOutros);
+  const idxRisco = otherCostFields.indexOf('Taxa de Risco (5%)');
+  const taxaRisco = (idxRisco>=0 && statusOutros[idxRisco]!=='Não se aplica') ? (otherVals[idxRisco]||0) : 0;
+  const valorTotalSemRisco = valorTotal - taxaRisco;
+  const custoM2 = areaEq>0 ? valorTotal/areaEq : 0;
+  const custoM2SemRisco = areaEq>0 ? valorTotalSemRisco/areaEq : 0;
+  return { valorTotal, valorTotalSemRisco, custoM2, custoM2SemRisco };
+}
+
 function salvarEV(){
   if(!_evObraAtual){ closeDrawer("evOverlay"); return; }
+  const jaSalvoAntes = !!evStore[_evObraAtual]; // ITEM 4: para saber se é edição de um EV já existente
   const obraVals  = [...document.querySelectorAll("#obraCosts input")].map(i=>Number(i.value||0));
   const otherVals = [...document.querySelectorAll("#otherCosts input")].map(i=>Number(i.value||0));
   const statusObra   = [...document.querySelectorAll("#obraCosts select[data-status]")].map(s=>s.value);
   const statusOutros = [...document.querySelectorAll("#otherCosts select[data-status]")].map(s=>s.value);
   const areaEq    = Number(document.getElementById("areaEquivalente").value||0);
   const areaConst = Number(document.getElementById("areaConstruida").value||0);
-  const valorTotal = obraVals.reduce((a,b)=>a+b,0) + otherVals.reduce((a,b)=>a+b,0);
-  const custoM2 = areaEq>0 ? valorTotal/areaEq : 0;
+  const {valorTotal, valorTotalSemRisco, custoM2, custoM2SemRisco} = computeEVTotals(obraVals, otherVals, statusObra, statusOutros, areaEq);
 
   evStore[_evObraAtual] = {
     obra: obraVals, outros: otherVals,
     statusObra, statusOutros,
-    areaEq, areaConst, valorTotal, custoM2
+    areaEq, areaConst, valorTotal, custoM2, valorTotalSemRisco, custoM2SemRisco
   };
   // Reflete áreas de volta na obra
   const obra = obras.find(o=>o.id===_evObraAtual);
   if(obra){ obra.areaEquivalente=areaEq; obra.areaConstruida=areaConst; }
 
   dbSave('ev_store', evToDb(_evObraAtual, evStore[_evObraAtual]));
+
+  // ITEM 4/5: edição DIRETA (Gestão de Obras / Gestão de EVs) de um EV que já existia
+  // gera uma nova revisão manual, com motivo opcional.
+  if(!_evViaDemanda && jaSalvoAntes){
+    const motivo = prompt('Esta alteração vai gerar uma nova revisão do EV.\\n\\nMotivo da alteração (opcional):') || '';
+    criarVersaoEV(_evObraAtual, {motivo});
+  }
+
   closeDrawer("evOverlay");
   renderObras();
   renderKanban();
@@ -3446,9 +3563,8 @@ function salvarEVrascunho(){
   const statusOutros = [...document.querySelectorAll("#otherCosts select[data-status]")].map(s=>s.value);
   const areaEq    = Number(document.getElementById("areaEquivalente").value||0);
   const areaConst = Number(document.getElementById("areaConstruida").value||0);
-  const valorTotal = obraVals.reduce((a,b)=>a+b,0) + otherVals.reduce((a,b)=>a+b,0);
-  const custoM2 = areaEq>0 ? valorTotal/areaEq : 0;
-  evStore[_evObraAtual] = { obra:obraVals, outros:otherVals, statusObra, statusOutros, areaEq, areaConst, valorTotal, custoM2 };
+  const {valorTotal, valorTotalSemRisco, custoM2, custoM2SemRisco} = computeEVTotals(obraVals, otherVals, statusObra, statusOutros, areaEq);
+  evStore[_evObraAtual] = { obra:obraVals, outros:otherVals, statusObra, statusOutros, areaEq, areaConst, valorTotal, custoM2, valorTotalSemRisco, custoM2SemRisco };
   const obra = obras.find(o=>o.id===_evObraAtual);
   if(obra){ obra.areaEquivalente=areaEq; obra.areaConstruida=areaConst; }
   dbSave('ev_store', evToDb(_evObraAtual, evStore[_evObraAtual]));
