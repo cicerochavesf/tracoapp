@@ -158,11 +158,14 @@
     /* ═══ KANBAN ═══ */
     .kanban{cursor:grab}.kanban.dragging{cursor:grabbing;user-select:none}
     .kanban{display:grid;grid-template-columns:repeat(7,minmax(228px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px}
-    .kanban-col{--cc:var(--blue-700);background:var(--sf2);border:1px solid var(--line);border-radius:var(--r-lg);min-height:420px;display:flex;flex-direction:column;overflow:hidden}
+    .kanban-col{--cc:var(--blue-700);background:var(--sf2);border:1px solid var(--line);border-radius:var(--r-lg);min-height:200px;max-height:calc(100vh - 330px);display:flex;flex-direction:column;overflow:hidden}
+    .kanban-body{padding:8px;display:flex;flex-direction:column;gap:7px;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+    .kanban-body::-webkit-scrollbar{width:6px}
+    .kanban-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+    .kanban-body::-webkit-scrollbar-thumb:hover{background:#B8C6D8}
     .kanban-head{padding:11px 12px 9px;display:flex;justify-content:space-between;align-items:center;border-top:3px solid var(--cc);border-bottom:1px solid var(--line);background:var(--surface)}
     .kh-label{font-size:11.5px;font-weight:700;color:var(--text)}
     .kh-count{background:var(--cc);color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;min-width:20px;text-align:center}
-    .kanban-body{padding:8px;display:flex;flex-direction:column;gap:7px;flex:1}
     .task{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--cc);border-radius:var(--r);padding:11px;cursor:pointer;transition:box-shadow .14s,transform .14s}
     .task:hover{box-shadow:var(--sh);transform:translateY(-1px)}
     .task-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px}
@@ -295,9 +298,6 @@
     .backup-resumo{font-size:11px;color:var(--muted);margin-top:2px}
     .ev-pend-dot{display:inline-block;margin-left:6px;color:var(--orange-700);font-size:13px;cursor:help}
     .obra-edit-btn{width:30px;padding:0;flex-shrink:0}
-    .kanban-status-legend{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:11.5px;color:var(--muted);margin-bottom:12px;padding:9px 13px;background:var(--sf2);border:1px solid var(--line-2);border-radius:var(--r)}
-    .kanban-status-legend strong{color:var(--ink)}
-    .ksl-sep{color:var(--line)}
 
     /* ═══ SECTION BLOCK ═══ */
     .sblock{background:var(--sf2);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px}
@@ -323,6 +323,9 @@
     .sidebar-user-nivel{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
     .btn-refresh{appearance:none;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);padding:7px 12px;border-radius:9px;font-family:inherit;font-size:11.5px;cursor:pointer;width:100%;margin-top:10px;transition:all .13s;font-weight:600}
     .btn-refresh:hover{background:rgba(255,255,255,.14)}
+    .btn-save-cloud{background:rgba(18,166,106,.16);border-color:rgba(18,166,106,.35);margin-top:12px}
+    .btn-save-cloud:hover{background:rgba(18,166,106,.26)}
+    .btn-save-cloud:disabled{opacity:.7;cursor:wait}
     .btn-logout{appearance:none;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.6);padding:6px 12px;border-radius:9px;font-family:inherit;font-size:11.5px;cursor:pointer;width:100%;margin-top:8px;transition:all .13s;font-weight:600}
     .btn-logout:hover{background:rgba(229,72,63,.18);border-color:rgba(229,72,63,.4);color:#FFB3AF}
     /* Nivel badge */
@@ -353,6 +356,8 @@
     .anal-chip.on{background:var(--blue-700);border-color:var(--blue-700);color:#fff;box-shadow:0 4px 12px rgba(0,75,147,.22)}
     .anal-chip.lider{background:var(--blue-700);border-color:var(--blue-700);color:#fff;box-shadow:0 4px 12px rgba(0,75,147,.28);font-weight:800}
     .anal-chip.comp{background:var(--blue-100);border-color:var(--blue-600);color:var(--blue-900);font-weight:700}
+    .anal-chip.locked{cursor:not-allowed;opacity:.72}
+    .anal-chip.locked:hover{transform:none}
     .sblock h4{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:11px;letter-spacing:-.01em}
     .cost-row{display:grid;grid-template-columns:1.9fr 1fr;gap:7px;align-items:center;margin-bottom:7px}
     .cost-label{font-size:12px;color:var(--text);font-weight:500}
@@ -446,6 +451,11 @@
     .tr-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
     .tr-arrow{margin-left:auto;color:var(--ghost);font-size:15px}
     .status-current{border-radius:var(--r-lg);padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:4px}
+    .move-locked-note{flex:1;font-size:12px;color:#8A4A00;background:var(--orange-50);border:1px solid rgba(255,107,0,.22);border-radius:var(--r);padding:10px 13px;line-height:1.4}
+    .ei-readonly-banner{display:flex;align-items:center;gap:9px;background:var(--sf2);border:1px solid var(--line);border-radius:var(--r-lg);padding:11px 14px;font-size:12.5px;color:var(--muted);margin-bottom:12px}
+    .ei-readonly-banner strong{color:var(--ink)}
+    .proj-readonly .proj-check{pointer-events:none;opacity:.55}
+    .proj-readonly .proj-body input{pointer-events:none;opacity:.62;background:var(--sf2)}
     .sc-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
     .sc-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:2px}
     .sc-status{font-size:15px;font-weight:700}
@@ -626,6 +636,7 @@
     <div class="sidebar-user" id="sidebarUser" style="display:none">
       <div class="sidebar-user-nome" id="sideUserNome">—</div>
       <div class="sidebar-user-nivel" id="sideUserNivel">—</div>
+      <button class="btn-refresh btn-save-cloud" id="btnSalvarNuvem" onclick="salvarNuvemAgora()" title="Força salvar qualquer alteração pendente agora">☁ Salvar na nuvem</button>
       <button class="btn-refresh" onclick="atualizarDadosNuvem()" title="Buscar dados atualizados da nuvem">🔄 Atualizar dados</button>
       <button class="btn-logout" onclick="logout()">Sair →</button>
     </div>
@@ -646,11 +657,6 @@
           <button class="btn btn-ghost">Exportar</button>
           <button class="btn btn-primary btn-nova-demanda" onclick="escolherTipoDemanda()">+ Nova demanda</button>
         </div>
-      </div>
-      <div class="kanban-status-legend">
-        <span><strong>Kanban</strong> = etapa do fluxo de trabalho (coluna onde o card está)</span>
-        <span class="ksl-sep">·</span>
-        <span><strong>Badge colorido no card</strong> = situação de prazo de entrega (em dia, atrasada, entregue…)</span>
       </div>
       <!-- ITEM 14: filtros ANTES dos KPIs -->
       <div class="panel" style="margin-bottom:14px;padding:14px 16px">
@@ -987,6 +993,18 @@
     </div>
     <div class="drawer-body">
 
+      <div class="ei-readonly-banner" id="eiReadonlyBanner" style="display:none">
+        👁 <span><strong>Modo somente leitura</strong> — você pode ver todos os dados, mas só o(s) analista(s) atribuído(s) a esta demanda ou Gestão/Administrador podem preenchê-la ou movê-la.</span>
+      </div>
+
+      <!-- Analista responsável — visível em criação E edição (trava de permissão via JS) -->
+      <div class="fsec">
+        <div class="fsec-head"><span class="fsec-ico">👤</span><span class="fsec-title">Analista responsável</span></div>
+        <div id="ei_analistaChips" class="anal-chips-wrap"></div>
+        <div id="analChipsLegenda" style="font-size:11.5px;color:var(--muted);margin-top:8px">Clique para definir o líder da demanda. Cliques seguintes adicionam analistas complementares.</div>
+        <input type="hidden" id="ei_analista">
+      </div>
+
       <!-- ░░░ ETAPA 1 — Identificação ░░░ -->
       <div id="eiEtapa1">
         <!-- Obra vinculada (só modo criação) -->
@@ -1026,14 +1044,6 @@
             <div class="ffield">
               <textarea id="ei_descricao" rows="3" placeholder="Descreva o escopo desta demanda…" oninput="autosaveEI()"></textarea>
             </div>
-          </div>
-
-          <!-- Analistas (chips) -->
-          <div class="fsec">
-            <div class="fsec-head"><span class="fsec-ico">👤</span><span class="fsec-title">Analista responsável</span><span class="fsec-req">*</span></div>
-            <div id="ei_analistaChips" class="anal-chips-wrap"></div>
-            <div id="analChipsLegenda" style="font-size:11.5px;color:var(--muted);margin-top:8px">Clique para definir o líder da demanda. Cliques seguintes adicionam analistas complementares.</div>
-            <input type="hidden" id="ei_analista">
           </div>
 
           <!-- Classificação -->
@@ -1812,6 +1822,7 @@ function escolherTipoDemanda(){
 function openNovaDemanda(tipoInicial){
   closeDrawer('tipoDemandaOverlay');
   _eiModoCriacao = true;
+  _eiCriadorNestaSessao = false; // ainda não criou nada nesta sessão
   _eiObraSelecionada = null;
   _eiCodigo = '__novo__';
   if(formData['__novo__']) delete formData['__novo__'];
@@ -1905,6 +1916,7 @@ function avancarEtapa2(){
     delete formData['__novo__'];
     _eiCodigo = novoId;
     _eiModoCriacao = false;
+    _eiCriadorNestaSessao = true; // dá acesso de preenchimento a quem criou, nesta sessão
     registrarMovimentacao(novoId, '—', 'Fazer');
     dbSave('form_data_ei', eiToDb(novoId, formData[novoId].ei));
     renderKanban(); // ITEM 13: já aparece nos cards
@@ -1960,34 +1972,42 @@ function toggleNaoEnviadoObras(){
 function autosaveEI(){
   if(!_eiCodigo || _eiCodigo==='__novo__' || _eiModoCriacao) return;
   clearTimeout(_autosaveTimer);
-  _autosaveTimer = setTimeout(()=>{
-    const ei = getEIData(_eiCodigo);
-    // Coleta todos os campos do formulário
-    ei.descricao       = valOf('ei_descricao');
-    ei.analista        = valOf('ei_analista');
-    ei.prioridade      = valOf('ei_prioridade');
-    ei.sprint          = valOf('ei_sprint');
-    ei.dataPrevInicio  = valOf('ei_dataPrevInicio');
-    ei.dataInicio      = valOf('ei_dataInicio');
-    ei.dataMetaObras   = valOf('ei_dataMetaObras');
-    ei.dataEnvioObras  = valOf('ei_dataEnvioObras');
-    ei.dataValidacaoObras = valOf('ei_dataValidacaoObras');
-    ei.dataPrevista    = valOf('ei_dataPrevista');
-    ei.dataEntregaReal = valOf('ei_dataEntregaReal');
-    ei.observacao      = valOf('ei_observacao');
-    ei.naoEnviadoObras = document.getElementById('ei_naoEnviadoObras') ? document.getElementById('ei_naoEnviadoObras').checked : false;
-    ei.analistasComp = _analistasSel.comp || [];
-    // Sync na demanda
-    const d = demandas.find(x=>x.codigo===_eiCodigo);
-    if(d){
-      d.analista=ei.analista||'—'; d.analistasComp=ei.analistasComp;
-      d.prioridade=ei.prioridade; d.sprint=ei.sprint;
-      dbSave('demandas', demandaToDb(d));
-    }
-    dbSave('form_data_ei', eiToDb(_eiCodigo, ei));
-    renderKanban();
-    mostrarIndicadorSalvo();
-  }, 700);
+  _autosaveTimer = setTimeout(executarAutosaveEI, 700);
+}
+
+// Lógica de fato do autosave — extraída para poder ser chamada IMEDIATAMENTE
+// pelo botão manual "Salvar na nuvem", sem esperar o debounce de 700ms.
+function executarAutosaveEI(){
+  if(!_eiCodigo || _eiCodigo==='__novo__' || _eiModoCriacao) return;
+  // Defesa em profundidade: analista não atribuído não pode salvar alterações nesta demanda
+  const dGuard = demandas.find(x=>x.codigo===_eiCodigo);
+  if(!podeMexerNaDemanda(dGuard)) return;
+  const ei = getEIData(_eiCodigo);
+  // Coleta todos os campos do formulário
+  ei.descricao       = valOf('ei_descricao');
+  ei.analista        = valOf('ei_analista');
+  ei.prioridade      = valOf('ei_prioridade');
+  ei.sprint          = valOf('ei_sprint');
+  ei.dataPrevInicio  = valOf('ei_dataPrevInicio');
+  ei.dataInicio      = valOf('ei_dataInicio');
+  ei.dataMetaObras   = valOf('ei_dataMetaObras');
+  ei.dataEnvioObras  = valOf('ei_dataEnvioObras');
+  ei.dataValidacaoObras = valOf('ei_dataValidacaoObras');
+  ei.dataPrevista    = valOf('ei_dataPrevista');
+  ei.dataEntregaReal = valOf('ei_dataEntregaReal');
+  ei.observacao      = valOf('ei_observacao');
+  ei.naoEnviadoObras = document.getElementById('ei_naoEnviadoObras') ? document.getElementById('ei_naoEnviadoObras').checked : false;
+  ei.analistasComp = _analistasSel.comp || [];
+  // Sync na demanda
+  const d = demandas.find(x=>x.codigo===_eiCodigo);
+  if(d){
+    d.analista=ei.analista||'—'; d.analistasComp=ei.analistasComp;
+    d.prioridade=ei.prioridade; d.sprint=ei.sprint;
+    dbSave('demandas', demandaToDb(d));
+  }
+  dbSave('form_data_ei', eiToDb(_eiCodigo, ei));
+  renderKanban();
+  mostrarIndicadorSalvo();
 }
 function valOf(id){ const el=document.getElementById(id); return el ? el.value : ''; }
 function mostrarIndicadorSalvo(){
@@ -1997,6 +2017,46 @@ function mostrarIndicadorSalvo(){
   el.style.opacity = '1';
   clearTimeout(el._t);
   el._t = setTimeout(()=>{ el.style.opacity='0'; }, 1500);
+}
+
+/* ══ BOTÃO "SALVAR NA NUVEM AGORA" ══ */
+// Dá segurança extra ao usuário: força qualquer alteração pendente a
+// gravar imediatamente, sem esperar o autosave (mesmo já havendo
+// salvamento em tempo real, o clique explícito tranquiliza).
+async function salvarNuvemAgora(){
+  const btn = document.getElementById('btnSalvarNuvem');
+  const textoOriginal = btn ? btn.innerHTML : '';
+  if(btn){ btn.disabled = true; btn.innerHTML = '☁ Salvando…'; }
+
+  try{
+    let algoSalvo = false;
+
+    // Se o formulário de demanda está aberto, força o autosave AGORA (sem esperar debounce)
+    const eiAberto = document.getElementById('eiOverlay')?.classList.contains('open');
+    if(eiAberto && _eiCodigo && _eiCodigo!=='__novo__' && !_eiModoCriacao){
+      clearTimeout(_autosaveTimer);
+      executarAutosaveEI();
+      algoSalvo = true;
+    }
+
+    // Se o EV está aberto, salva como rascunho (sem fechar o drawer)
+    const evAberto = document.getElementById('evOverlay')?.classList.contains('open');
+    if(evAberto && _evObraAtual){
+      salvarEVrascunho();
+      algoSalvo = true;
+    }
+
+    // Pequena pausa para dar tempo do dbSave (fire-and-forget) atingir a rede
+    await new Promise(r=>setTimeout(r, 350));
+
+    if(btn){
+      btn.innerHTML = '✓ Salvo na nuvem';
+      setTimeout(()=>{ btn.innerHTML = textoOriginal; btn.disabled = false; }, 1600);
+    }
+  }catch(err){
+    console.error('Erro ao salvar na nuvem:', err);
+    if(btn){ btn.innerHTML = '⚠ Erro ao salvar'; setTimeout(()=>{ btn.innerHTML = textoOriginal; btn.disabled = false; }, 2000); }
+  }
 }
 
 function voltarEtapa1(){
@@ -2106,6 +2166,7 @@ function openEIForm(codigo){
   if(!d) return;
   _eiCodigo = codigo;
   _eiModoCriacao = false;
+  _eiCriadorNestaSessao = false; // reabrindo uma demanda existente, não é sessão de criação
   const ei = getEIData(codigo);
 
   // Modo edição: vai direto à Etapa 2 (detalhamento)
@@ -2161,13 +2222,44 @@ function openEIForm(codigo){
   renderProjetosGrid(ei);
 
   document.getElementById('eiOverlay').classList.add('open');
+  aplicarModoSomenteLeituraForm(!podeMexerNaDemanda(d));
   setTimeout(()=>document.getElementById('ei_descricao').focus(), 60);
+}
+
+// Desabilita todos os campos de preenchimento da demanda quando o usuário
+// não está autorizado a mexer nela (analista não atribuído). Ele continua
+// vendo tudo, só não consegue editar.
+function aplicarModoSomenteLeituraForm(somenteLeitura){
+  const banner = document.getElementById('eiReadonlyBanner');
+  if(banner) banner.style.display = somenteLeitura ? 'flex' : 'none';
+
+  const idsCampos = ['ei_descricao','ei_observacao','ei_prioridade','ei_sprint',
+    'ei_dataPrevInicio','ei_dataInicio','ei_dataMetaObras','ei_dataEnvioObras',
+    'ei_dataValidacaoObras','ei_dataPrevista','ei_dataEntregaReal','ei_naoEnviadoObras'];
+  idsCampos.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.disabled = somenteLeitura;
+  });
+
+  // Botão de abrir EV a partir da demanda
+  const btnEV = document.querySelector('#eiEtapa2 [onclick="abrirEVdaDemanda()"]');
+  if(btnEV){
+    btnEV.disabled = somenteLeitura;
+    btnEV.style.opacity = somenteLeitura ? '.5' : '1';
+    btnEV.style.cursor = somenteLeitura ? 'not-allowed' : 'pointer';
+  }
+
+  // Checklist de projetos: trava visual (a função saveProjField/toggleProjetoCheck
+  // já recusa a ação de qualquer forma — isso é só o reforço visual)
+  const listaProj = document.getElementById('eiProjetosLista');
+  if(listaProj) listaProj.classList.toggle('proj-readonly', somenteLeitura);
 }
 
 function renderEIStatus(d){
   const color  = STATUS_COLORS[d.status] || '#667085';
   const dimBg  = STATUS_DIM[d.status]    || 'rgba(0,0,0,.05)';
   const allowed = TRANSITIONS[d.status]  || [];
+  const podeMexer = podeMexerNaDemanda(d);
   document.getElementById('eiTransitions').innerHTML = `
     <div class="ei-transitions">
       <div class="status-current" style="background:${dimBg};border:1px solid ${color}30;flex-shrink:0">
@@ -2177,7 +2269,7 @@ function renderEIStatus(d){
           <div class="sc-status" style="color:${color};font-size:13px">${d.status}</div>
         </div>
       </div>
-      ${allowed.length ? `
+      ${(allowed.length && podeMexer) ? `
         <div class="move-select-wrap">
           <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px;display:block">Mover para</label>
           <select class="move-select" onchange="if(this.value){moverDemandaEI('${d.codigo}',this.value);this.value=''}">
@@ -2187,7 +2279,8 @@ function renderEIStatus(d){
               return `<option value="${t}">${t}</option>`;
             }).join('')}
           </select>
-        </div>` : ''}
+        </div>` : (allowed.length && !podeMexer) ? `
+        <div class="move-locked-note">🔒 Você não está atribuído a esta demanda — apenas o(s) analista(s) responsável(is) ou Gestão/Administrador podem movê-la.</div>` : ''}
     </div>`;
 }
 
@@ -2340,14 +2433,33 @@ function criarVersaoEV(obraId, opts){
   return novaVersao;
 }
 
-function transicaoPermitida(deStatus, paraStatus){
+/* ══ NOVA REGRA: só Gestão/Admin OU analista(s) atribuído(s) podem mover/preencher a demanda ══ */
+// Durante a MESMA sessão em que a pessoa está criando a demanda, ela mantém acesso
+// de preenchimento mesmo que ainda não tenha se atribuído como analista (evita
+// trancar o próprio criador para fora do formulário que acabou de abrir).
+let _eiCriadorNestaSessao = false;
+
+function souAnalistaAtribuido(d){
+  if(!d || !_currentUser) return false;
+  return d.analista === _currentUser.nome || (d.analistasComp||[]).includes(_currentUser.nome);
+}
+function podeMexerNaDemanda(d){
+  if(!d) return false;
+  if(pode(['Administrador','Gestão'])) return true;
+  if(souAnalistaAtribuido(d)) return true;
+  if(_eiCriadorNestaSessao && d.codigo === _eiCodigo) return true;
+  return false;
+}
+
+function transicaoPermitida(deStatus, paraStatus, demanda){
   // Concluir: só Gestão/Admin
   if(paraStatus === 'Concluído') return pode(['Administrador','Gestão']);
   // Sala Técnica → Obras: só Gestão/Admin
   if(deStatus === 'Aguardando Validação Sala Técnica' && paraStatus === 'Aguardando Validação Obras')
     return pode(['Administrador','Gestão']);
-  // Demais transições: qualquer usuário logado
-  return !!_currentUser;
+  // Demais transições: Gestão/Admin sempre; Analista só se estiver atribuído a ESTA demanda
+  if(pode(['Administrador','Gestão'])) return true;
+  return demanda ? souAnalistaAtribuido(demanda) : false;
 }
 
 async function moverDemandaEI(codigo, novoStatus){
@@ -2355,9 +2467,11 @@ async function moverDemandaEI(codigo, novoStatus){
   if(!d) return;
   const allowed = TRANSITIONS[d.status]||[];
   if(!allowed.includes(novoStatus)) return;
-  if(!transicaoPermitida(d.status, novoStatus)){
-    alert('Você não tem permissão para esta transição.\n\nApenas Gestão ou Administrador podem '+
-      (novoStatus==='Concluído' ? 'concluir demandas.' : 'mover de "Validação Sala Técnica" para "Validação Obras".'));
+  if(!transicaoPermitida(d.status, novoStatus, d)){
+    const motivoErro = (novoStatus==='Concluído') ? 'concluir demandas.'
+      : (d.status==='Aguardando Validação Sala Técnica' && novoStatus==='Aguardando Validação Obras') ? 'mover de "Validação Sala Técnica" para "Validação Obras".'
+      : 'mover esta demanda — você não está atribuído a ela.';
+    alert('Você não tem permissão para esta transição.\n\nApenas Gestão, Administrador ou o(s) analista(s) atribuído(s) podem '+motivoErro);
     renderEIStatus(d); // reset do select
     return;
   }
@@ -2396,9 +2510,11 @@ async function onAutoDate(fieldId, targetStatus){
   const d = demandas.find(x=>x.codigo===_eiCodigo);
   if(!d || !val) return;
   if(d.status === targetStatus) return; // já está lá
-  if(!transicaoPermitida(d.status, targetStatus)){
-    alert('Você não tem permissão para esta transição.\n\nApenas Gestão ou Administrador podem '+
-      (targetStatus==='Concluído' ? 'concluir demandas.' : 'mover para "Validação Obras".'));
+  if(!transicaoPermitida(d.status, targetStatus, d)){
+    const motivoErro2 = (targetStatus==='Concluído') ? 'concluir demandas.'
+      : (d.status==='Aguardando Validação Sala Técnica') ? 'mover para "Validação Obras".'
+      : 'mover esta demanda — você não está atribuído a ela.';
+    alert('Você não tem permissão para esta transição.\n\nApenas Gestão, Administrador ou o(s) analista(s) atribuído(s) podem '+motivoErro2);
     document.getElementById(fieldId).value = '';
     return;
   }
@@ -2488,6 +2604,11 @@ function renderProjetosGrid(ei){ renderProjetos(ei); }
 
 // Caixinha → marca/desmarca se o projeto faz parte da demanda
 function toggleProjetoCheck(cod){
+  const dGuard = demandas.find(x=>x.codigo===_eiCodigo);
+  if(!podeMexerNaDemanda(dGuard)){
+    alert('Você não está atribuído a esta demanda. Apenas o(s) analista(s) responsável(is) ou Gestão/Administrador podem editá-la.');
+    return;
+  }
   const ei = getEIData(_eiCodigo);
   if(!ei.projetos[cod]) ei.projetos[cod]={ativo:false,dataRecebimento:'',responsavel:'',dataPostagem:'',caminho:''};
   ei.projetos[cod].ativo = !ei.projetos[cod].ativo;
@@ -2498,6 +2619,7 @@ function toggleProjetoCheck(cod){
     _projAberto = null;
   }
   renderProjetos(ei);
+  autosaveEI();
 }
 
 // Setinha → abre/fecha detalhes (só 1 aberto por vez), independente da marcação
@@ -2523,9 +2645,12 @@ function toggleGrupoProjetos(){
 function toggleProjetoEI(cod){ toggleProjetoCheck(cod); }
 
 function saveProjField(cod, field, value){
+  const dGuard = demandas.find(x=>x.codigo===_eiCodigo);
+  if(!podeMexerNaDemanda(dGuard)) return; // trava silenciosa (o campo já está disabled visualmente)
   const ei = getEIData(_eiCodigo);
   if(!ei.projetos[cod]) ei.projetos[cod]={ativo:true};
   ei.projetos[cod][field] = value;
+  autosaveEI();
 }
 
 function addProjetoCustom(){
@@ -2576,6 +2701,7 @@ function salvarEI(){
     delete formData['__novo__'];
     _eiCodigo = novoId;
     _eiModoCriacao = false;
+    _eiCriadorNestaSessao = true; // dá acesso de preenchimento a quem criou, nesta sessão
   }
 
   const ei = getEIData(_eiCodigo);
@@ -2609,29 +2735,40 @@ function salvarEI(){
 let _analistasSel = {lider:'', comp:[]};
 
 function renderAnalistaChips(lider, comp){
+  // Normaliza o placeholder "—" (usado só para EXIBIÇÃO) para vazio,
+  // senão o código passa a tratá-lo como se fosse um líder de verdade.
+  if(lider === '—') lider = '';
   _analistasSel = {lider: lider||'', comp: comp||[]};
   const wrap = document.getElementById('ei_analistaChips');
   if(!wrap) return;
+  // ITEM: só Gestão/Admin podem REATRIBUIR o analista depois que a demanda já existe.
+  // Durante a criação (ainda sem código definitivo), qualquer usuário escolhe livremente.
+  const podeEditar = _eiModoCriacao || pode(['Administrador','Gestão']);
   wrap.innerHTML = analistas.map(a=>{
     const isLider = a===_analistasSel.lider;
     const isComp = _analistasSel.comp.includes(a);
-    return `<button type="button" class="anal-chip ${isLider?'lider':''} ${isComp?'comp':''}"
-      onclick="selecionarAnalista('${a}')">${isLider?'⭐ ':''}${a}</button>`;
+    return `<button type="button" class="anal-chip ${isLider?'lider':''} ${isComp?'comp':''} ${!podeEditar?'locked':''}"
+      ${podeEditar?`onclick="selecionarAnalista('${a}')"`:'disabled'}>${isLider?'⭐ ':''}${a}</button>`;
   }).join('');
   document.getElementById('ei_analista').value = _analistasSel.lider||'';
   // Legenda
   const leg = document.getElementById('analChipsLegenda');
   if(leg){
-    if(_analistasSel.lider){
+    if(!podeEditar){
+      const compTxt = _analistasSel.comp.length ? ' · Complementares: '+_analistasSel.comp.join(', ') : '';
+      leg.innerHTML = `🔒 ${_analistasSel.lider?('⭐ Líder: '+_analistasSel.lider+compTxt):'Nenhum analista atribuído ainda.'}<br>Somente Gestão ou Administrador podem reatribuir o analista após a criação.`;
+    } else if(_analistasSel.lider){
       const compTxt = _analistasSel.comp.length ? ' · Complementares: '+_analistasSel.comp.join(', ') : '';
       leg.textContent = '⭐ Líder: '+_analistasSel.lider + compTxt;
     } else {
-      leg.textContent = 'Clique para definir o líder da demanda. Cliques seguintes adicionam analistas complementares.';
+      leg.textContent = 'Clique para definir o líder da demanda (opcional — pode ser preenchido depois). Cliques seguintes adicionam analistas complementares.';
     }
   }
 }
 
 function selecionarAnalista(nome){
+  // Trava: fora do modo de criação, só Gestão/Admin reatribuem
+  if(!_eiModoCriacao && !pode(['Administrador','Gestão'])) return;
   const s = _analistasSel;
   if(s.lider === nome){
     // Clicou no líder: remove; primeiro complementar (se houver) vira líder
@@ -2840,8 +2977,17 @@ function registrarMudancaData(input){
   const novo = input.value;
   if(_eiModoCriacao || _eiCodigo==='__novo__') return; // criação: livre
   if(anterior === novo) return; // sem mudança real
-  // ITEM: "Data prevista de início" pode ser mudada livremente por qualquer usuário,
-  // sem exigir permissão, motivo ou registro em histórico.
+
+  // Defesa em profundidade: analista não atribuído não pode alterar nenhuma data
+  const dGuard = demandas.find(x=>x.codigo===_eiCodigo);
+  if(!podeMexerNaDemanda(dGuard)){
+    alert('Você não está atribuído a esta demanda. Apenas o(s) analista(s) responsável(is) ou Gestão/Administrador podem alterar datas.');
+    input.value = anterior;
+    return;
+  }
+
+  // ITEM: "Data prevista de início" pode ser mudada livremente por quem está
+  // atribuído à demanda (ou Gestão/Admin), sem exigir motivo ou registro em histórico.
   if(id === 'ei_dataPrevInicio'){ _datasOriginais[id] = novo; return; }
   if(!anterior){ _datasOriginais[id] = novo; return; } // primeiro preenchimento: livre
 
@@ -2993,8 +3139,8 @@ async function moverDemanda(codigo, novoStatus){
   if(!d) return;
   const allowed = TRANSITIONS[d.status] || [];
   if(!allowed.includes(novoStatus)) return; /* segurança */
-  if(!transicaoPermitida(d.status, novoStatus)){
-    alert('Você não tem permissão para esta transição.');
+  if(!transicaoPermitida(d.status, novoStatus, d)){
+    alert('Você não tem permissão para esta transição. Apenas Gestão, Administrador ou o(s) analista(s) atribuído(s) a esta demanda podem movê-la.');
     return;
   }
   const anterior = d.status;
