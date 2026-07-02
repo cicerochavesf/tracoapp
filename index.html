@@ -56,7 +56,7 @@
     .sidebar::before{content:"";position:absolute;bottom:-90px;left:-90px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,107,0,.20) 0%,transparent 62%);pointer-events:none;z-index:0}
     .sidebar>*{position:relative;z-index:1}
     .brand{padding:18px 16px 14px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--nb)}
-    .brand-mark{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.28),0 0 0 1px rgba(255,255,255,.10)}
+    .brand-mark{width:52px;height:52px;border-radius:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.28),0 0 0 1px rgba(255,255,255,.10)}
     .brand-mark img{width:100%;height:100%;object-fit:contain}
     .brand-title{font-size:13.5px;font-weight:700;color:var(--nt);letter-spacing:-.01em;line-height:1}
     .brand-title span{color:#FF7A30}
@@ -270,6 +270,20 @@
     .ev-section-head td{background:var(--sf2);font-weight:800;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--blue-700);padding:8px 10px;border-bottom:1px solid var(--line)}
     .ev-total-row td{background:var(--blue-d);font-weight:800;color:var(--blue-700);padding:9px 10px;font-size:13px}
     .ev-total-row-alt td{background:var(--sf2);color:var(--ink);font-weight:700;font-size:12px}
+
+    .ev-version-row{cursor:pointer;transition:background .13s}
+    .ev-version-row:hover{background:var(--blue-d)}
+    .evv-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+    .evv-sum-card{background:var(--blue-d);border:1px solid rgba(0,75,147,.16);border-radius:var(--r-lg);padding:11px 13px}
+    .evv-sum-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--blue-700);margin-bottom:4px}
+    .evv-sum-val{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+    .evv-motivo{background:var(--orange-50);border:1px solid rgba(255,107,0,.2);border-radius:var(--r);padding:9px 13px;font-size:12.5px;color:#8A4A00;margin-bottom:14px;font-style:italic}
+    .evv-table{width:100%;border-collapse:collapse;font-size:12.5px}
+    .evv-table td{padding:8px 10px;border-bottom:1px solid var(--line-2)}
+    .evv-diff-table{width:100%;border-collapse:collapse;font-size:12.5px}
+    .evv-diff-table thead th{background:var(--blue-700);color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;padding:9px 10px;text-align:left}
+    .evv-diff-table tbody td{padding:9px 10px;border-bottom:1px solid var(--line-2)}
+    .evv-diff-table tbody tr:hover td{background:var(--sf2)}
     .ev-pend-dot{display:inline-block;margin-left:6px;color:var(--orange-700);font-size:13px;cursor:help}
 
     /* ═══ SECTION BLOCK ═══ */
@@ -278,7 +292,7 @@
     /* ── LOGIN ── */
     .login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#040E1F 0%,#091A35 60%,#0D2144 100%);display:flex;align-items:center;justify-content:center;z-index:9998}
     .login-card{width:100%;max-width:400px;padding:40px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:24px;backdrop-filter:blur(20px);box-shadow:0 32px 80px rgba(0,0,0,.5)}
-    .login-logo{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;margin:0 auto 16px;box-shadow:0 8px 24px rgba(0,0,0,.3);overflow:hidden}
+    .login-logo{width:84px;height:84px;border-radius:20px;display:grid;place-items:center;margin:0 auto 16px;box-shadow:0 8px 24px rgba(0,0,0,.3);overflow:hidden}
     .login-title{font-size:22px;font-weight:800;color:#fff;text-align:center;margin-bottom:4px}
     .login-sub{font-size:13px;color:rgba(255,255,255,.5);text-align:center;margin-bottom:28px}
     .login-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
@@ -733,12 +747,26 @@
         </div>
         <div class="table-scroll" style="max-height:420px">
           <table>
-            <thead><tr><th>Versão</th><th>Data</th><th>Origem</th><th>Valor total</th><th>Custo/m²</th><th>Pendência</th><th>Quem/Motivo</th><th>Mudanças</th></tr></thead>
+            <thead><tr><th>Versão</th><th>Data</th><th>Origem</th><th>Valor total</th><th>Custo/m²</th><th>Pendência</th><th>Quem/Motivo</th><th>Ações</th></tr></thead>
             <tbody id="evVersoesTable"></tbody>
           </table>
         </div>
       </div>
     </section>
+
+    <!-- ITEM: Modal de visualização de versão / diff -->
+    <div class="overlay" id="evVersionOverlay" style="z-index:120">
+      <div class="drawer" style="width:min(760px,94vw)">
+        <div class="drawer-head">
+          <div>
+            <div class="drawer-title" id="evvTitle">—</div>
+            <div class="drawer-sub" id="evvSubtitle">—</div>
+          </div>
+          <button class="close-btn" onclick="closeDrawer('evVersionOverlay')">✕</button>
+        </div>
+        <div class="drawer-body" id="evvBody"></div>
+      </div>
+    </div>
 
     <section id="view-gerencial" class="view">
       <div class="topbar"><div class="page-heading"><h2>Visão Gerencial</h2><p>Produção, prazos e gargalos por analista e sprint.</p></div></div>
@@ -3243,23 +3271,22 @@ function verVersoesEV(obraId){
 
   if(versoes.length===0){
     document.getElementById('evVersoesTable').innerHTML =
-      '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Nenhuma versão registrada ainda.<br>As versões são criadas automaticamente quando uma demanda vinculada a esta obra é concluída.</td></tr>';
+      '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">Nenhuma versão registrada ainda.<br>As versões são criadas automaticamente quando uma demanda vinculada a esta obra é concluída.</td></tr>';
     return;
   }
-  document.getElementById('evVersoesTable').innerHTML = versoes.map((v,idx)=>{
+  document.getElementById('evVersoesTable').innerHTML = versoes.map(v=>{
     const origem = v.demandaCodigo
-      ? `<button class="link-btn" onclick="abrirDemandaOrigemEV('${v.demandaCodigo}')">${v.demandaCodigo}</button>`
+      ? `<button class="link-btn" onclick="event.stopPropagation();abrirDemandaOrigemEV('${v.demandaCodigo}')">${v.demandaCodigo}</button>`
       : `<span class="badge" style="background:var(--sf2);color:var(--muted)">Revisão manual</span>`;
     const quemMotivo = v.quem
       ? `<div style="font-size:11px"><strong>${v.quem}</strong>${v.motivo?`<div style="color:var(--muted);font-style:italic;margin-top:2px">"${v.motivo}"</div>`:''}</div>`
       : '—';
-    // Botão "O que mudou" só se existir versão anterior
     const temAnterior = versoes.find(x=>x.versao===v.versao-1);
     const btnDiff = temAnterior
-      ? `<button class="link-btn" onclick="mostrarDiffEV('${obraId}',${v.versao})">🔍 O que mudou</button>`
+      ? `<button class="link-btn" onclick="event.stopPropagation();abrirDiffEV('${obraId}',${v.versao})">🔍 O que mudou</button>`
       : `<span style="font-size:11px;color:var(--muted)">Versão inicial</span>`;
     return `
-    <tr>
+    <tr class="ev-version-row" onclick="abrirVersaoEV('${obraId}',${v.versao})" title="Clique para visualizar esta versão">
       <td><span class="badge badge-blue">v${v.versao}</span></td>
       <td style="font-family:'DM Mono',monospace;font-size:12px">${v.data?new Date(v.data+'T00:00:00').toLocaleDateString('pt-BR'):'—'}</td>
       <td>${origem}</td>
@@ -3268,26 +3295,65 @@ function verVersoesEV(obraId){
       <td>${v.temPendencia?'<span class="badge" style="background:var(--orange-50);color:var(--orange-700)">⚠ Pendente</span>':'<span class="badge badge-green">✓ Completo</span>'}</td>
       <td>${quemMotivo}</td>
       <td>${btnDiff}</td>
-    </tr>
-    <tr id="diffRow-${obraId}-${v.versao}" class="diff-row" style="display:none">
-      <td colspan="8" style="background:var(--sf2);padding:0"><div id="diffContent-${obraId}-${v.versao}"></div></td>
     </tr>`;
   }).join('');
 }
 
-/* ══ ITEM 5: DIFF ENTRE VERSÕES — "O que mudou" ══ */
-function mostrarDiffEV(obraId, versaoNum){
-  const row = document.getElementById(`diffRow-${obraId}-${versaoNum}`);
-  const content = document.getElementById(`diffContent-${obraId}-${versaoNum}`);
-  const visivel = row.style.display !== 'none';
-  // Esconde qualquer outro diff aberto
-  document.querySelectorAll('.diff-row').forEach(r=>r.style.display='none');
-  if(visivel){ return; } // já estava aberto → só fecha (feito acima)
+/* ══ VISUALIZAR UMA VERSÃO ESPECÍFICA (modal) ══ */
+function abrirVersaoEV(obraId, versaoNum){
+  const obra = obras.find(o=>o.id===obraId);
+  const v = evVersions.find(x=>x.obraId===obraId && x.versao===versaoNum);
+  if(!obra || !v) return;
 
+  document.getElementById('evvTitle').textContent = `${obra.nome} — v${versaoNum}`;
+  const origemTxt = v.demandaCodigo ? `Gerada pela demanda ${v.demandaCodigo}` : 'Revisão manual';
+  document.getElementById('evvSubtitle').textContent =
+    `${v.data?new Date(v.data+'T00:00:00').toLocaleDateString('pt-BR'):'—'} · ${origemTxt} · ${v.quem||'—'}`;
+
+  const linhas = [];
+  obraCostFields.forEach((label,i)=>{
+    const valor = v.obraVals[i]||0, status = v.statusObra[i]||'Estimado';
+    if(status==='Não se aplica') return;
+    linhas.push({label, valor, status});
+  });
+  otherCostFields.forEach((label,i)=>{
+    const valor = v.outrosVals[i]||0, status = v.statusOutros[i]||'Estimado';
+    if(status==='Não se aplica') return;
+    linhas.push({label, valor, status});
+  });
+
+  const corStatus = st => st==='Cotado' ? 'var(--green)' : st==='Orçado' ? 'var(--blue-700)' : '#B45F00';
+
+  document.getElementById('evvBody').innerHTML = `
+    <div class="evv-summary">
+      <div class="evv-sum-card"><div class="evv-sum-label">Valor Total</div><div class="evv-sum-val">${moneyBR(v.valorTotalSemRisco||v.valorTotal||0)}</div></div>
+      <div class="evv-sum-card"><div class="evv-sum-label">Custo/m²</div><div class="evv-sum-val">${moneyBR(v.custoM2SemRisco||v.custoM2||0)}</div></div>
+      <div class="evv-sum-card"><div class="evv-sum-label">Área Equiv.</div><div class="evv-sum-val">${(v.areaEq||0).toLocaleString('pt-BR')} m²</div></div>
+      <div class="evv-sum-card"><div class="evv-sum-label">Com taxa de risco</div><div class="evv-sum-val" style="font-size:14px">${moneyBR(v.valorTotal||0)}</div></div>
+    </div>
+    ${v.motivo ? `<div class="evv-motivo">💬 "${v.motivo}"</div>` : ''}
+    <table class="evv-table"><tbody>
+      ${linhas.map(l=>`
+        <tr>
+          <td>${l.label}</td>
+          <td style="text-align:right;font-family:'DM Mono',monospace">${moneyBR(l.valor)}</td>
+          <td style="text-align:right;color:${corStatus(l.status)};font-weight:700;font-size:11px">${l.status}</td>
+        </tr>`).join('')}
+    </tbody></table>
+  `;
+  document.getElementById('evVersionOverlay').classList.add('open');
+}
+
+/* ══ COMPARAR DUAS VERSÕES (modal) ══ */
+function abrirDiffEV(obraId, versaoNum){
+  const obra = obras.find(o=>o.id===obraId);
   const versoes = evVersions.filter(v=>v.obraId===obraId);
   const atual = versoes.find(v=>v.versao===versaoNum);
   const anterior = versoes.find(v=>v.versao===versaoNum-1);
-  if(!atual || !anterior){ content.innerHTML=''; row.style.display='none'; return; }
+  if(!obra || !atual || !anterior) return;
+
+  document.getElementById('evvTitle').textContent = `${obra.nome} — o que mudou`;
+  document.getElementById('evvSubtitle').textContent = `Comparando v${versaoNum-1} → v${versaoNum}`;
 
   const linhas = [];
   obraCostFields.forEach((label,i)=>{
@@ -3301,28 +3367,33 @@ function mostrarDiffEV(obraId, versaoNum){
     if(de!==para || deSt!==paraSt) linhas.push({label, de, para, deSt, paraSt});
   });
 
+  const corStatus = st => st==='Cotado' ? 'var(--green)' : st==='Orçado' ? 'var(--blue-700)' : '#B45F00';
+
   if(linhas.length===0){
-    content.innerHTML = '<div style="padding:14px 18px;color:var(--muted);font-size:12px">Nenhuma mudança de valor ou status entre as versões v'+(versaoNum-1)+' e v'+versaoNum+'.</div>';
+    document.getElementById('evvBody').innerHTML =
+      `<div style="text-align:center;padding:40px;color:var(--muted)">Nenhuma mudança de valor ou status entre as versões v${versaoNum-1} e v${versaoNum}.</div>`;
   } else {
-    content.innerHTML = `<div style="padding:12px 18px">
-      <div style="font-size:11px;font-weight:800;color:var(--blue-700);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Mudanças de v${versaoNum-1} → v${versaoNum}</div>
-      <table style="width:100%;font-size:12px"><tbody>
-      ${linhas.map(l=>`
-        <tr style="border-bottom:1px solid var(--line-2)">
-          <td style="padding:6px 8px;font-weight:600">${l.label}</td>
-          <td style="padding:6px 8px;color:var(--muted)">${moneyBR(l.de)} <span style="color:${l.deSt==='Cotado'?'var(--green)':l.deSt==='Orçado'?'var(--blue-700)':'var(--muted)'}">(${l.deSt})</span></td>
-          <td style="padding:6px 8px;text-align:center;color:var(--muted)">→</td>
-          <td style="padding:6px 8px;font-weight:700">${moneyBR(l.para)} <span style="color:${l.paraSt==='Cotado'?'var(--green)':l.paraSt==='Orçado'?'var(--blue-700)':'var(--muted)'}">(${l.paraSt})</span></td>
-        </tr>`).join('')}
+    document.getElementById('evvBody').innerHTML = `
+      <table class="evv-diff-table"><thead>
+        <tr><th>Item</th><th>Antes (v${versaoNum-1})</th><th></th><th>Depois (v${versaoNum})</th></tr>
+      </thead><tbody>
+        ${linhas.map(l=>`
+          <tr>
+            <td style="font-weight:600">${l.label}</td>
+            <td>${moneyBR(l.de)} <span style="color:${corStatus(l.deSt)};font-weight:700;font-size:10.5px">(${l.deSt})</span></td>
+            <td style="text-align:center;color:var(--muted)">→</td>
+            <td style="font-weight:700">${moneyBR(l.para)} <span style="color:${corStatus(l.paraSt)};font-weight:700;font-size:10.5px">(${l.paraSt})</span></td>
+          </tr>`).join('')}
       </tbody></table>
-    </div>`;
+    `;
   }
-  row.style.display = 'table-row';
+  document.getElementById('evVersionOverlay').classList.add('open');
 }
 
 function abrirDemandaOrigemEV(codigo){
   const d = demandas.find(x=>x.codigo===codigo);
   if(!d){ alert('Esta demanda não está mais disponível (pode ter sido excluída).'); return; }
+  closeDrawer('evVersionOverlay');
   openEIForm(codigo);
 }
 
