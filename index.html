@@ -2158,7 +2158,7 @@ function filtrarObrasEI(){
   }
   const results = candidatas.filter(o=>{
     const chave = gerarChave(o);
-    return [o.nome, o.cidade, o.uf, o.tipo, chave].join(' ').toLowerCase().includes(q);
+    return [o.nome, o.cidade, o.uf, o.tipo, o.codigoOriginal, chave].join(' ').toLowerCase().includes(q);
   }).slice(0, 8);
   if(results.length === 0){
     list.innerHTML = ehRevisao
@@ -2314,6 +2314,15 @@ function aplicarModoSomenteLeituraForm(somenteLeitura){
     const el = document.getElementById(id);
     if(el) el.disabled = somenteLeitura;
   });
+
+  // ITEM: mudar a sprint é privilégio de Gestão/Admin — mesmo o analista
+  // atribuído (líder ou complementar) não pode mudar, só visualizar
+  const _elSprint = document.getElementById('ei_sprint');
+  if(_elSprint){
+    const _podeSprint = pode(['Administrador','Gestão']);
+    _elSprint.disabled = somenteLeitura || !_podeSprint;
+    _elSprint.title = _podeSprint ? '' : 'Somente Gestão/Administrador podem mudar a sprint de uma demanda';
+  }
 
   // Botão de abrir EV a partir da demanda
   const btnEV = document.querySelector('#eiEtapa2 [onclick="abrirEVdaDemanda()"]');
@@ -3668,7 +3677,7 @@ function renderObras(){
         <button class="action-btn" onclick="openEV('${o.id}')">Abrir EV</button>${
         demandas.some(d=>d.obra===o.nome) && temPendenciaEV(o.id)
           ? '<span class="ev-pend-dot" title="EV com itens pendentes de cotação">⚠</span>' : ''
-      }${pode(['Administrador','Gestão']) ? `<button class="action-btn obra-edit-btn" onclick="editarObra('${o.id}')" title="Editar dados da obra">✎</button>` : ''}
+      }${pode(['Administrador','Gestão']) ? `<button class="action-btn obra-edit-btn" onclick="editarObra('${o.id}')" title="Editar dados da obra">✎</button><button class="action-btn obra-del-btn" onclick="excluirObra('${o.id}')" title="Excluir obra">🗑</button>` : ''}
       </td>
     </tr>`;
   }).join("");
@@ -3946,6 +3955,61 @@ async function salvarObra(){
   dbSave("obras", obraToDb(novaObra));
   ["newCodigoOriginal","newNomeObra","newCidade","newTempoObra"].forEach(i=>document.getElementById(i).value="");
   closeDrawer("novaObraOverlay");renderObras();renderKanban();showView("obras");
+}
+
+// Exclui uma obra permanentemente (Gestão/Admin). Em cascata, remove também
+// as demandas vinculadas a ela, o EV inteiro (rascunho + todas as versões)
+// e os registros de auditoria — não deixa nada órfão apontando pra uma obra
+// que não existe mais.
+async function excluirObra(obraId){
+  if(!pode(['Administrador','Gestão'])){ alert('Sem permissão.'); return; }
+  const o = obras.find(x=>x.id===obraId);
+  if(!o){ alert('Obra não encontrada.'); return; }
+
+  const demandasLigadas = demandas.filter(d=>d.obra===o.nome);
+  const versoesLigadas = evVersions.filter(v=>v.obraId===obraId);
+  const temEV = !!evStore[obraId] || versoesLigadas.length>0;
+
+  let msg = `Excluir permanentemente a obra "${o.nome}"?\n\nEsta ação não pode ser desfeita.`;
+  if(demandasLigadas.length>0 || temEV){
+    msg += '\n\n⚠ Isso também vai excluir:';
+    if(demandasLigadas.length>0) msg += `\n• ${demandasLigadas.length} demanda(s) vinculada(s)`;
+    if(temEV) msg += '\n• O Estudo de Viabilidade (EV) e todo o histórico de versões';
+  }
+  if(!confirm(msg)) return;
+
+  // Confirmação reforçada quando há dados reais em jogo (mesmo padrão da
+  // restauração de backup): exige digitar o nome exato da obra
+  if(demandasLigadas.length>0 || temEV){
+    const digitado = prompt(`Para confirmar, digite o nome exato da obra:\n"${o.nome}"`);
+    if(digitado !== o.nome){ alert('Nome não confere. Exclusão cancelada.'); return; }
+  }
+
+  // Cascata: demandas + formulários + logs de auditoria
+  for(const d of demandasLigadas){
+    if(formData[d.codigo]) delete formData[d.codigo];
+    await dbDelete('form_data_ei','demanda_codigo',d.codigo);
+    await dbDelete('demandas','codigo',d.codigo);
+    await dbDelete('mov_log','demanda_codigo',d.codigo);
+    await dbDelete('date_log','demanda_codigo',d.codigo);
+  }
+  const codigosLigados = new Set(demandasLigadas.map(d=>d.codigo));
+  demandas = demandas.filter(d=>!codigosLigados.has(d.codigo));
+  movLog = movLog.filter(m=>!codigosLigados.has(m.demandaCodigo));
+  dateLog = dateLog.filter(m=>!codigosLigados.has(m.demandaCodigo));
+
+  // Cascata: EV inteiro (rascunho ao vivo + todas as versões)
+  evVersions = evVersions.filter(v=>v.obraId!==obraId);
+  delete evStore[obraId];
+  await dbDelete('ev_versions','obra_id',obraId);
+  await dbDelete('ev_store','obra_id',obraId);
+
+  // A obra em si
+  obras = obras.filter(x=>x.id!==obraId);
+  await dbDelete('obras','id',obraId);
+
+  renderObras(); renderKanban();
+  alert('Obra excluída com sucesso.');
 }
 
 /* EV */
