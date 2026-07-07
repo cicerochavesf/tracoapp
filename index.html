@@ -111,6 +111,10 @@
     .kpi-grid-7{grid-template-columns:repeat(7,1fr)}
     .kpi-grid-7 .kpi-value{font-size:24px}
     .kpi-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px 12px;box-shadow:var(--sh-sm);position:relative;overflow:hidden;transition:box-shadow .18s,border-color .18s}
+    /* ITEM 14 (2ª rodada): KPIs clicáveis */
+    .kpi-card.kpi-click{cursor:pointer}
+    .kpi-card.kpi-click:hover{border-color:var(--blue-600);box-shadow:var(--sh);transform:translateY(-1px)}
+    .kpi-filtro-chip{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--blue-50);border:1px solid rgba(0,75,147,.22);border-radius:var(--r-lg);padding:9px 13px;margin-bottom:10px;font-size:12.5px;color:var(--blue-700)}
     .kpi-card:hover{box-shadow:var(--sh);border-color:rgba(0,75,147,.22)}
     .kpi-card::after{content:"";position:absolute;bottom:0;left:16px;width:22px;height:3px;background:var(--orange-700);border-radius:2px 2px 0 0;opacity:0;transition:opacity .2s}
     .kpi-card:hover::after{opacity:1}
@@ -167,7 +171,7 @@
     /* ═══ KANBAN ═══ */
     .kanban{cursor:grab}.kanban.dragging{cursor:grabbing;user-select:none}
     .kanban{display:grid;grid-template-columns:repeat(7,minmax(228px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px}
-    .kanban-col{--cc:var(--blue-700);background:var(--sf2);border:1px solid var(--line);border-radius:var(--r-lg);min-height:200px;max-height:calc(100vh - 240px);display:flex;flex-direction:column;overflow:hidden}
+    .kanban-col{--cc:var(--blue-700);background:var(--sf2);border:1px solid var(--line);border-radius:var(--r-lg);min-height:200px;max-height:calc(100vh - 170px);display:flex;flex-direction:column;overflow:hidden}
     .kanban-body{padding:8px;display:flex;flex-direction:column;gap:7px;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
     .kanban-body::-webkit-scrollbar{width:6px}
     .kanban-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
@@ -192,7 +196,7 @@
 
     /* ═══ TABLE ═══ */
     .table-wrap{border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--surface)}
-    .table-scroll{overflow:auto;max-height:calc(100vh - 330px)}
+    .table-scroll{overflow:auto;max-height:calc(100vh - 250px)}
     table{width:100%;border-collapse:collapse;font-size:13px}
     thead th{padding:9px 11px;text-align:left;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--muted);background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2;white-space:nowrap}
     tbody td{padding:10px 11px;border-bottom:1px solid var(--line-2);color:var(--text);vertical-align:middle}
@@ -710,16 +714,21 @@
               <option value="sem">Sem pendência</option>
             </select>
           </div>
+          <!-- ITEM 10 (2ª rodada): limpar filtros -->
+          <div class="field"><label>&nbsp;</label>
+            <button class="btn btn-ghost" style="white-space:nowrap" onclick="limparFiltrosOP()">✕ Limpar filtros</button>
+          </div>
         </div>
       </div>
+      <!-- ITEM 14 (2ª rodada): KPIs clicáveis — abrem a visão em lista filtrada pelo status -->
       <div class="kpi-grid kpi-grid-7">
-        <div class="kpi-card"><div class="kpi-label">Total na Sprint</div><div class="kpi-value" id="kpiTotal">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">A Iniciar</div><div class="kpi-value" id="kpiFazer">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Em Execução</div><div class="kpi-value" id="kpiFazendo">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Pausado</div><div class="kpi-value" id="kpiPausado">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Aguardando Validação</div><div class="kpi-value" id="kpiValidacao">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Concluído</div><div class="kpi-value" id="kpiConcluidas">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Cancelado</div><div class="kpi-value" id="kpiCancelado">0</div></div>
+        <div class="kpi-card kpi-click" title="Ver todas as demandas em lista" onclick="filtrarPorKPI(null)"><div class="kpi-label">Total na Sprint</div><div class="kpi-value" id="kpiTotal">0</div></div>
+        <div class="kpi-card kpi-click" title="Ver em lista" onclick="filtrarPorKPI(['Fazer'],'A Iniciar')"><div class="kpi-label">A Iniciar</div><div class="kpi-value" id="kpiFazer">0</div></div>
+        <div class="kpi-card kpi-click" title="Ver em lista" onclick="filtrarPorKPI(['Fazendo'],'Em Execução')"><div class="kpi-label">Em Execução</div><div class="kpi-value" id="kpiFazendo">0</div></div>
+        <div class="kpi-card kpi-click" title="Ver em lista" onclick="filtrarPorKPI(['Pausado'],'Pausado')"><div class="kpi-label">Pausado</div><div class="kpi-value" id="kpiPausado">0</div></div>
+        <div class="kpi-card kpi-click" title="Ver em lista" onclick="filtrarPorKPI(['Aguardando Validação Sala Técnica','Aguardando Validação Obras'],'Aguardando Validação')"><div class="kpi-label">Aguardando Validação</div><div class="kpi-value" id="kpiValidacao">0</div></div>
+        <div class="kpi-card kpi-click" title="Ver em lista" onclick="filtrarPorKPI(['Concluído'],'Concluído')"><div class="kpi-label">Concluído</div><div class="kpi-value" id="kpiConcluidas">0</div></div>
+        <div class="kpi-card kpi-click" title="Ver em lista" onclick="filtrarPorKPI(['Cancelado'],'Cancelado')"><div class="kpi-label">Cancelado</div><div class="kpi-value" id="kpiCancelado">0</div></div>
       </div>
       <div class="panel">
         <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:12px">
@@ -730,8 +739,9 @@
         </div>
         <div id="kanban" class="kanban"></div>
         <div id="listaDemandas" class="lista-demandas" style="display:none">
+          <div id="kpiFiltroChip" class="kpi-filtro-chip" style="display:none"></div>
           <div class="table-wrap">
-            <div class="table-scroll" style="max-height:calc(100vh - 300px)">
+            <div class="table-scroll" style="max-height:calc(100vh - 210px)">
               <table class="lista-table">
                 <thead>
                   <tr>
@@ -770,6 +780,8 @@
             <select id="ufFilter" style="min-width:120px"></select>
             <select id="tipoFilter" style="min-width:135px"></select>
             <select id="regiaoFilter" style="min-width:145px"></select>
+            <!-- ITEM 10 (2ª rodada) -->
+            <button class="btn btn-ghost" style="white-space:nowrap" onclick="limparFiltrosObras()">✕ Limpar filtros</button>
           </div>
         </div>
         <div class="table-wrap">
@@ -799,8 +811,10 @@
       <div class="panel">
         <div class="toolbar" style="margin-bottom:12px">
           <input class="search-input" id="evObraSearch" type="text" placeholder="Filtrar por nome, chave ou cidade…" oninput="renderListaEVs()" />
+          <!-- ITEM 10 (2ª rodada) -->
+          <button class="btn btn-ghost" style="white-space:nowrap" onclick="limparFiltrosEVs()">✕ Limpar filtros</button>
         </div>
-        <div class="table-scroll" style="max-height:calc(100vh - 300px)">
+        <div class="table-scroll" style="max-height:calc(100vh - 210px)">
           <table>
             <thead><tr><th>Obra</th><th>Cidade/UF</th><th>Versão</th><th>Última atualização</th><th>Pendência</th><th>Valor total</th><th>Valor por m²</th></tr></thead>
             <tbody id="evListaBody"></tbody>
@@ -816,7 +830,7 @@
             <button class="close-btn" style="width:32px;height:32px;font-size:14px" onclick="fecharVersoesEV()" title="Fechar">✕</button>
           </div>
         </div>
-        <div class="table-scroll" style="max-height:420px">
+        <div class="table-scroll" style="max-height:calc(100vh - 320px)">
           <table>
             <thead><tr><th>Versão</th><th>Data</th><th>Origem</th><th>Valor total</th><th>Custo/m²</th><th>Pendência</th><th>Quem/Motivo</th><th>Ações</th></tr></thead>
             <tbody id="evVersoesTable"></tbody>
@@ -860,7 +874,7 @@
           <div class="panel-title">👥 Usuários</div>
           <span class="pill neutral">Somente Administrador</span>
         </div>
-        <div class="table-scroll" style="max-height:260px;margin-bottom:18px">
+        <div class="table-scroll" style="max-height:calc(100vh - 420px);margin-bottom:18px">
           <table>
             <thead><tr><th>Nome</th><th>E-mail</th><th>Nível</th><th>Ações</th></tr></thead>
             <tbody id="usuariosTable"></tbody>
@@ -970,7 +984,7 @@
         </div>
         <div style="margin-top:11px"><button class="btn btn-primary" onclick="addSprint()">Criar sprint</button></div>
         <div class="table-wrap" style="margin-top:13px">
-          <div class="table-scroll" style="max-height:240px">
+          <div class="table-scroll" style="max-height:380px">
             <table>
               <thead><tr><th>Sprint</th><th>Início</th><th>Fim</th><th>Status</th><th>Ações</th></tr></thead>
               <tbody id="sprintsTable"></tbody>
@@ -1114,7 +1128,7 @@
             <label>Buscar obra</label>
             <input id="ei_obraSearch" type="text" placeholder="Digite nome, chave ou cidade…" oninput="filtrarObrasEI()">
           </div>
-          <div id="ei_obraList" style="margin-top:8px;max-height:200px;overflow-y:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)"></div>
+          <div id="ei_obraList" style="margin-top:8px;max-height:320px;overflow-y:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)"></div>
           <div id="ei_obraSelecionada" style="margin-top:10px;display:none">
             <div class="obra-sel-card">
               <div class="sc-dot" style="background:var(--blue-700);flex-shrink:0"></div>
@@ -1230,7 +1244,7 @@
           <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="toggleHistoricoDemanda()">Ver histórico</button>
         </div>
         <div id="eiHistoricoSec" style="display:none;margin-top:4px">
-          <div id="eiHistoricoLista" style="max-height:220px;overflow-y:auto"></div>
+          <div id="eiHistoricoLista" style="max-height:340px;overflow-y:auto"></div>
         </div>
       </div>
 
@@ -1600,6 +1614,11 @@ async function initDB(){
         await _sb.from('configuracoes').insert(cfgs.map(([k,v])=>({chave:k,valor:v})));
       }
     } catch(cfgErr){ console.warn('Configs não carregadas, usando defaults:', cfgErr); }
+    // ITENS 2/6/7 (2ª rodada): migra a estrutura do EV (fusões de linhas +
+    // retro-preenchimento de linhas novas) DEPOIS que as configs e os EVs
+    // foram carregados e ANTES de qualquer render.
+    try { await migrarEstruturaEV(); }
+    catch(migErr){ console.error('Falha na migração da estrutura do EV:', migErr); }
   }catch(err){
     console.error('initDB erro:', err);
     alert('Erro ao conectar com o Supabase. Verifique as credenciais. Rodando em modo offline.');
@@ -2262,7 +2281,7 @@ const PROJETOS_PADRAO = [
   {cod:'CLI',nome:'Climatização'},
   {cod:'SCI',nome:'Sist. Combate a Incêndio'},
   {cod:'STR',nome:'Estrutural'},
-  {cod:'ELO',nome:'Elétrica de Obras'},
+  {cod:'ELO',nome:'Lógica, CFFTV e Chamada'},
   {cod:'DRE',nome:'Drenagem'},
 ];
 
@@ -2299,7 +2318,7 @@ function openEIForm(codigo){
   // Header
   const obra = obras.find(o=>o.nome===d.obra);
   const chave = obra ? gerarChave(obra) : '—';
-  document.getElementById('eiTitle').textContent = d.codigo + ' — Emissão Inicial';
+  document.getElementById('eiTitle').textContent = d.codigo + ' — ' + (d.tipo || 'Emissão Inicial');
   document.getElementById('eiSub').textContent = d.obra + ' · ' + chave + ' · ' + d.sprint;
 
   // Status + transitions strip
@@ -2426,8 +2445,10 @@ function getItensPendentesEV(obraId){
   const statusObra   = (ev && ev.statusObra   && ev.statusObra.length)   ? ev.statusObra   : obraCostFields.map(()=>'Estimado');
   const statusOutros = (ev && ev.statusOutros && ev.statusOutros.length) ? ev.statusOutros : otherCostFields.map(()=>'Estimado');
   const faltando = [];
-  obraCostFields.forEach((label,i)=>{ if((statusObra[i]||'Estimado')==='Estimado') faltando.push(label); });
-  otherCostFields.forEach((label,i)=>{ if((statusOutros[i]||'Estimado')==='Estimado') faltando.push(label); });
+  // ITEM 7 (2ª rodada): posições além do array salvo são linhas criadas DEPOIS
+  // do EV — valem "Não se aplica" para EVs antigos, então não geram pendência.
+  obraCostFields.forEach((label,i)=>{ if(i < statusObra.length   && (statusObra[i]||'Estimado')==='Estimado')   faltando.push(label); });
+  otherCostFields.forEach((label,i)=>{ if(i < statusOutros.length && (statusOutros[i]||'Estimado')==='Estimado') faltando.push(label); });
   return faltando;
 }
 
@@ -3301,7 +3322,9 @@ let _demandaAtiva = null;
 
 function openDemandaDrawer(codigo){
   const _d = demandas.find(x=>x.codigo===codigo);
-  if(_d && _d.tipo==='Emissão inicial'){
+  // ITEM 3 (2ª rodada): Revisão de orçamento também usa o formulário completo de edição,
+  // não apenas o drawer simples de transições (antes só Emissão inicial conseguia editar)
+  if(_d && (_d.tipo==='Emissão inicial' || _d.tipo==='Revisão de orçamento')){
     openEIForm(codigo);
     return;
   }
@@ -3455,13 +3478,35 @@ function selecionarSprintTab(nome){
 }
 
 function limparFiltrosOP(){
+  // ITEM 10 (2ª rodada): limpa TODOS os filtros da visão operacional
   _sprintFiltro='Todas';
   const sf=document.getElementById('sprintFilter');
   if(sf) sf.value='Todas';
   document.getElementById('analistaFilter').value='Todos';
   document.getElementById('tipoAtividadeFilter').value='Todos';
+  const ef=document.getElementById('entregaFilter');   if(ef) ef.value='';
+  const pf=document.getElementById('pendenciaFilter'); if(pf) pf.value='';
+  const bs=document.getElementById('demandaSearch');   if(bs) bs.value='';
+  _kpiStatusFiltro=null; _kpiFiltroRotulo='';
   renderSprintTabs();
   renderKanban();
+  if(_viewMode==='lista') renderLista();
+}
+
+// ITEM 10 (2ª rodada): limpar filtros da Gestão de Obras
+function limparFiltrosObras(){
+  document.getElementById('obraSearch').value='';
+  document.getElementById('ufFilter').value='';
+  document.getElementById('tipoFilter').value='';
+  document.getElementById('regiaoFilter').value='';
+  renderObras();
+}
+
+// ITEM 10 (2ª rodada): limpar filtro da Gestão de EVs
+function limparFiltrosEVs(){
+  const q=document.getElementById('evObraSearch');
+  if(q) q.value='';
+  renderListaEVs();
 }
 
 /* ══ SLA HELPERS ══ */
@@ -3564,23 +3609,74 @@ function filteredDemandas(){
 // Retorna {classe, label} baseado em dataPrevista x dataEntregaReal (ou hoje)
 function statusEntrega(codigo){
   const ei = (formData[codigo]||{}).ei || {};
-  const prevista = ei.dataPrevista;
-  if(!prevista) return null; // sem data prevista, sem status
   const d = demandas.find(x=>x.codigo===codigo);
   const concluida = d && d.status==='Concluído';
+
+  /* ITENS 11/12/13 (2ª rodada): o "marco" da demanda depende da fase.
+     · Concluída → compara entrega real × entrega prevista (como antes);
+     · Enviada p/ validação (data de envio preenchida ou status de validação)
+       OU marcada "não enviada p/ validação" → o marco é a DATA PREVISTA DE
+       ENTREGA (se foi alterada manualmente, vale a alterada — o campo é ela);
+     · Caso contrário (aguardando envio) → o marco é a DATA PREVISTA DE ENVIO
+       P/ VALIDAÇÃO (item 11: é ela que dispara o "próximo da entrega"). */
+  const emValidacao = d && (d.status==='Aguardando Validação Obras' || d.status==='Aguardando Validação Sala Técnica');
+  const enviada = !!ei.dataEnvioObras || emValidacao;
+  const usaPrevista = concluida || enviada || !!ei.naoEnviadoObras;
+  const marco = usaPrevista ? (ei.dataPrevista || ei.dataMetaObras) : (ei.dataMetaObras || ei.dataPrevista);
+  if(!marco) return null; // sem data de referência, sem status
+
   const ref = concluida && ei.dataEntregaReal
     ? new Date(ei.dataEntregaReal+'T00:00:00')
     : (()=>{ const h=new Date(); h.setHours(0,0,0,0); return h; })();
-  const prev = new Date(prevista+'T00:00:00');
+  const prev = new Date(marco+'T00:00:00');
   const diffDias = Math.round((ref - prev) / 86400000); // >0 = atrasada
 
   if(concluida){
     if(diffDias <= 0) return {classe:'entregue-prazo', label:'✓ Entregue no prazo'};
     return {classe:'entregue-atraso', label:`⚠ Entregue com ${diffDias} dia${diffDias>1?'s':''} de atraso`};
   }
+  const alvo = usaPrevista ? 'da entrega' : 'do envio p/ validação';
   if(diffDias > 0) return {classe:'atrasada', label:`🔴 Atrasada há ${diffDias} dia${diffDias>1?'s':''}`};
-  if(diffDias >= -2) return {classe:'proximo', label:'🟠 Próximo da entrega'};
+  if(diffDias >= -2) return {classe:'proximo', label:`🟠 Próximo ${alvo}`};
   return {classe:'em-dia', label:'🟢 Em dia'};
+}
+
+/* ITEM 8 (2ª rodada): ordenação dentro das colunas do kanban (e da lista):
+   1º data de entrega prevista (sem data vai para o fim) →
+   2º data de criação (nº sequencial do código: DEM menor = criada antes) →
+   3º ordem alfabética pelo nome da obra. */
+function ordenarDemandas(arr){
+  const numCod = c => { const m = String(c||'').match(/(\d+)/); return m ? parseInt(m[1],10) : 0; };
+  const entrega = d => ((formData[d.codigo]||{}).ei||{}).dataPrevista || '';
+  return [...arr].sort((a,b)=>{
+    const ea = entrega(a), eb = entrega(b);
+    if(ea !== eb){
+      if(!ea) return 1;
+      if(!eb) return -1;
+      return ea < eb ? -1 : 1;
+    }
+    const ca = numCod(a.codigo), cb = numCod(b.codigo);
+    if(ca !== cb) return ca - cb;
+    return (a.obra||'').localeCompare(b.obra||'','pt-BR');
+  });
+}
+
+/* ITEM 9 (2ª rodada): valor exibido para Revisão de orçamento concluída é a
+   DIFERENÇA entre o novo EV e o anterior. Usa o valor gravado na conclusão
+   (valorAlteracaoEV); para revisões concluídas antes desse campo existir,
+   recalcula pelas versões do EV. */
+function valorAlteracaoDaRevisao(codigo){
+  const d = demandas.find(x=>x.codigo===codigo);
+  if(!d) return null;
+  if(d.valorAlteracaoEV !== undefined && d.valorAlteracaoEV !== null) return d.valorAlteracaoEV;
+  const obra = obras.find(o=>o.nome===d.obra);
+  if(!obra) return null;
+  const daDemanda = evVersions.filter(v=>v.obraId===obra.id && v.demandaCodigo===codigo).sort((a,b)=>b.versao-a.versao)[0];
+  if(!daDemanda) return null;
+  const anterior = evVersions.find(v=>v.obraId===obra.id && v.versao===daDemanda.versao-1);
+  const valorNovo = daDemanda.valorTotalSemRisco || daDemanda.valorTotal || 0;
+  const valorAnt  = anterior ? (anterior.valorTotalSemRisco || anterior.valorTotal || 0) : 0;
+  return valorNovo - valorAnt;
 }
 
 function renderKanban(){
@@ -3588,7 +3684,8 @@ function renderKanban(){
   const data=filteredDemandas();
   kanban.innerHTML="";
   statusList.forEach(status=>{
-    const list=data.filter(d=>d.status===status);
+    // ITEM 8 (2ª rodada): entrega prevista → criação → alfabética
+    const list=ordenarDemandas(data.filter(d=>d.status===status));
     const color=STATUS_COLORS[status]||"#1D6FEB";
     const col=document.createElement("div");
     col.className="kanban-col";col.style.setProperty("--cc",color);
@@ -3597,13 +3694,16 @@ function renderKanban(){
         const concluida = item.status==='Concluído';
         const ev = concluida ? getEVdaObraPorDemanda(item.codigo) : null;
         const evValorRef = ev ? (ev.valorTotalSemRisco||ev.valorTotal||0) : 0;
-        // PREMISSA 2: Revisão de orçamento mostra a DIFERENÇA da alteração, não o total
+        // ITEM 9 (2ª rodada): Revisão de orçamento mostra a DIFERENÇA da alteração
+        // (novo EV − EV anterior) — nunca o total do novo EV.
         let evBadge = '';
-        if(concluida && item.tipo==='Revisão de orçamento' && item.valorAlteracaoEV!==undefined && item.valorAlteracaoEV!==null){
-          const diff = item.valorAlteracaoEV;
-          const sinal = diff>0 ? '+' : (diff<0 ? '−' : '');
-          const cor = diff>0 ? 'var(--red)' : (diff<0 ? 'var(--green)' : 'var(--muted)');
-          evBadge = `<div class="task-ev-total" style="border-color:${cor}33">Valor da Alteração do EV<strong style="color:${cor}">${sinal}${moneyBR(Math.abs(diff))}</strong></div>`;
+        if(concluida && item.tipo==='Revisão de orçamento'){
+          const diff = valorAlteracaoDaRevisao(item.codigo);
+          if(diff!==null && diff!==undefined){
+            const sinal = diff>0 ? '+' : (diff<0 ? '−' : '');
+            const cor = diff>0 ? 'var(--red)' : (diff<0 ? 'var(--green)' : 'var(--muted)');
+            evBadge = `<div class="task-ev-total" style="border-color:${cor}33">Valor da Alteração do EV<strong style="color:${cor}">${sinal}${moneyBR(Math.abs(diff))}</strong></div>`;
+          }
         } else if(concluida && ev && evValorRef>0){
           evBadge = `<div class="task-ev-total">Valor total do EV<strong>${moneyBR(evValorRef)}</strong></div>`;
         }
@@ -3613,14 +3713,29 @@ function renderKanban(){
         // ITEM 11: badge de status de entrega
         const se = statusEntrega(item.codigo);
         const seBadge = se ? `<div class="task-entrega ${se.classe}">${se.label}</div>` : '';
-        // ITEM 6: card mostra "Data prevista de envio p/ validação Obras" enquanto não concluída;
-        // vira "Data de entrega real" assim que a demanda é concluída
+        /* ITENS 12/13 (2ª rodada): data exibida no card por fase.
+           · Enviada p/ validação (data de envio ou status de validação) → data
+             PREVISTA DE ENTREGA (se alterada manualmente, exibe a alterada);
+           · Marcada "não enviada p/ validação" → também data prevista de entrega;
+           · Ainda aguardando envio → data prevista de ENVIO p/ validação (🎯);
+           · Concluída → data de entrega real. */
         const eiCard = (formData[item.codigo]||{}).ei || {};
-        let dataCard = eiCard.dataMetaObras
-          ? '🎯 ' + new Date(eiCard.dataMetaObras+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})
-          : '📅 —';
+        const fmtBR = iso => new Date(iso+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+        const emValid = item.status==='Aguardando Validação Obras' || item.status==='Aguardando Validação Sala Técnica';
+        const enviadaVal = !!eiCard.dataEnvioObras || emValid;
+        const usaPrevistaCard = enviadaVal || !!eiCard.naoEnviadoObras;
+        let dataCard;
+        if(usaPrevistaCard){
+          dataCard = eiCard.dataPrevista
+            ? '📦 Entrega prevista: ' + fmtBR(eiCard.dataPrevista)
+            : (eiCard.dataMetaObras ? '🎯 Envio p/ validação: ' + fmtBR(eiCard.dataMetaObras) : '📅 —');
+        } else {
+          dataCard = eiCard.dataMetaObras
+            ? '🎯 Envio p/ validação: ' + fmtBR(eiCard.dataMetaObras)
+            : (eiCard.dataPrevista ? '📦 Entrega prevista: ' + fmtBR(eiCard.dataPrevista) : '📅 —');
+        }
         if(concluida && eiCard.dataEntregaReal){
-          dataCard = '✅ Concluída em ' + new Date(eiCard.dataEntregaReal+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+          dataCard = '✅ Concluída em ' + fmtBR(eiCard.dataEntregaReal);
         }
         // ITEM 3: analistas complementares
         const compTxt = (item.analistasComp && item.analistasComp.length)
@@ -3650,6 +3765,37 @@ function renderKanban(){
 
 let _viewMode = 'kanban';
 
+/* ══ ITEM 14 (2ª rodada): KPIs CLICÁVEIS ══
+   Clicar em um KPI abre a visão em LISTA já filtrada pelos status daquele
+   indicador. O filtro vale só para a lista (os números dos KPIs continuam
+   refletindo os filtros gerais). Um chip acima da lista mostra o filtro
+   ativo e permite removê-lo. */
+let _kpiStatusFiltro = null;   // array de status ou null
+let _kpiFiltroRotulo = '';
+
+function filtrarPorKPI(statuses, rotulo){
+  _kpiStatusFiltro = (statuses && statuses.length) ? statuses : null;
+  _kpiFiltroRotulo = _kpiStatusFiltro ? (rotulo || statuses.join(', ')) : '';
+  setViewMode('lista');
+  const lista = document.getElementById('listaDemandas');
+  if(lista) lista.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function limparFiltroKPI(){
+  _kpiStatusFiltro = null;
+  _kpiFiltroRotulo = '';
+  renderLista();
+}
+
+function renderChipFiltroKPI(){
+  const el = document.getElementById('kpiFiltroChip');
+  if(!el) return;
+  if(!_kpiStatusFiltro){ el.style.display='none'; el.innerHTML=''; return; }
+  el.style.display='flex';
+  el.innerHTML = `<span>Filtrando pelo KPI: <strong>${_kpiFiltroRotulo}</strong></span>
+    <button class="btn btn-ghost btn-sm" onclick="limparFiltroKPI()">✕ Remover filtro</button>`;
+}
+
 function setViewMode(mode){
   _viewMode = mode;
   const isKanban = mode === 'kanban';
@@ -3661,7 +3807,12 @@ function setViewMode(mode){
 }
 
 function renderLista(){
-  const data = filteredDemandas();
+  renderChipFiltroKPI();
+  let data = filteredDemandas();
+  // ITEM 14 (2ª rodada): filtro vindo do clique em um KPI
+  if(_kpiStatusFiltro) data = data.filter(d=>_kpiStatusFiltro.includes(d.status));
+  // ITEM 8 (2ª rodada): mesma ordenação do kanban
+  data = ordenarDemandas(data);
   const tbody = document.getElementById('listaDemandasBody');
   if(!tbody) return;
   if(data.length===0){
@@ -3851,6 +4002,28 @@ function addNomenclaturaEV(tipo){
   if(lista.some(n=>n.toLowerCase()===novo.toLowerCase())){ alert('Já existe uma linha com esse nome.'); return; }
   lista.push(novo);
   dbSave('configuracoes', {chave: tipo==='obra'?'evCamposObra':'evCamposOutros', valor: lista});
+
+  // ITEM 7 (2ª rodada): a linha nova só vale para EVs NOVOS. Nos EVs já salvos
+  // (e nas versões históricas), ela entra com valor 0 e status "Não se aplica" —
+  // assim os EVs anteriores não ficam "incompletos" nem travam a conclusão.
+  const ehObra = tipo==='obra';
+  Object.keys(evStore).forEach(obraId=>{
+    const ev = evStore[obraId];
+    const vals  = ehObra ? (ev.obra  ||(ev.obra=[]))   : (ev.outros      ||(ev.outros=[]));
+    const stats = ehObra ? (ev.statusObra||(ev.statusObra=[])) : (ev.statusOutros||(ev.statusOutros=[]));
+    while(vals.length < lista.length) vals.push(0);
+    if(stats.length > 0){ while(stats.length < lista.length) stats.push('Não se aplica'); }
+    dbSave('ev_store', evToDb(obraId, ev));
+  });
+  evVersions.forEach(v=>{
+    const vals  = ehObra ? (v.obraVals ||(v.obraVals=[]))  : (v.outrosVals  ||(v.outrosVals=[]));
+    const stats = ehObra ? (v.statusObra||(v.statusObra=[])) : (v.statusOutros||(v.statusOutros=[]));
+    let mudou = false;
+    while(vals.length < lista.length){ vals.push(0); mudou = true; }
+    if(stats.length > 0){ while(stats.length < lista.length){ stats.push('Não se aplica'); mudou = true; } }
+    if(mudou) dbSave('ev_versions', evVersionToDb(v));
+  });
+
   input.value = '';
   renderNomenclaturasEV();
   buildCostFields('obraCosts',obraCostFields,'Obra',0);
@@ -4034,6 +4207,18 @@ async function salvarObra(){
 
     await dbSave("obras", obraToDb(o));
 
+    // ITEM 1 (2ª rodada): sincronismo obra → EV. Se as áreas mudaram e a obra
+    // já tem EV salvo, atualiza as áreas do EV e recalcula custo/m².
+    const evLig = evStore[o.id];
+    if(evLig && (evLig.areaEq!==o.areaEquivalente || evLig.areaConst!==o.areaConstruida)){
+      evLig.areaEq = o.areaEquivalente;
+      evLig.areaConst = o.areaConstruida;
+      const t = computeEVTotals(evLig.obra||[], evLig.outros||[], evLig.statusObra||[], evLig.statusOutros||[], evLig.areaEq);
+      evLig.valorTotal=t.valorTotal; evLig.valorTotalSemRisco=t.valorTotalSemRisco;
+      evLig.custoM2=t.custoM2; evLig.custoM2SemRisco=t.custoM2SemRisco;
+      await dbSave('ev_store', evToDb(o.id, evLig));
+    }
+
     // Se o NOME mudou, propaga em cascata para as demandas vinculadas
     // (demandas guardam o nome da obra como texto, não o ID)
     if(nomeAntigo !== nome){
@@ -4057,7 +4242,14 @@ async function salvarObra(){
   // são perguntados automaticamente ao gerar a 1ª versão do EV (criarVersaoEV)
   const id=document.getElementById("newObraId").value;
   const evNumber=id.replace("OBR-","EV-");
-  const novaObra={id,evId:evNumber,codigoOriginal:document.getElementById("newCodigoOriginal").value.trim(),nome,tipo:document.getElementById("newTipoUnidade").value,cidade:document.getElementById("newCidade").value.trim(),uf:document.getElementById("newUF").value,regiao:document.getElementById("newRegiao").value,tempoObra:document.getElementById("newTempoObra").value,classificacao:document.getElementById("newClassificacao").value,tipologia:document.getElementById("newTipologia").value};
+  // ITEM 1 (2ª rodada): áreas informadas no cadastro da obra são gravadas e
+  // reaproveitadas automaticamente ao abrir o EV (openEV já lê da obra).
+  const novaObra={id,evId:evNumber,codigoOriginal:document.getElementById("newCodigoOriginal").value.trim(),nome,tipo:document.getElementById("newTipoUnidade").value,cidade:document.getElementById("newCidade").value.trim(),uf:document.getElementById("newUF").value,regiao:document.getElementById("newRegiao").value,tempoObra:document.getElementById("newTempoObra").value,classificacao:document.getElementById("newClassificacao").value,tipologia:document.getElementById("newTipologia").value,
+    areaEquivalente:Number(document.getElementById("newAreaEq").value)||0,
+    areaConstruida:Number(document.getElementById("newAreaConst").value)||0,
+    ordemSAP:document.getElementById("newOrdemSAP").value.trim(),
+    cnpj:document.getElementById("newCNPJ").value.trim(),
+    endereco:document.getElementById("newEndereco").value.trim()};
   obras.push(novaObra);
   dbSave("obras", obraToDb(novaObra));
   ["newCodigoOriginal","newNomeObra","newCidade","newTempoObra"].forEach(i=>document.getElementById(i).value="");
@@ -4120,8 +4312,112 @@ async function excluirObra(obraId){
 }
 
 /* EV */
-const obraCostFields=["Fundações","Contenções","Estruturas","Adequações Civis","Adequações Civis Áreas Externas","Fachadas","Instalações Elétricas","Instalações Hidrossanitárias","Instalações de Gases Medicinais","Instalações de Combate a Incêndio","Instalações de SPDA","Instalações de Climatização e Exaustão","Infraestrutura de Dados/Voz/Seg. Patrimonial/CFTV/Chamada","Custos Indiretos"];
+/* ITENS 2 e 6 (2ª rodada): "Fundações" + "Contenções" viraram uma linha só
+   ("Fundações e Contenções") e "Adequações Civis" absorveu "Adequações Civis
+   Áreas Externas". EVs antigos são migrados automaticamente por
+   migrarEstruturaEV() no carregamento: os valores das duas linhas são SOMADOS
+   e agrupados, preservando os totais. */
+const obraCostFields=["Fundações e Contenções","Estruturas","Adequações Civis","Fachadas","Instalações Elétricas","Instalações Hidrossanitárias","Instalações de Gases Medicinais","Instalações de Combate a Incêndio","Instalações de SPDA","Instalações de Climatização e Exaustão","Infraestrutura de Dados/Voz/Seg. Patrimonial/CFTV/Chamada","Custos Indiretos"];
 const otherCostFields=["Projetos Técnicos","Projetos Legalização","Dados e Voz/Segurança Patrimonial/Chamada Hospitalar","Equipamentos de Climatização","Artefatos em Inox","Marcenaria","Réguas Medicinais","Gerador/Subestação/Transformador/Cubículos","Elevadores/Plataforma Elevatória","Compressor/Bomba de Vácuo/Driox","IT Médico/Nobreak","ETE/ETA","Correio Pneumático","Controle de Acessos","Planejamento de Obras","Contas de Consumo","Comunicação Visual Externa e Interna","Quadros Elétricos","SIC's","Sistemas de Automação","Taxa de Risco (5%)","Blindagem","Paisagismo e/ou Compensação Ambiental","Câmara Fria"];
+
+/* ══ ITENS 2/6/7 (2ª rodada): MIGRAÇÃO ESTRUTURAL DO EV ══
+   Os valores dos EVs são armazenados de forma POSICIONAL. Fundir duas linhas
+   exige somar os valores nos índices certos em TODOS os EVs salvos (evStore)
+   e em TODAS as versões históricas (evVersions), antes de remover o índice.
+   Regras da fusão:
+   · valor final  = soma dos valores aplicáveis (linhas "Não se aplica" não
+     entram na soma, exatamente como no cálculo do total — totais preservados);
+   · status final = o MENOS consolidado entre os dois (Estimado > Orçado >
+     Cotado), pois se uma parte ainda é estimada, o agrupado segue pendente;
+   · se ambas forem "Não se aplica", o agrupado permanece "Não se aplica". */
+function _fundirLinhaEV(vals, stats, tamanhoLista, idxFica, idxSai){
+  while(vals.length < tamanhoLista) vals.push(0);
+  const temStatus = stats.length > 0;
+  if(temStatus){ while(stats.length < tamanhoLista) stats.push('Não se aplica'); }
+  const sA = temStatus ? (stats[idxFica]||'Estimado') : 'Estimado';
+  const sB = temStatus ? (stats[idxSai] ||'Estimado') : 'Estimado';
+  const vA = Number(vals[idxFica]||0), vB = Number(vals[idxSai]||0);
+  const naA = sA==='Não se aplica', naB = sB==='Não se aplica';
+  let novoVal, novoStatus;
+  if(naA && naB){ novoVal = vA + vB; novoStatus = 'Não se aplica'; }
+  else{
+    novoVal = (naA?0:vA) + (naB?0:vB);
+    const rank = {'Estimado':0,'Orçado':1,'Cotado':2};
+    const cands = [];
+    if(!naA) cands.push(sA);
+    if(!naB) cands.push(sB);
+    cands.sort((a,b)=>(rank[a]??0)-(rank[b]??0));
+    novoStatus = cands[0] || 'Estimado';
+  }
+  vals[idxFica] = novoVal;
+  vals.splice(idxSai,1);
+  if(temStatus){ stats[idxFica] = novoStatus; stats.splice(idxSai,1); }
+}
+
+async function migrarEstruturaEV(){
+  const fusoes = [
+    {sai:'Contenções', fica:['Fundações','Fundações e Contenções'], renomearPara:'Fundações e Contenções'},
+    {sai:'Adequações Civis Áreas Externas', fica:['Adequações Civis'], renomearPara:null}
+  ];
+  const evMudados = new Set();
+  const verMudadas = new Set();
+  let listaMudou = false;
+
+  fusoes.forEach(f=>{
+    const idxSai = obraCostFields.indexOf(f.sai);
+    if(idxSai === -1) return; // já migrado (ou linha não existe)
+    const alvo = f.fica.find(n=>obraCostFields.includes(n));
+    if(!alvo) return; // sem destino seguro — não mexe
+    const idxFica = obraCostFields.indexOf(alvo);
+    const tamanho = obraCostFields.length;
+
+    Object.keys(evStore).forEach(obraId=>{
+      const ev = evStore[obraId];
+      _fundirLinhaEV(ev.obra||(ev.obra=[]), ev.statusObra||(ev.statusObra=[]), tamanho, idxFica, idxSai);
+      evMudados.add(obraId);
+    });
+    evVersions.forEach(v=>{
+      _fundirLinhaEV(v.obraVals||(v.obraVals=[]), v.statusObra||(v.statusObra=[]), tamanho, idxFica, idxSai);
+      verMudadas.add(v);
+    });
+
+    obraCostFields.splice(idxSai,1);
+    const idxNovo = obraCostFields.indexOf(alvo);
+    if(f.renomearPara && obraCostFields[idxNovo] !== f.renomearPara) obraCostFields[idxNovo] = f.renomearPara;
+    listaMudou = true;
+  });
+
+  /* ITEM 7 (2ª rodada): retro-preenchimento. EVs salvos ANTES da criação de
+     novas linhas ficam com arrays mais curtos que a lista — e a linha nova
+     aparecia como "Estimado", travando a conclusão. Aqui, as posições que
+     faltam são preenchidas com valor 0 e status "Não se aplica": a linha nova
+     só vale para EVs novos. (Arrays de status totalmente VAZIOS são de EVs
+     legados sem status — esses continuam vazios para preservar a regra
+     "tudo Estimado".) */
+  const completar = (vals, stats, tamanho) => {
+    let mudou = false;
+    while(vals.length < tamanho){ vals.push(0); mudou = true; }
+    if(stats.length > 0){ while(stats.length < tamanho){ stats.push('Não se aplica'); mudou = true; } }
+    return mudou;
+  };
+  Object.keys(evStore).forEach(obraId=>{
+    const ev = evStore[obraId];
+    const m1 = completar(ev.obra||(ev.obra=[]), ev.statusObra||(ev.statusObra=[]), obraCostFields.length);
+    const m2 = completar(ev.outros||(ev.outros=[]), ev.statusOutros||(ev.statusOutros=[]), otherCostFields.length);
+    if(m1||m2) evMudados.add(obraId);
+  });
+  evVersions.forEach(v=>{
+    const m1 = completar(v.obraVals||(v.obraVals=[]), v.statusObra||(v.statusObra=[]), obraCostFields.length);
+    const m2 = completar(v.outrosVals||(v.outrosVals=[]), v.statusOutros||(v.statusOutros=[]), otherCostFields.length);
+    if(m1||m2) verMudadas.add(v);
+  });
+
+  // Persistência (só quando algo de fato mudou)
+  if(listaMudou) await dbSave('configuracoes', {chave:'evCamposObra', valor:obraCostFields});
+  for(const obraId of evMudados) await dbSave('ev_store', evToDb(obraId, evStore[obraId]));
+  for(const v of verMudadas) await dbSave('ev_versions', evVersionToDb(v));
+  if(listaMudou) console.info('[Traço] Estrutura do EV migrada: '+evMudados.size+' EV(s) e '+verMudadas.size+' versão(ões) atualizados.');
+}
 
 /* ══ ITEM 10: COLAR VALORES MONETÁRIOS NO EV ══ */
 // Converte "R$ 1.234.567,89" / "1.234,56" / "1234.56" → número
@@ -4277,13 +4573,16 @@ function abrirVersaoEV(obraId, versaoNum){
     `${v.data?new Date(v.data+'T00:00:00').toLocaleDateString('pt-BR'):'—'} · ${origemTxt} · ${v.quem||'—'}`;
 
   const linhas = [];
+  // ITEM 7 (2ª rodada): posições além do array salvo são linhas criadas depois
+  // desta versão — contam como "Não se aplica" (ficam ocultas), não "Estimado".
+  const stVer = (arr,i) => (arr && arr.length) ? (i < arr.length ? (arr[i]||'Estimado') : 'Não se aplica') : 'Estimado';
   obraCostFields.forEach((label,i)=>{
-    const valor = v.obraVals[i]||0, status = v.statusObra[i]||'Estimado';
+    const valor = v.obraVals[i]||0, status = stVer(v.statusObra,i);
     if(status==='Não se aplica') return;
     linhas.push({label, valor, status});
   });
   otherCostFields.forEach((label,i)=>{
-    const valor = v.outrosVals[i]||0, status = v.statusOutros[i]||'Estimado';
+    const valor = v.outrosVals[i]||0, status = stVer(v.statusOutros,i);
     if(status==='Não se aplica') return;
     linhas.push({label, valor, status});
   });
@@ -4520,8 +4819,12 @@ function openEV(obraId, viaDemanda){
   const otherSelects = document.querySelectorAll("#otherCosts select[data-status]");
   obraInputs.forEach((inp,i)=> inp.value = saved && saved.obra ? (saved.obra[i]||0) : 0);
   otherInputs.forEach((inp,i)=> inp.value = saved && saved.outros ? (saved.outros[i]||0) : 0);
-  obraSelects.forEach((sel,i)=> sel.value = saved && saved.statusObra ? (saved.statusObra[i]||'Estimado') : 'Estimado');
-  otherSelects.forEach((sel,i)=> sel.value = saved && saved.statusOutros ? (saved.statusOutros[i]||'Estimado') : 'Estimado');
+  // ITEM 7 (2ª rodada): em EVs já salvos, linhas criadas depois (índice além do
+  // array de status) abrem como "Não se aplica" — não como "Estimado".
+  obraSelects.forEach((sel,i)=> sel.value = saved && saved.statusObra && saved.statusObra.length
+    ? (i < saved.statusObra.length ? (saved.statusObra[i]||'Estimado') : 'Não se aplica') : 'Estimado');
+  otherSelects.forEach((sel,i)=> sel.value = saved && saved.statusOutros && saved.statusOutros.length
+    ? (i < saved.statusOutros.length ? (saved.statusOutros[i]||'Estimado') : 'Não se aplica') : 'Estimado');
 
   // Cabeçalho: REV (número da próxima versão) e data
   const versoesExistentes = evVersions.filter(v=>v.obraId===obraId).length;
@@ -4584,9 +4887,12 @@ function salvarEV(){
     statusObra, statusOutros,
     areaEq, areaConst, valorTotal, custoM2, valorTotalSemRisco, custoM2SemRisco
   };
-  // Reflete áreas de volta na obra
+  // ITEM 1 (2ª rodada): reflete áreas de volta na obra E persiste no banco (sincronismo EV → obra)
   const obra = obras.find(o=>o.id===_evObraAtual);
-  if(obra){ obra.areaEquivalente=areaEq; obra.areaConstruida=areaConst; }
+  if(obra && (obra.areaEquivalente!==areaEq || obra.areaConstruida!==areaConst)){
+    obra.areaEquivalente=areaEq; obra.areaConstruida=areaConst;
+    dbSave('obras', obraToDb(obra));
+  }
 
   dbSave('ev_store', evToDb(_evObraAtual, evStore[_evObraAtual]));
 
@@ -4613,8 +4919,12 @@ function salvarEVrascunho(){
   const areaConst = Number(document.getElementById("areaConstruida").value||0);
   const {valorTotal, valorTotalSemRisco, custoM2, custoM2SemRisco} = computeEVTotals(obraVals, otherVals, statusObra, statusOutros, areaEq);
   evStore[_evObraAtual] = { obra:obraVals, outros:otherVals, statusObra, statusOutros, areaEq, areaConst, valorTotal, custoM2, valorTotalSemRisco, custoM2SemRisco };
+  // ITEM 1 (2ª rodada): sincronismo EV → obra também no rascunho
   const obra = obras.find(o=>o.id===_evObraAtual);
-  if(obra){ obra.areaEquivalente=areaEq; obra.areaConstruida=areaConst; }
+  if(obra && (obra.areaEquivalente!==areaEq || obra.areaConstruida!==areaConst)){
+    obra.areaEquivalente=areaEq; obra.areaConstruida=areaConst;
+    dbSave('obras', obraToDb(obra));
+  }
   dbSave('ev_store', evToDb(_evObraAtual, evStore[_evObraAtual]));
   atualizarBadgePendenciaEV(_evObraAtual);
   // feedback simples
