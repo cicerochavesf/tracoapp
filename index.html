@@ -184,6 +184,8 @@
     .task-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px}
     .task-code{font-family:var(--font-mono);font-size:10px;color:var(--ghost);font-weight:500;letter-spacing:.03em}
     .task-title{font-size:12.5px;font-weight:650;color:var(--ink);line-height:1.35;margin-bottom:7px}
+    /* NOVA SOLICITAÇÃO: descrição da demanda no card */
+    .task-desc{font-size:11px;color:var(--muted);line-height:1.4;margin:-3px 0 7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .task-attrs{display:flex;flex-direction:column;gap:2.5px;font-size:11.5px;color:var(--muted)}
     .task-ev-total{margin-top:9px;padding:8px 10px;background:var(--green-d);border:1px solid rgba(4,120,87,.2);border-radius:8px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--green);display:flex;flex-direction:column;gap:2px}
     .task-ev-total strong{font-size:15px;font-weight:800;letter-spacing:-.02em;font-family:"DM Mono",monospace;text-transform:none}
@@ -746,7 +748,7 @@
                 <thead>
                   <tr>
                     <th>Código</th><th>Obra</th><th>Tipo</th><th>Analista</th>
-                    <th>Sprint</th><th>Status</th><th>Prioridade</th><th>Prazo</th><th>Pendência</th>
+                    <th>Sprint</th><th>Status</th><th>Prioridade</th><th style="text-align:right">Valor da Demanda</th><th>Prazo</th><th>Pendência</th>
                   </tr>
                 </thead>
                 <tbody id="listaDemandasBody"></tbody>
@@ -1215,7 +1217,7 @@
 
         <label class="nao-enviado-check" style="margin-top:12px">
           <input type="checkbox" id="ei_naoEnviadoObras" onchange="toggleNaoEnviadoObras();autosaveEI()">
-          <span>Esta demanda <strong>não foi enviada</strong> para validação da equipe de Obras</span>
+          <span>Esta demanda <strong>não foi/será enviada</strong> para validação da equipe de Obras</span>
         </label>
 
         <div class="fgrid2" style="margin-top:12px">
@@ -1619,6 +1621,9 @@ async function initDB(){
     // foram carregados e ANTES de qualquer render.
     try { await migrarEstruturaEV(); }
     catch(migErr){ console.error('Falha na migração da estrutura do EV:', migErr); }
+    // ITEM 9 (2ª rodada): retro-calcula o valor de revisões concluídas antigas
+    try { await backfillValorDemanda(); }
+    catch(bfErr){ console.error('Falha no backfill do valor da demanda:', bfErr); }
   }catch(err){
     console.error('initDB erro:', err);
     alert('Erro ao conectar com o Supabase. Verifique as credenciais. Rodando em modo offline.');
@@ -3388,6 +3393,12 @@ async function moverDemanda(codigo, novoStatus){
     alert('Você não tem permissão para esta transição. Apenas Gestão, Administrador ou o(s) analista(s) atribuído(s) a esta demanda podem movê-la.');
     return;
   }
+  // ITEM 9 (2ª rodada): CAUSA RAIZ do card sem valor — este caminho concluía a
+  // demanda SEM criar a versão do EV nem gravar a diferença. Agora toda
+  // conclusão (por qualquer caminho) passa por processarConclusao.
+  if(novoStatus === 'Concluído'){
+    if(!processarConclusao(codigo)) return;
+  }
   const anterior = d.status;
   d.status = novoStatus;
   registrarMovimentacao(codigo, anterior, novoStatus);
@@ -3661,22 +3672,61 @@ function ordenarDemandas(arr){
   });
 }
 
-/* ITEM 9 (2ª rodada): valor exibido para Revisão de orçamento concluída é a
-   DIFERENÇA entre o novo EV e o anterior. Usa o valor gravado na conclusão
-   (valorAlteracaoEV); para revisões concluídas antes desse campo existir,
-   recalcula pelas versões do EV. */
-function valorAlteracaoDaRevisao(codigo){
+/* ══ ITEM 9 (2ª rodada): VALOR DA DEMANDA ══
+   Conceito único para os dois tipos:
+   · Emissão inicial      → valor total do EV (sem risco) gerado pela demanda;
+   · Revisão de orçamento → DIFERENÇA entre o novo EV e o EV anterior.
+   Fontes, em ordem: (1) valorAlteracaoEV gravado na conclusão; (2) versão do
+   EV etiquetada com o código da demanda; (3) para revisões CONCLUÍDAS antes
+   do versionamento por demanda: a última versão da obra — desde que não
+   pertença a OUTRA demanda — comparada com a versão anterior. */
+function valorDaDemanda(codigo){
   const d = demandas.find(x=>x.codigo===codigo);
   if(!d) return null;
-  if(d.valorAlteracaoEV !== undefined && d.valorAlteracaoEV !== null) return d.valorAlteracaoEV;
   const obra = obras.find(o=>o.nome===d.obra);
+  const ehRevisao = d.tipo === 'Revisão de orçamento';
+
+  if(ehRevisao){
+    if(d.valorAlteracaoEV !== undefined && d.valorAlteracaoEV !== null)
+      return {valor: d.valorAlteracaoEV, ehDiferenca: true};
+    if(!obra) return null;
+    const versoes = evVersions.filter(v=>v.obraId===obra.id).sort((a,b)=>a.versao-b.versao);
+    let vDem = versoes.filter(v=>v.demandaCodigo===codigo).pop();
+    if(!vDem && d.status==='Concluído' && versoes.length){
+      const ultima = versoes[versoes.length-1];
+      if(!ultima.demandaCodigo || ultima.demandaCodigo===codigo) vDem = ultima;
+    }
+    if(!vDem) return null;
+    const anterior = versoes.filter(v=>v.versao < vDem.versao).pop();
+    const valorNovo = vDem.valorTotalSemRisco || vDem.valorTotal || 0;
+    const valorAnt  = anterior ? (anterior.valorTotalSemRisco || anterior.valorTotal || 0) : 0;
+    return {valor: valorNovo - valorAnt, ehDiferenca: true};
+  }
+
+  // Emissão inicial (e demais tipos): total do EV da demanda
   if(!obra) return null;
-  const daDemanda = evVersions.filter(v=>v.obraId===obra.id && v.demandaCodigo===codigo).sort((a,b)=>b.versao-a.versao)[0];
-  if(!daDemanda) return null;
-  const anterior = evVersions.find(v=>v.obraId===obra.id && v.versao===daDemanda.versao-1);
-  const valorNovo = daDemanda.valorTotalSemRisco || daDemanda.valorTotal || 0;
-  const valorAnt  = anterior ? (anterior.valorTotalSemRisco || anterior.valorTotal || 0) : 0;
-  return valorNovo - valorAnt;
+  const vDem = evVersions.filter(v=>v.obraId===obra.id && v.demandaCodigo===codigo).sort((a,b)=>b.versao-a.versao)[0];
+  if(vDem) return {valor: vDem.valorTotalSemRisco || vDem.valorTotal || 0, ehDiferenca: false};
+  const ev = evStore[obra.id];
+  if(ev && (ev.valorTotalSemRisco || ev.valorTotal)) return {valor: ev.valorTotalSemRisco || ev.valorTotal || 0, ehDiferenca: false};
+  return null;
+}
+
+/* ITEM 9 (2ª rodada): revisões concluídas ANTES desta atualização não têm a
+   diferença gravada (o caminho antigo de conclusão pulava o versionamento).
+   No carregamento, calcula pelo histórico de versões e PERSISTE, para o valor
+   ficar estável no card dali em diante. */
+async function backfillValorDemanda(){
+  for(const d of demandas){
+    if(d.tipo!=='Revisão de orçamento' || d.status!=='Concluído') continue;
+    if(d.valorAlteracaoEV !== undefined && d.valorAlteracaoEV !== null) continue;
+    const vd = valorDaDemanda(d.codigo);
+    if(vd && vd.ehDiferenca){
+      d.valorAlteracaoEV = vd.valor;
+      await dbSave('demandas', demandaToDb(d));
+      console.info('[Traço] Valor da demanda retro-calculado para '+d.codigo+': '+vd.valor);
+    }
+  }
 }
 
 function renderKanban(){
@@ -3692,20 +3742,21 @@ function renderKanban(){
     col.innerHTML=`<div class="kanban-head"><span class="kh-label">${status}</span><span class="kh-count" style="background:${color}">${list.length}</span></div>
       <div class="kanban-body">${list.map(item=>{
         const concluida = item.status==='Concluído';
-        const ev = concluida ? getEVdaObraPorDemanda(item.codigo) : null;
-        const evValorRef = ev ? (ev.valorTotalSemRisco||ev.valorTotal||0) : 0;
-        // ITEM 9 (2ª rodada): Revisão de orçamento mostra a DIFERENÇA da alteração
-        // (novo EV − EV anterior) — nunca o total do novo EV.
+        /* ITEM 9 (2ª rodada): "Valor da Demanda" para os dois tipos —
+           Emissão inicial = total do EV; Revisão = diferença (Δ EV). */
         let evBadge = '';
-        if(concluida && item.tipo==='Revisão de orçamento'){
-          const diff = valorAlteracaoDaRevisao(item.codigo);
-          if(diff!==null && diff!==undefined){
+        if(concluida){
+          const vd = valorDaDemanda(item.codigo);
+          if(vd && vd.ehDiferenca){
+            const diff = vd.valor;
             const sinal = diff>0 ? '+' : (diff<0 ? '−' : '');
             const cor = diff>0 ? 'var(--red)' : (diff<0 ? 'var(--green)' : 'var(--muted)');
-            evBadge = `<div class="task-ev-total" style="border-color:${cor}33">Valor da Alteração do EV<strong style="color:${cor}">${sinal}${moneyBR(Math.abs(diff))}</strong></div>`;
+            evBadge = `<div class="task-ev-total" style="border-color:${cor}33" title="Diferença do novo EV para o EV anterior">Valor da Demanda (Δ EV)<strong style="color:${cor}">${sinal}${moneyBR(Math.abs(diff))}</strong></div>`;
+          } else if(vd && vd.valor>0){
+            evBadge = `<div class="task-ev-total" title="Total do EV gerado pela demanda">Valor da Demanda<strong>${moneyBR(vd.valor)}</strong></div>`;
+          } else if(item.tipo==='Revisão de orçamento'){
+            evBadge = `<div class="task-ev-total" title="Não há versão do EV registrada para esta demanda — conclua-a novamente ou crie uma revisão manual do EV">Valor da Demanda<strong style="color:var(--muted)">—</strong></div>`;
           }
-        } else if(concluida && ev && evValorRef>0){
-          evBadge = `<div class="task-ev-total">Valor total do EV<strong>${moneyBR(evValorRef)}</strong></div>`;
         }
         const pendBadge = (concluida && item.pendencia)
           ? `<div class="task-pendencia" title="${(item.pendenciaDesc||'').replace(/"/g,'&quot;')}">⚠️ Pendência de cotação<span>${item.pendenciaDesc||''}</span></div>`
@@ -3740,9 +3791,13 @@ function renderKanban(){
         // ITEM 3: analistas complementares
         const compTxt = (item.analistasComp && item.analistasComp.length)
           ? ` <span class="task-comp">+${item.analistasComp.length}</span>` : '';
+        // NOVA SOLICITAÇÃO: descrição da demanda no card (truncada; inteira no tooltip)
+        const escCard = t => String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        const descCard = eiCard.descricao
+          ? `<div class="task-desc" title="${escCard(eiCard.descricao)}">${escCard(eiCard.descricao)}</div>` : '';
         return `<div class="task" onclick="openDemandaDrawer('${item.codigo}')">
         <div class="task-hd"><span class="task-code">${item.codigo}</span><span class="priority ${priorityClass(item.prioridade)}">${item.prioridade}</span></div>
-        <div class="task-title">${item.obra}</div>
+        <div class="task-title">${item.obra}</div>${descCard}
         <div class="task-attrs">
           <div>👤 ${item.analista}${compTxt}</div><div>🏷 ${item.tipo}</div>
           <div>⚡ ${item.sprint}</div><div>${dataCard}</div>
@@ -3816,12 +3871,24 @@ function renderLista(){
   const tbody = document.getElementById('listaDemandasBody');
   if(!tbody) return;
   if(data.length===0){
-    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--ghost)">Nenhuma demanda encontrada.</td></tr>';
+    tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:28px;color:var(--ghost)">Nenhuma demanda encontrada.</td></tr>';
     return;
   }
   tbody.innerHTML = data.map(item=>{
     const color = STATUS_COLORS[item.status]||'#667085';
     const pendStr = item.pendencia ? `<span class="lista-pend">⚠️ ${item.pendenciaDesc||'Pendência'}</span>` : '—';
+    // ITEM 9 (2ª rodada): coluna "Valor da Demanda" (definido na conclusão)
+    let valorStr = '—';
+    if(item.status==='Concluído'){
+      const vd = valorDaDemanda(item.codigo);
+      if(vd && vd.ehDiferenca){
+        const sinal = vd.valor>0 ? '+' : (vd.valor<0 ? '−' : '');
+        const cor = vd.valor>0 ? 'var(--red)' : (vd.valor<0 ? 'var(--green)' : 'var(--muted)');
+        valorStr = `<span style="color:${cor};font-weight:700" title="Diferença do novo EV para o EV anterior">${sinal}${moneyBR(Math.abs(vd.valor))}</span>`;
+      } else if(vd && vd.valor>0){
+        valorStr = `<span style="font-weight:700" title="Total do EV gerado pela demanda">${moneyBR(vd.valor)}</span>`;
+      }
+    }
     return `<tr onclick="openDemandaDrawer('${item.codigo}')" style="cursor:pointer">
       <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--blue-700);font-weight:600">${item.codigo}</td>
       <td style="font-weight:600;color:var(--ink);min-width:220px">${item.obra}</td>
@@ -3830,6 +3897,7 @@ function renderLista(){
       <td style="font-family:'DM Mono',monospace;font-size:12px">${item.sprint}</td>
       <td><span class="lista-status-dot" style="color:${color}"><span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block"></span>${item.status}</span></td>
       <td><span class="priority ${priorityClass(item.prioridade)}">${item.prioridade}</span></td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;white-space:nowrap">${valorStr}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px">${item.prazo||'—'}</td>
       <td>${pendStr}</td>
     </tr>`;
