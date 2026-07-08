@@ -115,6 +115,37 @@
     .kpi-card.kpi-click{cursor:pointer}
     .kpi-card.kpi-click:hover{border-color:var(--blue-600);box-shadow:var(--sh);transform:translateY(-1px)}
     .kpi-filtro-chip{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--blue-50);border:1px solid rgba(0,75,147,.22);border-radius:var(--r-lg);padding:9px 13px;margin-bottom:10px;font-size:12.5px;color:var(--blue-700)}
+
+    /* ══ VISÃO GERENCIAL ══ */
+    .ger-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    @media (max-width:1100px){.ger-grid{grid-template-columns:1fr}.kpi-grid[id="gerKpis"]{grid-template-columns:repeat(2,1fr)!important}}
+    .ger-scope{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+    .gsc{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--text);font-family:var(--font-body);font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:999px;cursor:pointer;transition:.16s}
+    .gsc:hover{border-color:var(--blue-600);color:var(--blue-700)}
+    .gsc.active{background:var(--blue-700);border-color:var(--blue-700);color:#fff}
+    .ger-chart{padding:16px 18px}
+    .ger-chart-head{display:flex;flex-direction:column;gap:2px;margin-bottom:14px}
+    .ger-chart-head h3{margin:0;font-family:var(--font-display);font-size:15px;color:var(--ink);letter-spacing:-.01em}
+    .ger-sub{font-size:11px;color:var(--muted)}
+    .ger-empty{padding:26px 10px;text-align:center;color:var(--ghost);font-size:12.5px;border:1px dashed var(--line);border-radius:10px}
+    /* barras horizontais */
+    .gbar-row{display:grid;grid-template-columns:130px 1fr 92px;gap:10px;align-items:center;margin-bottom:9px}
+    .gbar-label{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .gbar-track{height:18px;background:var(--sf2);border:1px solid var(--line-2);border-radius:9px;overflow:hidden;display:flex}
+    .gbar-seg{height:100%;transition:width .3s ease}
+    .gbar-val{font-family:var(--font-mono);font-size:11.5px;color:var(--ink);text-align:right;white-space:nowrap}
+    /* colunas verticais */
+    .gcols{display:flex;align-items:flex-end;gap:14px;height:170px;padding:6px 4px 0}
+    .gcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+    .gcol-bar{width:100%;max-width:56px;background:linear-gradient(180deg,var(--blue-600),var(--blue-700));border-radius:7px 7px 0 0;position:relative;min-height:3px;transition:height .3s ease}
+    .gcol-num{font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--blue-700)}
+    .gcol-label{font-size:10.5px;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+    /* donut */
+    .gdonut{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+    .gdonut svg{flex-shrink:0}
+    .gdonut-center{font-family:var(--font-display);font-weight:700;fill:var(--ink)}
+    .gdonut-leg{display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--text)}
+    .gdonut-leg span.dot{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:7px;vertical-align:-1px}
     .kpi-card:hover{box-shadow:var(--sh);border-color:rgba(0,75,147,.22)}
     .kpi-card::after{content:"";position:absolute;bottom:0;left:16px;width:22px;height:3px;background:var(--orange-700);border-radius:2px 2px 0 0;opacity:0;transition:opacity .2s}
     .kpi-card:hover::after{opacity:1}
@@ -856,8 +887,75 @@
     </div>
 
     <section id="view-gerencial" class="view">
-      <div class="topbar"><div class="page-heading"><h2>Visão Gerencial</h2><p>Produção, prazos e gargalos por analista e sprint.</p></div></div>
-      <div class="panel"><div class="coming"><div class="coming-icon">📊</div><h3>Em desenvolvimento</h3><p>Será construída após a base operacional e de obras estar estável.</p></div></div>
+      <div class="topbar"><div class="page-heading"><h2>Visão Gerencial</h2><p>Produção do time, eficiência de prazo, valor e distribuição por sprint e categoria.</p></div></div>
+
+      <!-- Filtros -->
+      <div class="panel" style="padding:14px 16px;margin-bottom:14px">
+        <div class="filter-bar" style="margin-bottom:0">
+          <div class="field"><label>Sprint</label><select id="gerSprintFilter" onchange="renderGerencial()"></select></div>
+          <div class="field"><label>Analista</label><select id="gerAnalistaFilter" onchange="renderGerencial()"></select></div>
+          <div class="field"><label>Tipo da demanda</label><select id="gerTipoFilter" onchange="renderGerencial()"></select></div>
+          <div class="field"><label>Classificação da obra</label><select id="gerClassifFilter" onchange="renderGerencial()"></select></div>
+          <div class="field"><label>&nbsp;</label><button class="btn btn-ghost" style="white-space:nowrap" onclick="limparFiltrosGer()">✕ Limpar filtros</button></div>
+        </div>
+      </div>
+
+      <!-- Escopo: qual universo de demandas analisar (sempre respeitando os filtros acima) -->
+      <div class="ger-scope" id="gerScope">
+        <button class="gsc active" data-esc="concluidas" onclick="setGerEscopo('concluidas')">✅ Concluídas</button>
+        <button class="gsc" data-esc="fazer" onclick="setGerEscopo('fazer')">📋 A fazer</button>
+        <button class="gsc" data-esc="andamento" onclick="setGerEscopo('andamento')">⚙️ Em andamento</button>
+        <button class="gsc" data-esc="canceladas" onclick="setGerEscopo('canceladas')">🚫 Canceladas</button>
+        <button class="gsc" data-esc="todas" onclick="setGerEscopo('todas')">📚 Todas</button>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px" id="gerKpis">
+        <div class="kpi-card"><div class="kpi-label">Demandas concluídas</div><div class="kpi-value" id="gerKpiConcluidas">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">Entregas no prazo</div><div class="kpi-value" id="gerKpiPrazo">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Valor produzido</div><div class="kpi-value" id="gerKpiValor" style="font-size:20px">R$ 0</div></div>
+        <div class="kpi-card"><div class="kpi-label">Atraso médio (dias)</div><div class="kpi-value" id="gerKpiAtraso">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Em andamento</div><div class="kpi-value" id="gerKpiAndamento">0</div></div>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="ger-grid">
+        <div class="panel ger-chart">
+          <div class="ger-chart-head"><h3 id="gerTitulo1">Produção por analista</h3><span class="ger-sub" id="gerSub1">demandas concluídas · verde = no prazo, vermelho = com atraso, cinza = sem data</span></div>
+          <div id="gerChartAnalista"></div>
+        </div>
+        <div class="panel ger-chart">
+          <div class="ger-chart-head"><h3 id="gerTitulo2">Valor produzido por analista</h3><span class="ger-sub" id="gerSub2">emissões pelo total do EV · revisões pela magnitude da alteração (|Δ|)</span></div>
+          <div id="gerChartValor"></div>
+        </div>
+        <div class="panel ger-chart">
+          <div class="ger-chart-head"><h3 id="gerTitulo3">Produção por sprint</h3><span class="ger-sub" id="gerSub3">demandas concluídas em cada sprint</span></div>
+          <div id="gerChartSprint"></div>
+        </div>
+        <div class="panel ger-chart">
+          <div class="ger-chart-head"><h3 id="gerTitulo4">Eficiência de prazo</h3><span class="ger-sub" id="gerSub4">entregas concluídas × data prevista</span></div>
+          <div id="gerChartPrazo"></div>
+        </div>
+        <div class="panel ger-chart">
+          <div class="ger-chart-head"><h3 id="gerTitulo5">Por tipo de demanda</h3><span class="ger-sub" id="gerSub5">demandas concluídas por tipo de atividade</span></div>
+          <div id="gerChartTipo"></div>
+        </div>
+        <div class="panel ger-chart">
+          <div class="ger-chart-head"><h3 id="gerTitulo6">Por classificação da obra</h3><span class="ger-sub" id="gerSub6">demandas concluídas por categoria da obra</span></div>
+          <div id="gerChartClassif"></div>
+        </div>
+      </div>
+
+      <!-- Detalhe por analista -->
+      <div class="panel" style="margin-top:14px">
+        <div class="ger-chart-head" style="margin-bottom:10px"><h3>Detalhe por analista</h3><span class="ger-sub" id="gerSubTab">consolidado das demandas concluídas no filtro atual</span></div>
+        <div class="table-scroll" style="max-height:calc(100vh - 320px)">
+          <table>
+            <thead><tr id="gerTabelaHeadRow"><th>Analista</th><th style="text-align:right">Concluídas</th><th style="text-align:right">No prazo</th><th style="text-align:right">Com atraso</th><th style="text-align:right">% no prazo</th><th style="text-align:right">Atraso médio</th><th style="text-align:right">Valor produzido</th><th style="text-align:right">Em andamento</th></tr></thead>
+            <tbody id="gerTabelaAnalistas"></tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
     <!-- ESTRATÉGICA -->
@@ -3456,6 +3554,7 @@ function closeMobileMenu(){
 function showView(view){
   closeMobileMenu(); // fecha o menu ao navegar no celular
   if(view==='evs' && typeof renderListaEVs==='function') setTimeout(renderListaEVs, 30);
+  if(view==='gerencial' && typeof renderGerencial==='function') setTimeout(renderGerencial, 30);
   if(view==='configuracoes' && typeof renderBackupsDiarios==='function' && pode(['Administrador'])) setTimeout(renderBackupsDiarios, 30);
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
@@ -3518,6 +3617,305 @@ function limparFiltrosEVs(){
   const q=document.getElementById('evObraSearch');
   if(q) q.value='';
   renderListaEVs();
+}
+
+/* ═══════════════════════════════════════════
+   VISÃO GERENCIAL — produção do time
+   Gráficos em SVG/CSS puros (sem bibliotecas).
+   Universo: demandas conforme os filtros; "produção" = demandas Concluídas.
+   ═══════════════════════════════════════════ */
+const GER_CORES = ['#004B93','#F58220','#047857','#6530C8','#0878A0','#C0200A','#B45309','#4A6080','#1D6FEB','#A06200'];
+
+function moneyCompact(v){
+  const abs = Math.abs(v||0);
+  if(abs >= 1e6) return 'R$ ' + (v/1e6).toLocaleString('pt-BR',{maximumFractionDigits:1}) + ' mi';
+  if(abs >= 1e3) return 'R$ ' + (v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:0}) + ' mil';
+  return moneyBR(v||0);
+}
+
+function classifDaDemanda(d){
+  const o = obras.find(x=>x.nome===d.obra);
+  return (o && o.classificacao) ? o.classificacao : 'Sem classificação';
+}
+
+/* Eficiência de prazo de uma demanda concluída:
+   compara a data de entrega real com a data prevista de entrega. */
+function prazoDaConcluida(codigo){
+  const ei = (formData[codigo]||{}).ei || {};
+  if(!ei.dataPrevista || !ei.dataEntregaReal) return {t:'semdata', dias:0};
+  const dias = Math.round((new Date(ei.dataEntregaReal+'T00:00:00') - new Date(ei.dataPrevista+'T00:00:00'))/86400000);
+  return dias>0 ? {t:'atraso', dias} : {t:'prazo', dias:0};
+}
+
+/* Valor produzido: emissões contam pelo total do EV; revisões pela
+   MAGNITUDE da alteração (|Δ|) — reduzir um orçamento também é produção. */
+function valorProduzido(codigo){
+  const vd = valorDaDemanda(codigo);
+  if(!vd) return 0;
+  return vd.ehDiferenca ? Math.abs(vd.valor||0) : (vd.valor||0);
+}
+
+/* Escopo da análise: qual universo de demandas os gráficos consideram.
+   'concluidas' = produção (padrão) · 'fazer' · 'andamento' · 'canceladas' · 'todas'.
+   Os filtros (sprint/analista/tipo/classificação) valem para todos os escopos. */
+let _gerEscopo = 'concluidas';
+const GER_ESCOPOS = {
+  concluidas: {label:'concluídas',    match: s => s==='Concluído'},
+  fazer:      {label:'a fazer',       match: s => s==='Fazer'},
+  andamento:  {label:'em andamento',  match: s => ['Fazendo','Pausado','Aguardando Validação Sala Técnica','Aguardando Validação Obras'].includes(s)},
+  canceladas: {label:'canceladas',    match: s => s==='Cancelado'},
+  todas:      {label:'no total',      match: () => true}
+};
+function setGerEscopo(esc){
+  _gerEscopo = GER_ESCOPOS[esc] ? esc : 'concluidas';
+  renderGerencial();
+}
+
+/* Situação de prazo unificada:
+   · concluída → entrega real × prevista ('prazo' | 'atraso' | 'semdata');
+   · em curso  → statusEntrega ('emdia' | 'proximo' | 'atraso' | 'semdata'). */
+function situacaoDaDemanda(d){
+  if(d.status==='Concluído') return prazoDaConcluida(d.codigo);
+  const se = statusEntrega(d.codigo);
+  if(!se) return {t:'semdata', dias:0};
+  if(se.classe==='atrasada'){ const m = se.label.match(/(\d+)/); return {t:'atraso', dias:m?+m[1]:0}; }
+  if(se.classe==='proximo') return {t:'proximo', dias:0};
+  return {t:'emdia', dias:0};
+}
+
+function _fillGerSelect(id, valores, todosLabel){
+  const el = document.getElementById(id); if(!el) return;
+  const atual = el.value;
+  el.innerHTML = '';
+  [todosLabel, ...valores].forEach(v=>{ const o=document.createElement('option'); o.textContent=v; el.appendChild(o); });
+  if([...el.options].some(o=>o.value===atual)) el.value = atual;
+}
+
+function _gerFiltros(){
+  const v = id => { const el=document.getElementById(id); return el ? el.value : ''; };
+  return {
+    sprint:  v('gerSprintFilter')  || 'Todas',
+    analista:v('gerAnalistaFilter')|| 'Todos',
+    tipo:    v('gerTipoFilter')    || 'Todos',
+    classif: v('gerClassifFilter') || 'Todas'
+  };
+}
+
+// ITEM 10: a visão gerencial também tem "limpar filtros"
+function limparFiltrosGer(){
+  const defs = {gerSprintFilter:'Todas', gerAnalistaFilter:'Todos', gerTipoFilter:'Todos', gerClassifFilter:'Todas'};
+  Object.entries(defs).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
+  renderGerencial();
+}
+
+/* — componentes de gráfico — */
+function ghBarras(containerId, rows){ // rows: [{label,total,segs:[{v,cor,tit}],valStr}]
+  const el = document.getElementById(containerId); if(!el) return;
+  if(!rows.length){ el.innerHTML = '<div class="ger-empty">Sem dados para o filtro atual.</div>'; return; }
+  const max = Math.max(...rows.map(r=>r.total), 1);
+  el.innerHTML = rows.map(r=>`
+    <div class="gbar-row">
+      <div class="gbar-label" title="${r.label}">${r.label}</div>
+      <div class="gbar-track">${r.segs.filter(s=>s.v>0).map(s=>`<div class="gbar-seg" style="width:${(s.v/max*100).toFixed(2)}%;background:${s.cor}" title="${s.tit||''}"></div>`).join('')}</div>
+      <div class="gbar-val">${r.valStr}</div>
+    </div>`).join('');
+}
+
+function gvColunas(containerId, cols){ // cols: [{label,v}]
+  const el = document.getElementById(containerId); if(!el) return;
+  if(!cols.length || cols.every(c=>c.v===0)){ el.innerHTML='<div class="ger-empty">Sem dados para o filtro atual.</div>'; return; }
+  const max = Math.max(...cols.map(c=>c.v),1);
+  el.innerHTML = `<div class="gcols">${cols.map(c=>`
+    <div class="gcol">
+      <div class="gcol-num">${c.v}</div>
+      <div class="gcol-bar" style="height:${Math.max(c.v/max*130,3)}px" title="${c.label}: ${c.v} concluída(s)"></div>
+      <div class="gcol-label" title="${c.label}">${c.label}</div>
+    </div>`).join('')}</div>`;
+}
+
+function gDonut(containerId, segs, centro, rotulo){ // segs: [{label,v,cor}]
+  const el = document.getElementById(containerId); if(!el) return;
+  const total = segs.reduce((s,x)=>s+x.v,0);
+  if(!total){ el.innerHTML='<div class="ger-empty">Sem dados para o filtro atual.</div>'; return; }
+  const R=52, C=2*Math.PI*R;
+  let off=0;
+  const circles = segs.filter(s=>s.v>0).map(s=>{
+    const dash=(s.v/total)*C;
+    const c=`<circle r="${R}" cx="70" cy="70" fill="none" stroke="${s.cor}" stroke-width="20" stroke-dasharray="${dash} ${(C-dash)}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;
+    off+=dash; return c;
+  }).join('');
+  el.innerHTML = `<div class="gdonut">
+    <svg width="140" height="140" viewBox="0 0 140 140">${circles}
+      <text x="70" y="66" text-anchor="middle" class="gdonut-center" font-size="24">${centro}</text>
+      <text x="70" y="84" text-anchor="middle" fill="#5F7488" font-size="10">${rotulo||'concluídas'}</text>
+    </svg>
+    <div class="gdonut-leg">${segs.map(s=>`<div><span class="dot" style="background:${s.cor}"></span>${s.label}: <strong>${s.v}</strong> (${Math.round(s.v/total*100)}%)</div>`).join('')}</div>
+  </div>`;
+}
+
+function renderGerencial(){
+  if(!document.getElementById('gerKpis')) return;
+  _fillGerSelect('gerSprintFilter', sprints.map(s=>s.nome), 'Todas');
+  _fillGerSelect('gerAnalistaFilter', analistas, 'Todos');
+  _fillGerSelect('gerTipoFilter', tiposAtividade, 'Todos');
+  _fillGerSelect('gerClassifFilter', classificacoes, 'Todas');
+  const f = _gerFiltros();
+  const esc = GER_ESCOPOS[_gerEscopo];
+  const modoProducao = _gerEscopo === 'concluidas';
+
+  // marca o chip ativo
+  document.querySelectorAll('#gerScope .gsc').forEach(b=>b.classList.toggle('active', b.dataset.esc===_gerEscopo));
+
+  // universo filtrado (filtros valem para TODOS os escopos)
+  const base = demandas.filter(d=>{
+    if(f.sprint!=='Todas'  && d.sprint!==f.sprint) return false;
+    if(f.analista!=='Todos'&& d.analista!==f.analista) return false;
+    if(f.tipo!=='Todos'    && d.tipo!==f.tipo) return false;
+    if(f.classif!=='Todas' && classifDaDemanda(d)!==f.classif) return false;
+    return true;
+  });
+  const grupo = base.filter(d=>esc.match(d.status));
+  const andamentoGlobal = base.filter(d=>d.status!=='Concluído' && d.status!=='Cancelado');
+
+  const stats = grupo.map(d=>({
+    d,
+    p: situacaoDaDemanda(d),
+    val: d.status==='Concluído' ? valorProduzido(d.codigo) : 0
+  }));
+  const nPrazo   = stats.filter(x=>x.p.t==='prazo').length;
+  const nEmdia   = stats.filter(x=>x.p.t==='emdia').length;
+  const nProximo = stats.filter(x=>x.p.t==='proximo').length;
+  const atrasadas= stats.filter(x=>x.p.t==='atraso');
+  const nSemData = stats.filter(x=>x.p.t==='semdata').length;
+  const valorTotal  = stats.reduce((sm,x)=>sm+x.val,0);
+  const atrasoMedio = atrasadas.length ? (atrasadas.reduce((sm,x)=>sm+x.p.dias,0)/atrasadas.length) : null;
+
+  // ── KPIs por escopo ──
+  const kpis = document.getElementById('gerKpis');
+  if(modoProducao){
+    const comData = nPrazo + atrasadas.length;
+    kpis.innerHTML = `
+      <div class="kpi-card"><div class="kpi-label">Demandas concluídas</div><div class="kpi-value" id="gerKpiConcluidas">${grupo.length}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Entregas no prazo</div><div class="kpi-value" id="gerKpiPrazo">${comData?Math.round(nPrazo/comData*100)+'%':'—'}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Valor produzido</div><div class="kpi-value" id="gerKpiValor" style="font-size:20px">${moneyCompact(valorTotal)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Atraso médio (dias)</div><div class="kpi-value" id="gerKpiAtraso">${atrasoMedio!==null?atrasoMedio.toLocaleString('pt-BR',{maximumFractionDigits:1}):'—'}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Em andamento</div><div class="kpi-value" id="gerKpiAndamento">${andamentoGlobal.length}</div></div>`;
+  } else {
+    kpis.innerHTML = `
+      <div class="kpi-card"><div class="kpi-label">Demandas ${esc.label}</div><div class="kpi-value" id="gerKpiConcluidas">${grupo.length}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Em dia</div><div class="kpi-value" id="gerKpiEmdia" style="color:#047857">${nEmdia}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Próximas do marco</div><div class="kpi-value" id="gerKpiProximo" style="color:#F58220">${nProximo}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Atrasadas</div><div class="kpi-value" id="gerKpiAtrasadas" style="color:#C0200A">${atrasadas.length}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Sem data registrada</div><div class="kpi-value" id="gerKpiSemData" style="color:#5F7488">${nSemData}</div></div>`;
+  }
+
+  // ── títulos/subtítulos dinâmicos ──
+  const setTxt = (id,txt)=>{ const el=document.getElementById(id); if(el) el.textContent = txt; };
+  setTxt('gerTitulo1', modoProducao ? 'Produção por analista' : 'Demandas por analista');
+  setTxt('gerSub1', modoProducao
+    ? 'demandas concluídas · verde = no prazo, vermelho = com atraso, cinza = sem data'
+    : 'demandas '+esc.label+' · verde = em dia, laranja = próxima do marco, vermelho = atrasada, cinza = sem data');
+  setTxt('gerTitulo2', modoProducao ? 'Valor produzido por analista' : 'Distribuição por status');
+  setTxt('gerSub2', modoProducao
+    ? 'emissões pelo total do EV · revisões pela magnitude da alteração (|Δ|)'
+    : 'demandas '+esc.label+' por status atual');
+  setTxt('gerSub3', 'demandas '+esc.label+' em cada sprint');
+  setTxt('gerTitulo4', modoProducao ? 'Eficiência de prazo' : 'Situação de prazo');
+  setTxt('gerSub4', modoProducao ? 'entregas concluídas × data prevista' : 'demandas '+esc.label+' × marco atual (envio p/ validação ou entrega)');
+  setTxt('gerSub5', 'demandas '+esc.label+' por tipo de atividade');
+  setTxt('gerSub6', 'demandas '+esc.label+' por categoria da obra');
+  setTxt('gerSubTab', 'consolidado das demandas '+esc.label+' no filtro atual');
+
+  // ── 1) por analista (empilhado pela situação) ──
+  const porAnalista = {};
+  stats.forEach(x=>{
+    const a = x.d.analista || '—';
+    porAnalista[a] = porAnalista[a] || {prazo:0, emdia:0, proximo:0, atraso:0, semdata:0, val:0, diasAtraso:0};
+    porAnalista[a][x.p.t]++;
+    porAnalista[a].val += x.val;
+    if(x.p.t==='atraso') porAnalista[a].diasAtraso += x.p.dias;
+  });
+  const totalDe = x => x.prazo+x.emdia+x.proximo+x.atraso+x.semdata;
+  ghBarras('gerChartAnalista', Object.entries(porAnalista).map(([a,x])=>({
+    label:a, total:totalDe(x),
+    segs: modoProducao
+      ? [{v:x.prazo,cor:'#047857',tit:x.prazo+' no prazo'},{v:x.atraso,cor:'#C0200A',tit:x.atraso+' com atraso'},{v:x.semdata,cor:'#9AAABB',tit:x.semdata+' sem data'}]
+      : [{v:x.emdia,cor:'#047857',tit:x.emdia+' em dia'},{v:x.proximo,cor:'#F58220',tit:x.proximo+' próximas'},{v:x.atraso,cor:'#C0200A',tit:x.atraso+' atrasadas'},{v:x.semdata,cor:'#9AAABB',tit:x.semdata+' sem data'}],
+    valStr:String(totalDe(x))
+  })).sort((a,b)=>b.total-a.total));
+
+  // ── 2) valor por analista (produção) OU distribuição por status ──
+  if(modoProducao){
+    ghBarras('gerChartValor', Object.entries(porAnalista).map(([a,x])=>({
+      label:a, total:x.val, segs:[{v:x.val,cor:'#005EB8',tit:moneyBR(x.val)}], valStr:moneyCompact(x.val)
+    })).filter(r=>r.total>0).sort((a,b)=>b.total-a.total));
+  } else {
+    const porStatus = {};
+    grupo.forEach(d=>{ porStatus[d.status]=(porStatus[d.status]||0)+1; });
+    ghBarras('gerChartValor', Object.entries(porStatus).map(([st,v])=>({
+      label:st, total:v, segs:[{v,cor:STATUS_COLORS[st]||'#4A6080',tit:String(v)}], valStr:String(v)
+    })).sort((a,b)=>b.total-a.total));
+  }
+
+  // ── 3) por sprint ──
+  gvColunas('gerChartSprint', sprints.map(sp=>({label:sp.nome, v:grupo.filter(d=>d.sprint===sp.nome).length})));
+
+  // ── 4) donut de prazo/situação ──
+  gDonut('gerChartPrazo', modoProducao
+    ? [{label:'No prazo', v:nPrazo, cor:'#047857'},{label:'Com atraso', v:atrasadas.length, cor:'#C0200A'},{label:'Sem data registrada', v:nSemData, cor:'#9AAABB'}]
+    : [{label:'Em dia', v:nEmdia, cor:'#047857'},{label:'Próximas do marco', v:nProximo, cor:'#F58220'},{label:'Atrasadas', v:atrasadas.length, cor:'#C0200A'},{label:'Sem data registrada', v:nSemData, cor:'#9AAABB'}],
+    grupo.length, esc.label);
+
+  // ── 5) por tipo de demanda ──
+  const porTipo = {};
+  grupo.forEach(d=>{ const t=d.tipo||'—'; porTipo[t]=(porTipo[t]||0)+1; });
+  ghBarras('gerChartTipo', Object.entries(porTipo).map(([t,v],i)=>({label:t,total:v,segs:[{v,cor:GER_CORES[i%GER_CORES.length],tit:String(v)}],valStr:String(v)})).sort((a,b)=>b.total-a.total));
+
+  // ── 6) por classificação da obra ──
+  const porClas = {};
+  grupo.forEach(d=>{ const c=classifDaDemanda(d); porClas[c]=(porClas[c]||0)+1; });
+  ghBarras('gerChartClassif', Object.entries(porClas).map(([c,v],i)=>({label:c,total:v,segs:[{v,cor:GER_CORES[i%GER_CORES.length],tit:String(v)}],valStr:String(v)})).sort((a,b)=>b.total-a.total));
+
+  // ── tabela detalhe por analista ──
+  const headRow = document.getElementById('gerTabelaHeadRow');
+  if(headRow) headRow.innerHTML = modoProducao
+    ? '<th>Analista</th><th style="text-align:right">Concluídas</th><th style="text-align:right">No prazo</th><th style="text-align:right">Com atraso</th><th style="text-align:right">% no prazo</th><th style="text-align:right">Atraso médio</th><th style="text-align:right">Valor produzido</th><th style="text-align:right">Em andamento</th>'
+    : '<th>Analista</th><th style="text-align:right">Demandas</th><th style="text-align:right">Em dia</th><th style="text-align:right">Próximas</th><th style="text-align:right">Atrasadas</th><th style="text-align:right">Sem data</th><th style="text-align:right">Atraso médio</th><th style="text-align:right">Total no filtro</th>';
+  const tbody = document.getElementById('gerTabelaAnalistas');
+  const nomes = Object.keys(porAnalista).sort((a,b)=>totalDe(porAnalista[b])-totalDe(porAnalista[a]));
+  if(!nomes.length){
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--ghost)">Nenhuma demanda '+esc.label+' no filtro atual.</td></tr>';
+  } else if(modoProducao){
+    tbody.innerHTML = nomes.map(a=>{
+      const x = porAnalista[a], tot = totalDe(x), cd = x.prazo+x.atraso;
+      const and = andamentoGlobal.filter(d=>d.analista===a).length;
+      return `<tr>
+        <td style="font-weight:600;color:var(--ink)">${a}</td>
+        <td style="text-align:right;font-family:var(--font-mono)">${tot}</td>
+        <td style="text-align:right;font-family:var(--font-mono);color:#047857">${x.prazo}</td>
+        <td style="text-align:right;font-family:var(--font-mono);color:${x.atraso?'#C0200A':'inherit'}">${x.atraso}</td>
+        <td style="text-align:right;font-family:var(--font-mono)">${cd?Math.round(x.prazo/cd*100)+'%':'—'}</td>
+        <td style="text-align:right;font-family:var(--font-mono)">${x.atraso?(x.diasAtraso/x.atraso).toLocaleString('pt-BR',{maximumFractionDigits:1})+' d':'—'}</td>
+        <td style="text-align:right;font-family:var(--font-mono)">${moneyCompact(x.val)}</td>
+        <td style="text-align:right;font-family:var(--font-mono)">${and}</td>
+      </tr>`;
+    }).join('');
+  } else {
+    tbody.innerHTML = nomes.map(a=>{
+      const x = porAnalista[a], tot = totalDe(x);
+      const totFiltro = base.filter(d=>d.analista===a).length;
+      return `<tr>
+        <td style="font-weight:600;color:var(--ink)">${a}</td>
+        <td style="text-align:right;font-family:var(--font-mono)">${tot}</td>
+        <td style="text-align:right;font-family:var(--font-mono);color:#047857">${x.emdia}</td>
+        <td style="text-align:right;font-family:var(--font-mono);color:#F58220">${x.proximo}</td>
+        <td style="text-align:right;font-family:var(--font-mono);color:${x.atraso?'#C0200A':'inherit'}">${x.atraso}</td>
+        <td style="text-align:right;font-family:var(--font-mono);color:#5F7488">${x.semdata}</td>
+        <td style="text-align:right;font-family:var(--font-mono)">${x.atraso?(x.diasAtraso/x.atraso).toLocaleString('pt-BR',{maximumFractionDigits:1})+' d':'—'}</td>
+        <td style="text-align:right;font-family:var(--font-mono)">${totFiltro}</td>
+      </tr>`;
+    }).join('');
+  }
 }
 
 /* ══ SLA HELPERS ══ */
