@@ -3736,8 +3736,14 @@ function fillAllSelects(){
 function activeSprint(){return sprints.find(s=>s.status==="Ativa")?.nome||sprints[0]?.nome||"Sprint 11"}
 function renderSprintSelects(){
   const names=sprints.map(s=>s.nome);
+  const el=document.getElementById("sprintFilter");
+  const atual = el ? el.value : "";
   fillSelect("sprintFilter",["Todas",...names]);
-  document.getElementById("sprintFilter").value=activeSprint();
+  // NOVA SOLICITAÇÃO: o app abre com filtros limpos — o padrão do filtro de
+  // sprint é "Todas" (antes forçava a sprint ativa a cada render, inclusive
+  // sobrescrevendo a escolha do usuário). Se o usuário já tinha selecionado
+  // uma sprint válida, a escolha é preservada.
+  el.value = (atual && ["Todas",...names].includes(atual)) ? atual : "Todas";
   const chipEl = document.getElementById("activeSprintChip");
   if(chipEl) chipEl.textContent="Sprint atual: "+activeSprint();
 }
