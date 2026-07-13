@@ -947,6 +947,10 @@
           <div id="gerChartSprint"></div>
         </div>
         <div class="panel ger-chart">
+          <div class="ger-chart-head"><h3 id="gerTitulo3v">Valor por sprint</h3><span class="ger-sub" id="gerSub3v">CAPEX produzido (R$) em cada sprint</span></div>
+          <div id="gerChartSprintValor"></div>
+        </div>
+        <div class="panel ger-chart">
           <div class="ger-chart-head"><h3 id="gerTitulo4">Eficiência de prazo</h3><span class="ger-sub" id="gerSub4">entregas concluídas × data prevista</span></div>
           <div id="gerChartPrazo"></div>
         </div>
@@ -4230,8 +4234,12 @@ function renderGerencial(){
     })).sort((a,b)=>b.total-a.total));
   }
 
-  // ── 3) por sprint ──
+  // ── 3) por sprint (produção em contagem + em valor) ──
   gvColunas('gerChartSprint', sprints.map(sp=>({label:sp.nome, v:grupo.filter(d=>d.sprint===sp.nome).length})));
+  ghBarras('gerChartSprintValor', sprints.map(sp=>{
+    const val = stats.filter(x=>x.d.sprint===sp.nome).reduce((sm,x)=>sm+x.val,0);
+    return {label:sp.nome, total:val, segs:[{v:val,cor:'#005EB8',tit:moneyBR(val)}], valStr:moneyCompact(val)};
+  }).filter(r=>r.total>0).sort((a,b)=>b.total-a.total));
 
   // ── 4) donut de prazo/situação ──
   gDonut('gerChartPrazo', modoProducao
