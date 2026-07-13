@@ -978,82 +978,8 @@
 
     <!-- ESTRATÉGICA -->
     <section id="view-estrategica" class="view">
-      <div class="topbar"><div class="page-heading"><h2>Visão Estratégica</h2><p>CAPEX orçado a partir dos valores das demandas concluídas — emissões pelo total do EV, revisões pela diferença (Δ), com sinal.</p></div></div>
-
-      <div class="panel" style="padding:14px 16px;margin-bottom:14px">
-        <div class="filter-bar" style="margin-bottom:0">
-          <div class="field"><label>Sprint</label><div class="msel" id="estSprintFilter"></div></div>
-          <div class="field"><label>Região</label><div class="msel" id="estRegiaoFilter"></div></div>
-          <div class="field"><label>Tipo de unidade</label><div class="msel" id="estTipoFilter"></div></div>
-          <div class="field"><label>Classificação da obra</label><div class="msel" id="estClassifFilter"></div></div>
-          <div class="field"><label>&nbsp;</label><button class="btn btn-ghost" style="white-space:nowrap" onclick="limparFiltrosEst()">✕ Limpar filtros</button></div>
-        </div>
-      </div>
-
-      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px">
-        <div class="kpi-card"><div class="kpi-label">Valor total orçado (líquido)</div><div class="kpi-value" id="estKpiLiquido" style="font-size:20px">R$ 0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Demandas com valor</div><div class="kpi-value" id="estKpiDemandas">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Valor médio por demanda</div><div class="kpi-value" id="estKpiMedio" style="font-size:20px">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">Δ líquido das revisões</div><div class="kpi-value" id="estKpiDelta" style="font-size:20px">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">Maior demanda</div><div class="kpi-value" id="estKpiMaior" style="font-size:20px">—</div></div>
-      </div>
-
-      <div class="ger-grid">
-        <div class="panel ger-chart">
-          <div class="ger-chart-head"><h3>Valor por região</h3><span class="ger-sub">valor líquido das demandas concluídas · vermelho = redução líquida</span></div>
-          <div id="estChartRegiao"></div>
-        </div>
-        <div class="panel ger-chart">
-          <div class="ger-chart-head"><h3>Valor por tipo de unidade</h3><span class="ger-sub">valor líquido das demandas concluídas</span></div>
-          <div id="estChartTipoU"></div>
-        </div>
-        <div class="panel ger-chart">
-          <div class="ger-chart-head"><h3>Valor por classificação da obra</h3><span class="ger-sub">valor líquido das demandas concluídas</span></div>
-          <div id="estChartClassif"></div>
-        </div>
-        <div class="panel ger-chart">
-          <div class="ger-chart-head"><h3>Top 10 demandas por valor</h3><span class="ger-sub">maiores valores absolutos no filtro atual</span></div>
-          <div id="estChartTop"></div>
-        </div>
-        <div class="panel ger-chart">
-          <div class="ger-chart-head"><h3>Valor por sprint</h3><span class="ger-sub">valor líquido orçado em cada sprint</span></div>
-          <div id="estChartSprint"></div>
-        </div>
-        <div class="panel ger-chart">
-          <div class="ger-chart-head"><h3>Emissões × Revisões</h3><span class="ger-sub">composição do valor movimentado (em módulo)</span></div>
-          <div id="estChartMix"></div>
-        </div>
-      </div>
-
-      <!-- NOVA SOLICITAÇÃO: prazos na Visão Estratégica -->
-      <div class="topbar" style="margin:14px 0 0;padding:16px 18px"><div class="page-heading"><h2 style="font-size:18px">Prazos das demandas</h2><p>Todas as demandas do filtro atual, qualquer status — quantas estão previstas, no prazo, próximas ou atrasadas.</p></div></div>
-      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin:14px 0">
-        <div class="kpi-card"><div class="kpi-label">Com data prevista</div><div class="kpi-value" id="estPzKpiTotal">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Em dia</div><div class="kpi-value" id="estPzKpiEmdia" style="color:#047857">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Próximas do marco</div><div class="kpi-value" id="estPzKpiProximo" style="color:#F58220">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Atrasadas</div><div class="kpi-value" id="estPzKpiAtraso" style="color:#C0200A">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Concluídas no prazo</div><div class="kpi-value" id="estPzKpiConclPrazo">0</div></div>
-      </div>
-      <div class="ger-grid">
-        <div class="panel ger-chart">
-          <div class="ger-chart-head"><h3>Situação de prazo</h3><span class="ger-sub">todas as demandas do filtro, por situação atual</span></div>
-          <div id="estChartPrazoSit"></div>
-        </div>
-        <div class="panel ger-chart">
-          <div class="ger-chart-head"><h3>Prazo por região</h3><span class="ger-sub">em dia/no prazo · próximas · atrasadas · sem data, por região</span></div>
-          <div id="estChartPrazoRegiao"></div>
-        </div>
-      </div>
-
-      <div class="panel" style="margin-top:14px">
-        <div class="ger-chart-head" style="margin-bottom:10px"><h3>Consolidado por classificação</h3><span class="ger-sub">valores das demandas concluídas no filtro atual</span></div>
-        <div class="table-scroll" style="max-height:calc(100vh - 320px)">
-          <table>
-            <thead><tr><th>Classificação</th><th style="text-align:right">Demandas</th><th style="text-align:right">Emissões</th><th style="text-align:right">Δ Revisões</th><th style="text-align:right">Valor líquido</th></tr></thead>
-            <tbody id="estTabela"></tbody>
-          </table>
-        </div>
-      </div>
+      <div class="topbar"><div class="page-heading"><h2>Visão Estratégica</h2><p>CAPEX, valor, tipo de obra e regional.</p></div></div>
+      <div class="panel"><div class="coming"><div class="coming-icon">📈</div><h3>Em breve</h3><p>Esta visão está em desenvolvimento e será disponibilizada em uma próxima atualização.</p></div></div>
     </section>
 
     <!-- CONFIGURAÇÕES -->
