@@ -161,6 +161,20 @@
     .filter-bar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px;padding:11px;background:var(--sf2);border:1px solid var(--line-2);border-radius:var(--r-lg)}
     .toolbar{display:flex;gap:9px;align-items:center;justify-content:space-between;margin-bottom:12px;padding:9px 11px;background:var(--sf2);border:1px solid var(--line-2);border-radius:var(--r-lg)}
     .field{display:flex;flex-direction:column;gap:4px;min-width:150px}
+    /* ══ MULTI-SELECT DE FILTROS ══ (permite marcar mais de um valor por filtro) */
+    .msel{position:relative;min-width:150px}
+    .msel-btn{width:100%;text-align:left;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:7px 9px;font-size:13px;color:var(--ink);font-family:inherit;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .msel-btn:hover{border-color:var(--blue-600)}
+    .msel.msel-open .msel-btn{border-color:var(--blue-600);box-shadow:0 0 0 3px var(--blue-d)}
+    .msel-caret{font-size:10px;color:var(--muted);flex-shrink:0}
+    .msel-panel{position:absolute;top:calc(100% + 4px);left:0;min-width:100%;max-width:260px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--sh);z-index:60;padding:6px}
+    .msel-actions{display:flex;justify-content:space-between;gap:6px;padding:4px 6px 6px;border-bottom:1px solid var(--line-2);margin-bottom:4px}
+    .msel-actions button{appearance:none;border:none;background:none;color:var(--blue-600);font-size:11.5px;font-weight:700;cursor:pointer;padding:2px 4px}
+    .msel-actions button:hover{text-decoration:underline}
+    .msel-list{max-height:220px;overflow:auto;display:flex;flex-direction:column}
+    .msel-opt{display:flex;align-items:center;gap:8px;padding:5px 6px;font-size:12.5px;color:var(--text);border-radius:6px;cursor:pointer;white-space:nowrap}
+    .msel-opt:hover{background:var(--sf2)}
+    .msel-opt input{width:auto;flex-shrink:0}
     .field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
     select,input,textarea{width:100%;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:7px 9px;font-size:13px;color:var(--ink);font-family:inherit;outline:none;transition:border-color .14s,box-shadow .14s}
     select:focus,input:focus,textarea:focus{border-color:var(--blue-600);box-shadow:0 0 0 3px var(--blue-d)}
@@ -727,9 +741,9 @@
           <input id="demandaSearch" type="text" placeholder="Buscar por código, obra ou descrição…" oninput="renderKanban()">
         </div>
         <div class="filter-bar" style="margin-bottom:0">
-          <div class="field"><label>Sprint</label><select id="sprintFilter"></select></div>
-          <div class="field"><label>Analista</label><select id="analistaFilter"></select></div>
-          <div class="field"><label>Tipo de atividade</label><select id="tipoAtividadeFilter"></select></div>
+          <div class="field"><label>Sprint</label><div class="msel" id="sprintFilter"></div></div>
+          <div class="field"><label>Analista</label><div class="msel" id="analistaFilter"></div></div>
+          <div class="field"><label>Tipo de atividade</label><div class="msel" id="tipoAtividadeFilter"></div></div>
           <div class="field"><label>Situação de prazo</label>
             <select id="entregaFilter">
               <option value="">Todos</option>
@@ -810,9 +824,9 @@
         <div class="toolbar">
           <input class="search-input" id="obraSearch" type="text" placeholder="Buscar por nome, chave, cidade, UF, região, tipo…" />
           <div style="display:flex;gap:7px">
-            <select id="ufFilter" style="min-width:120px"></select>
-            <select id="tipoFilter" style="min-width:135px"></select>
-            <select id="regiaoFilter" style="min-width:145px"></select>
+            <div class="msel" id="ufFilter" style="min-width:120px"></div>
+            <div class="msel" id="tipoFilter" style="min-width:135px"></div>
+            <div class="msel" id="regiaoFilter" style="min-width:145px"></div>
             <!-- ITEM 10 (2ª rodada) -->
             <button class="btn btn-ghost" style="white-space:nowrap" onclick="limparFiltrosObras()">✕ Limpar filtros</button>
           </div>
@@ -892,10 +906,10 @@
       <!-- Filtros -->
       <div class="panel" style="padding:14px 16px;margin-bottom:14px">
         <div class="filter-bar" style="margin-bottom:0">
-          <div class="field"><label>Sprint</label><select id="gerSprintFilter" onchange="renderGerencial()"></select></div>
-          <div class="field"><label>Analista</label><select id="gerAnalistaFilter" onchange="renderGerencial()"></select></div>
-          <div class="field"><label>Tipo da demanda</label><select id="gerTipoFilter" onchange="renderGerencial()"></select></div>
-          <div class="field"><label>Classificação da obra</label><select id="gerClassifFilter" onchange="renderGerencial()"></select></div>
+          <div class="field"><label>Sprint</label><div class="msel" id="gerSprintFilter"></div></div>
+          <div class="field"><label>Analista</label><div class="msel" id="gerAnalistaFilter"></div></div>
+          <div class="field"><label>Tipo da demanda</label><div class="msel" id="gerTipoFilter"></div></div>
+          <div class="field"><label>Classificação da obra</label><div class="msel" id="gerClassifFilter"></div></div>
           <div class="field"><label>&nbsp;</label><button class="btn btn-ghost" style="white-space:nowrap" onclick="limparFiltrosGer()">✕ Limpar filtros</button></div>
         </div>
       </div>
@@ -964,10 +978,10 @@
 
       <div class="panel" style="padding:14px 16px;margin-bottom:14px">
         <div class="filter-bar" style="margin-bottom:0">
-          <div class="field"><label>Sprint</label><select id="estSprintFilter" onchange="renderEstrategica()"></select></div>
-          <div class="field"><label>Região</label><select id="estRegiaoFilter" onchange="renderEstrategica()"></select></div>
-          <div class="field"><label>Tipo de unidade</label><select id="estTipoFilter" onchange="renderEstrategica()"></select></div>
-          <div class="field"><label>Classificação da obra</label><select id="estClassifFilter" onchange="renderEstrategica()"></select></div>
+          <div class="field"><label>Sprint</label><div class="msel" id="estSprintFilter"></div></div>
+          <div class="field"><label>Região</label><div class="msel" id="estRegiaoFilter"></div></div>
+          <div class="field"><label>Tipo de unidade</label><div class="msel" id="estTipoFilter"></div></div>
+          <div class="field"><label>Classificação da obra</label><div class="msel" id="estClassifFilter"></div></div>
           <div class="field"><label>&nbsp;</label><button class="btn btn-ghost" style="white-space:nowrap" onclick="limparFiltrosEst()">✕ Limpar filtros</button></div>
         </div>
       </div>
@@ -1004,6 +1018,26 @@
         <div class="panel ger-chart">
           <div class="ger-chart-head"><h3>Emissões × Revisões</h3><span class="ger-sub">composição do valor movimentado (em módulo)</span></div>
           <div id="estChartMix"></div>
+        </div>
+      </div>
+
+      <!-- NOVA SOLICITAÇÃO: prazos na Visão Estratégica -->
+      <div class="topbar" style="margin:14px 0 0;padding:16px 18px"><div class="page-heading"><h2 style="font-size:18px">Prazos das demandas</h2><p>Todas as demandas do filtro atual, qualquer status — quantas estão previstas, no prazo, próximas ou atrasadas.</p></div></div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin:14px 0">
+        <div class="kpi-card"><div class="kpi-label">Com data prevista</div><div class="kpi-value" id="estPzKpiTotal">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">Em dia</div><div class="kpi-value" id="estPzKpiEmdia" style="color:#047857">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">Próximas do marco</div><div class="kpi-value" id="estPzKpiProximo" style="color:#F58220">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">Atrasadas</div><div class="kpi-value" id="estPzKpiAtraso" style="color:#C0200A">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">Concluídas no prazo</div><div class="kpi-value" id="estPzKpiConclPrazo">0</div></div>
+      </div>
+      <div class="ger-grid">
+        <div class="panel ger-chart">
+          <div class="ger-chart-head"><h3>Situação de prazo</h3><span class="ger-sub">todas as demandas do filtro, por situação atual</span></div>
+          <div id="estChartPrazoSit"></div>
+        </div>
+        <div class="panel ger-chart">
+          <div class="ger-chart-head"><h3>Prazo por região</h3><span class="ger-sub">em dia/no prazo · próximas · atrasadas · sem data, por região</span></div>
+          <div id="estChartPrazoRegiao"></div>
         </div>
       </div>
 
@@ -1777,9 +1811,6 @@ async function initDB(){
     // foram carregados e ANTES de qualquer render.
     try { await migrarEstruturaEV(); }
     catch(migErr){ console.error('Falha na migração da estrutura do EV:', migErr); }
-    // ITEM 9 (2ª rodada): retro-calcula o valor de revisões concluídas antigas
-    try { await backfillValorDemanda(); }
-    catch(bfErr){ console.error('Falha no backfill do valor da demanda:', bfErr); }
   }catch(err){
     console.error('initDB erro:', err);
     alert('Erro ao conectar com o Supabase. Verifique as credenciais. Rodando em modo offline.');
@@ -2635,14 +2666,59 @@ function avisarEVincompleto(faltando, obraId){
 
 // Processa a conclusão: valida EV linha a linha, pergunta pendência, registra.
 // Retorna true se a demanda foi concluída.
+function parseValorBR(str){
+  if(str===null || str===undefined) return null;
+  let s = String(str).trim().replace(/^R\$\s*/i,'').replace(/\s+/g,'');
+  if(!s) return null;
+  const temPonto = s.includes('.'), temVirgula = s.includes(',');
+  if(temPonto && temVirgula) s = s.replace(/\./g,'').replace(',', '.');
+  else if(temVirgula) s = s.replace(',', '.');
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+function parseValorBR(str){
+  if(str===null || str===undefined) return null;
+  let s = String(str).trim().replace(/^R\$\s*/i,'').replace(/\s+/g,'');
+  if(!s) return null;
+  const temPonto = s.includes('.'), temVirgula = s.includes(',');
+  if(temPonto && temVirgula) s = s.replace(/\./g,'').replace(',', '.');
+  else if(temVirgula) s = s.replace(',', '.');
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
 function processarConclusao(codigo){
   // 1. Bloqueio de EV — nenhuma linha aplicável pode estar como "Estimado"
   const chk = podeConcluir(codigo);
   if(!chk.ok){ avisarEVincompleto(chk.faltando, chk.obraId); return false; }
 
-  // 2. Pergunta sobre pendência de cotação
   const d = demandas.find(x=>x.codigo===codigo);
   if(!d) return false;
+
+  /* NOVA REGRA: o cálculo automático da diferença (novo EV − EV anterior)
+     foi abandonado — em obras com revisões concorrentes ou versões fora de
+     ordem, a conta não ficava confiável. Agora, para Revisão de orçamento,
+     o ANALISTA INFORMA a diferença manualmente e isso é OBRIGATÓRIO para
+     concluir. Perguntado ANTES de qualquer alteração ser gravada — se o
+     usuário cancelar ou digitar algo inválido, nada é tocado. */
+  let valorManual = null;
+  if(d.tipo === 'Revisão de orçamento'){
+    const entrada = prompt(
+      'Informe o VALOR DA DIFERENÇA deste EV em relação ao EV anterior (R$).\n\n' +
+      'Use sinal negativo para redução de orçamento. Este valor é obrigatório e será exibido como "Valor da Demanda" no card.\n\n' +
+      'Ex.: 15000  ou  -8500,50',
+      d.valorAlteracaoEV!=null ? String(d.valorAlteracaoEV) : ''
+    );
+    if(entrada === null) return false; // cancelou
+    valorManual = parseValorBR(entrada);
+    if(valorManual === null){
+      alert('Valor inválido. Informe um número (ex.: 15000 ou -8500,50). A demanda não foi concluída.');
+      return false;
+    }
+  }
+
+  // 2. Pergunta sobre pendência de cotação
   const temPendencia = confirm('Esta demanda possui alguma pendência de cotação?\n\nOK = Sim, há pendência\nCancelar = Não, sem pendências');
   if(temPendencia){
     let desc = prompt('Descreva a pendência de cotação:', d.pendenciaDesc || '');
@@ -2664,19 +2740,14 @@ function processarConclusao(codigo){
   dbSave('demandas', demandaToDb(d));
 
   // 3. Cria uma nova versão do EV da obra (premissa: toda conclusão gera versão)
+  //    O valor exibido para Revisão de orçamento é o informado manualmente acima.
   {
     const dConcl = demandas.find(x=>x.codigo===codigo);
     const obraConcl = dConcl ? obras.find(o=>o.nome===dConcl.obra) : null;
-    if(obraConcl){
-      const novaVersao = criarVersaoEV(obraConcl.id, {demandaCodigo:codigo});
-      // PREMISSA 2: Revisão de orçamento exibe a DIFERENÇA em relação à versão anterior
-      if(dConcl.tipo === 'Revisão de orçamento' && novaVersao){
-        const anterior = evVersions.find(v=>v.obraId===obraConcl.id && v.versao===novaVersao.versao-1);
-        const valorNovo = novaVersao.valorTotalSemRisco || novaVersao.valorTotal || 0;
-        const valorAnterior = anterior ? (anterior.valorTotalSemRisco || anterior.valorTotal || 0) : 0;
-        dConcl.valorAlteracaoEV = valorNovo - valorAnterior;
-        dbSave('demandas', demandaToDb(dConcl));
-      }
+    if(obraConcl) criarVersaoEV(obraConcl.id, {demandaCodigo:codigo});
+    if(dConcl && dConcl.tipo === 'Revisão de orçamento'){
+      dConcl.valorAlteracaoEV = valorManual;
+      dbSave('demandas', demandaToDb(dConcl));
     }
   }
 
@@ -3379,30 +3450,31 @@ async function toggleUsuario(id, ativar){
    COM SINAL — o resultado é o CAPEX líquido orçado.
    ═══════════════════════════════════════════ */
 function limparFiltrosEst(){
-  const defs = {estSprintFilter:'Todas', estRegiaoFilter:'Todas', estTipoFilter:'Todos', estClassifFilter:'Todas'};
-  Object.entries(defs).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
+  ['estSprintFilter','estRegiaoFilter','estTipoFilter','estClassifFilter'].forEach(id=>mselGet(id).clear());
   renderEstrategica();
 }
 
 function renderEstrategica(){
   if(!document.getElementById('estKpiLiquido')) return;
-  _fillGerSelect('estSprintFilter', sprints.map(sp=>sp.nome), 'Todas');
-  _fillGerSelect('estRegiaoFilter', regioes, 'Todas');
-  _fillGerSelect('estTipoFilter', tiposUnidade, 'Todos');
-  _fillGerSelect('estClassifFilter', classificacoes, 'Todas');
-  const v = id => { const el=document.getElementById(id); return el?el.value:''; };
-  const f = {sprint:v('estSprintFilter')||'Todas', regiao:v('estRegiaoFilter')||'Todas', tipoU:v('estTipoFilter')||'Todos', classif:v('estClassifFilter')||'Todas'};
+  mselSync('estSprintFilter', sprints.map(sp=>sp.nome), renderEstrategica);
+  mselSync('estRegiaoFilter', regioes, renderEstrategica);
+  mselSync('estTipoFilter', tiposUnidade, renderEstrategica);
+  mselSync('estClassifFilter', classificacoes, renderEstrategica);
 
-  const itens = demandas
+  // universo geral (qualquer status) — usado pelos KPIs/gráficos de PRAZO
+  const todasFiltradas = demandas.filter(d=>{
+    const o = obras.find(x=>x.nome===d.obra);
+    if(!mselHas('estSprintFilter', d.sprint)) return false;
+    if(!mselHas('estRegiaoFilter', (o&&o.regiao)||'—')) return false;
+    if(!mselHas('estTipoFilter', (o&&o.tipo)||'—')) return false;
+    if(!mselHas('estClassifFilter', classifDaDemanda(d))) return false;
+    return true;
+  });
+
+  // universo de VALOR — só demandas concluídas com valor definido
+  const itens = todasFiltradas
     .filter(d=>d.status==='Concluído')
     .map(d=>({d, obra: obras.find(o=>o.nome===d.obra)}))
-    .filter(x=>{
-      if(f.sprint!=='Todas' && x.d.sprint!==f.sprint) return false;
-      if(f.regiao!=='Todas' && ((x.obra&&x.obra.regiao)||'—')!==f.regiao) return false;
-      if(f.tipoU!=='Todos'  && ((x.obra&&x.obra.tipo)||'—')!==f.tipoU) return false;
-      if(f.classif!=='Todas'&& classifDaDemanda(x.d)!==f.classif) return false;
-      return true;
-    })
     .map(x=>{ const vd=valorDaDemanda(x.d.codigo); return {...x, temValor: !!vd, valor: vd?vd.valor:0, ehDif: vd?vd.ehDiferenca:false}; })
     .filter(x=>x.temValor);
 
@@ -3458,6 +3530,58 @@ function renderEstrategica(){
     {label:'Revisões — aumentos', v:revAumento, cor:'#C0200A'},
     {label:'Revisões — reduções', v:revReducao, cor:'#047857'}
   ], itens.length, 'demandas', moneyCompact);
+
+  /* NOVA SOLICITAÇÃO: prazos — quantas demandas estão previstas, no prazo,
+     próximas do marco ou atrasadas, considerando TODAS (qualquer status),
+     no mesmo universo filtrado (todasFiltradas). Reaproveita situacaoDaDemanda
+     (mesma regra da Visão Gerencial: concluída = entrega real × prevista;
+     em curso = statusEntrega, pelo marco de envio ou de entrega). */
+  let pzEmdia=0, pzProximo=0, pzAtrasoCurso=0, pzPrazoConcl=0, pzAtrasoConcl=0, pzSemData=0;
+  todasFiltradas.forEach(d=>{
+    const sit = situacaoDaDemanda(d);
+    if(d.status==='Concluído'){
+      if(sit.t==='prazo') pzPrazoConcl++;
+      else if(sit.t==='atraso') pzAtrasoConcl++;
+      else pzSemData++;
+    } else {
+      if(sit.t==='emdia') pzEmdia++;
+      else if(sit.t==='proximo') pzProximo++;
+      else if(sit.t==='atraso') pzAtrasoCurso++;
+      else pzSemData++;
+    }
+  });
+  const pzComData = pzEmdia+pzProximo+pzAtrasoCurso+pzPrazoConcl+pzAtrasoConcl;
+  document.getElementById('estPzKpiTotal').textContent = pzComData;
+  document.getElementById('estPzKpiEmdia').textContent = pzEmdia;
+  document.getElementById('estPzKpiProximo').textContent = pzProximo;
+  document.getElementById('estPzKpiAtraso').textContent = pzAtrasoCurso;
+  document.getElementById('estPzKpiConclPrazo').textContent = pzPrazoConcl;
+
+  gDonut('estChartPrazoSit', [
+    {label:'Em dia (em curso)', v:pzEmdia, cor:'#047857'},
+    {label:'Próximas do marco', v:pzProximo, cor:'#F58220'},
+    {label:'Atrasadas (em curso)', v:pzAtrasoCurso, cor:'#C0200A'},
+    {label:'Concluídas no prazo', v:pzPrazoConcl, cor:'#0878A0'},
+    {label:'Concluídas com atraso', v:pzAtrasoConcl, cor:'#8f1807'},
+    {label:'Sem data registrada', v:pzSemData, cor:'#9AAABB'}
+  ], todasFiltradas.length, 'demandas');
+
+  const porRegiaoPz = {};
+  todasFiltradas.forEach(d=>{
+    const o = obras.find(x=>x.nome===d.obra);
+    const reg = (o&&o.regiao)||'Sem região';
+    const sit = situacaoDaDemanda(d);
+    porRegiaoPz[reg] = porRegiaoPz[reg] || {ok:0, proximo:0, atraso:0, semdata:0};
+    if(sit.t==='emdia' || sit.t==='prazo') porRegiaoPz[reg].ok++;
+    else if(sit.t==='proximo') porRegiaoPz[reg].proximo++;
+    else if(sit.t==='atraso') porRegiaoPz[reg].atraso++;
+    else porRegiaoPz[reg].semdata++;
+  });
+  ghBarras('estChartPrazoRegiao', Object.entries(porRegiaoPz).map(([reg,x])=>({
+    label:reg, total:x.ok+x.proximo+x.atraso+x.semdata,
+    segs:[{v:x.ok,cor:'#047857',tit:x.ok+' em dia/no prazo'},{v:x.proximo,cor:'#F58220',tit:x.proximo+' próximas'},{v:x.atraso,cor:'#C0200A',tit:x.atraso+' atrasadas'},{v:x.semdata,cor:'#9AAABB',tit:x.semdata+' sem data'}],
+    valStr:String(x.ok+x.proximo+x.atraso+x.semdata)
+  })).sort((a,b)=>b.total-a.total));
 
   // consolidado por classificação
   const porClas = {};
@@ -3715,6 +3839,63 @@ let demandas=[];
 
 /* HELPERS */
 function opt(v){return`<option>${v}</option>`}
+/* ══ MULTI-SELECT DE FILTROS ══
+   Permite marcar VÁRIOS valores no mesmo filtro (ex.: duas sprints ao mesmo
+   tempo). Estado por id, em Sets — Set vazio significa "Todas" (sem filtro).
+   Usado nos filtros de Operacional, Obras, Gerencial e Estratégica. */
+const _mselSets = {};      // id -> Set(string)
+const _mselOnChange = {};  // id -> callback
+
+function mselGet(id){ return _mselSets[id] || (_mselSets[id] = new Set()); }
+function mselHas(id, v){ const s = mselGet(id); return s.size===0 || s.has(v); }
+function mselAtivo(id){ return mselGet(id).size > 0; }
+
+function mselSync(id, options, onChange){
+  const wrap = document.getElementById(id);
+  if(!wrap) return;
+  const sel = mselGet(id);
+  [...sel].forEach(v=>{ if(!options.includes(v)) sel.delete(v); }); // remove seleções que saíram da lista
+  if(onChange) _mselOnChange[id] = onChange;
+  const isOpen = wrap.classList.contains('msel-open');
+  const resumo = sel.size===0 ? 'Todas' : (sel.size===1 ? [...sel][0] : sel.size+' selecionadas');
+  const escapeHtml = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  wrap.innerHTML = `<button type="button" class="msel-btn" onclick="mselToggle('${id}')" title="${sel.size?[...sel].join(', ').replace(/"/g,'&quot;'):'Todas'}">${escapeHtml(resumo)} <span class="msel-caret">▾</span></button>
+    <div class="msel-panel" style="display:${isOpen?'block':'none'}">
+      <div class="msel-actions"><button type="button" onclick="mselTodas('${id}')">✓ Todas</button></div>
+      <div class="msel-list">${options.map(o=>`<label class="msel-opt"><input type="checkbox" ${sel.has(o)?'checked':''} onchange="mselToggleValue('${id}',this)" data-v="${escapeHtml(o)}">${escapeHtml(o)}</label>`).join('')}</div>
+    </div>`;
+}
+
+function mselToggle(id){
+  const jaAberto = document.getElementById(id).classList.contains('msel-open');
+  document.querySelectorAll('.msel.msel-open').forEach(w=>{
+    w.classList.remove('msel-open');
+    const p = w.querySelector('.msel-panel'); if(p) p.style.display = 'none';
+  });
+  if(!jaAberto){
+    const wrap = document.getElementById(id);
+    wrap.classList.add('msel-open');
+    const p = wrap.querySelector('.msel-panel'); if(p) p.style.display = 'block';
+  }
+}
+function mselToggleValue(id, checkboxEl){
+  const v = checkboxEl.dataset.v;
+  const s = mselGet(id);
+  if(s.has(v)) s.delete(v); else s.add(v);
+  if(_mselOnChange[id]) _mselOnChange[id]();
+}
+function mselTodas(id){
+  mselGet(id).clear();
+  if(_mselOnChange[id]) _mselOnChange[id]();
+}
+document.addEventListener('click', e=>{
+  if(e.target.closest && e.target.closest('.msel')) return;
+  document.querySelectorAll('.msel.msel-open').forEach(w=>{
+    w.classList.remove('msel-open');
+    const p = w.querySelector('.msel-panel'); if(p) p.style.display = 'none';
+  });
+});
+
 function fillSelect(id,values,firstLabel=null){
   const el=document.getElementById(id);if(!el)return;
   el.innerHTML="";
@@ -3722,11 +3903,11 @@ function fillSelect(id,values,firstLabel=null){
   values.forEach(v=>el.insertAdjacentHTML("beforeend",opt(v)));
 }
 function fillAllSelects(){
-  fillSelect("analistaFilter",["Todos",...analistas]);
-  fillSelect("tipoAtividadeFilter",["Todos",...tiposAtividade]);
-  fillSelect("ufFilter",ufsBrasil,"Todos os estados");
-  fillSelect("tipoFilter",tiposUnidade,"Todos os tipos");
-  fillSelect("regiaoFilter",regioes,"Todas as regiões");
+  mselSync("analistaFilter",analistas,()=>{renderKanban();if(_viewMode==="lista")renderLista();});
+  mselSync("tipoAtividadeFilter",tiposAtividade,()=>{renderKanban();if(_viewMode==="lista")renderLista();});
+  mselSync("ufFilter",ufsBrasil,renderObras);
+  mselSync("tipoFilter",tiposUnidade,renderObras);
+  mselSync("regiaoFilter",regioes,renderObras);
   fillSelect("newTipoUnidade",tiposUnidade);
   fillSelect("newUF",ufsBrasil);
   fillSelect("newRegiao",regioes);
@@ -3736,14 +3917,10 @@ function fillAllSelects(){
 function activeSprint(){return sprints.find(s=>s.status==="Ativa")?.nome||sprints[0]?.nome||"Sprint 11"}
 function renderSprintSelects(){
   const names=sprints.map(s=>s.nome);
-  const el=document.getElementById("sprintFilter");
-  const atual = el ? el.value : "";
-  fillSelect("sprintFilter",["Todas",...names]);
-  // NOVA SOLICITAÇÃO: o app abre com filtros limpos — o padrão do filtro de
-  // sprint é "Todas" (antes forçava a sprint ativa a cada render, inclusive
-  // sobrescrevendo a escolha do usuário). Se o usuário já tinha selecionado
-  // uma sprint válida, a escolha é preservada.
-  el.value = (atual && ["Todas",...names].includes(atual)) ? atual : "Todas";
+  // Msel: nada a "forçar" — Set vazio já significa "Todas" por padrão (app
+  // abre com filtros limpos). mselSync remove sozinho seleções de sprints
+  // que deixaram de existir e preserva as que continuam válidas.
+  mselSync("sprintFilter", names, ()=>{renderKanban();if(_viewMode==="lista")renderLista();});
   const chipEl = document.getElementById("activeSprintChip");
   if(chipEl) chipEl.textContent="Sprint atual: "+activeSprint();
 }
@@ -3792,10 +3969,12 @@ function renderSprintTabs(){
 
 function selecionarSprintTab(nome){
   _sprintFiltro = nome;
-  // Sync sprintFilter oculto (usado por filteredDemandas)
-  const sf = document.getElementById('sprintFilter');
-  if(sf) sf.value = nome;
+  // Sync com o msel de sprint (usado por filteredDemandas)
+  const s = mselGet('sprintFilter');
+  s.clear();
+  if(nome !== 'Todas') s.add(nome);
   renderSprintTabs();
+  renderSprintSelects();
   renderKanban();
   if(typeof renderLista==='function' && _viewMode==='lista') renderLista();
 }
@@ -3803,15 +3982,15 @@ function selecionarSprintTab(nome){
 function limparFiltrosOP(){
   // ITEM 10 (2ª rodada): limpa TODOS os filtros da visão operacional
   _sprintFiltro='Todas';
-  const sf=document.getElementById('sprintFilter');
-  if(sf) sf.value='Todas';
-  document.getElementById('analistaFilter').value='Todos';
-  document.getElementById('tipoAtividadeFilter').value='Todos';
+  mselGet('sprintFilter').clear();
+  mselGet('analistaFilter').clear();
+  mselGet('tipoAtividadeFilter').clear();
   const ef=document.getElementById('entregaFilter');   if(ef) ef.value='';
   const pf=document.getElementById('pendenciaFilter'); if(pf) pf.value='';
   const bs=document.getElementById('demandaSearch');   if(bs) bs.value='';
   _kpiStatusFiltro=null; _kpiFiltroRotulo='';
   renderSprintTabs();
+  fillAllSelects(); renderSprintSelects(); // re-renderiza os msel já limpos
   renderKanban();
   if(_viewMode==='lista') renderLista();
 }
@@ -3819,9 +3998,10 @@ function limparFiltrosOP(){
 // ITEM 10 (2ª rodada): limpar filtros da Gestão de Obras
 function limparFiltrosObras(){
   document.getElementById('obraSearch').value='';
-  document.getElementById('ufFilter').value='';
-  document.getElementById('tipoFilter').value='';
-  document.getElementById('regiaoFilter').value='';
+  mselGet('ufFilter').clear();
+  mselGet('tipoFilter').clear();
+  mselGet('regiaoFilter').clear();
+  fillAllSelects();
   renderObras();
 }
 
@@ -3896,28 +4076,9 @@ function situacaoDaDemanda(d){
   return {t:'emdia', dias:0};
 }
 
-function _fillGerSelect(id, valores, todosLabel){
-  const el = document.getElementById(id); if(!el) return;
-  const atual = el.value;
-  el.innerHTML = '';
-  [todosLabel, ...valores].forEach(v=>{ const o=document.createElement('option'); o.textContent=v; el.appendChild(o); });
-  if([...el.options].some(o=>o.value===atual)) el.value = atual;
-}
-
-function _gerFiltros(){
-  const v = id => { const el=document.getElementById(id); return el ? el.value : ''; };
-  return {
-    sprint:  v('gerSprintFilter')  || 'Todas',
-    analista:v('gerAnalistaFilter')|| 'Todos',
-    tipo:    v('gerTipoFilter')    || 'Todos',
-    classif: v('gerClassifFilter') || 'Todas'
-  };
-}
-
 // ITEM 10: a visão gerencial também tem "limpar filtros"
 function limparFiltrosGer(){
-  const defs = {gerSprintFilter:'Todas', gerAnalistaFilter:'Todos', gerTipoFilter:'Todos', gerClassifFilter:'Todas'};
-  Object.entries(defs).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
+  ['gerSprintFilter','gerAnalistaFilter','gerTipoFilter','gerClassifFilter'].forEach(id=>mselGet(id).clear());
   renderGerencial();
 }
 
@@ -3968,11 +4129,10 @@ function gDonut(containerId, segs, centro, rotulo, fmt){ // segs: [{label,v,cor}
 
 function renderGerencial(){
   if(!document.getElementById('gerKpis')) return;
-  _fillGerSelect('gerSprintFilter', sprints.map(s=>s.nome), 'Todas');
-  _fillGerSelect('gerAnalistaFilter', analistas, 'Todos');
-  _fillGerSelect('gerTipoFilter', tiposAtividade, 'Todos');
-  _fillGerSelect('gerClassifFilter', classificacoes, 'Todas');
-  const f = _gerFiltros();
+  mselSync('gerSprintFilter', sprints.map(s=>s.nome), renderGerencial);
+  mselSync('gerAnalistaFilter', analistas, renderGerencial);
+  mselSync('gerTipoFilter', tiposAtividade, renderGerencial);
+  mselSync('gerClassifFilter', classificacoes, renderGerencial);
   const esc = GER_ESCOPOS[_gerEscopo];
   const modoProducao = _gerEscopo === 'concluidas';
 
@@ -3981,10 +4141,10 @@ function renderGerencial(){
 
   // universo filtrado (filtros valem para TODOS os escopos)
   const base = demandas.filter(d=>{
-    if(f.sprint!=='Todas'  && d.sprint!==f.sprint) return false;
-    if(f.analista!=='Todos'&& d.analista!==f.analista) return false;
-    if(f.tipo!=='Todos'    && d.tipo!==f.tipo) return false;
-    if(f.classif!=='Todas' && classifDaDemanda(d)!==f.classif) return false;
+    if(!mselHas('gerSprintFilter', d.sprint)) return false;
+    if(!mselHas('gerAnalistaFilter', d.analista)) return false;
+    if(!mselHas('gerTipoFilter', d.tipo)) return false;
+    if(!mselHas('gerClassifFilter', classifDaDemanda(d))) return false;
     return true;
   });
   const grupo = base.filter(d=>esc.match(d.status));
@@ -4198,17 +4358,14 @@ function renderKPIsSprint(){
 }
 
 function filteredDemandas(){
-  const sprint=document.getElementById("sprintFilter").value;
-  const analista=document.getElementById("analistaFilter").value;
-  const tipo=document.getElementById("tipoAtividadeFilter").value;
   const entrega=document.getElementById("entregaFilter") ? document.getElementById("entregaFilter").value : "";
   const pendenciaF=document.getElementById("pendenciaFilter") ? document.getElementById("pendenciaFilter").value : "";
   const busca=document.getElementById("demandaSearch") ? document.getElementById("demandaSearch").value.trim().toLowerCase() : "";
   return demandas.filter(d=>{
-    const okSprint = sprint==="Todas"||d.sprint===sprint;
-    // Analista: líder OU complementar
-    const okAnalista = analista==="Todos" || d.analista===analista || (d.analistasComp||[]).includes(analista);
-    const okTipo = tipo==="Todos"||d.tipo===tipo;
+    const okSprint = mselHas("sprintFilter", d.sprint);
+    // Analista: líder OU complementar — combina com qualquer um dos selecionados
+    const okAnalista = mselHas("analistaFilter", d.analista) || (d.analistasComp||[]).some(a=>mselGet("analistaFilter").has(a));
+    const okTipo = mselHas("tipoAtividadeFilter", d.tipo);
     let okEntrega = true;
     if(entrega){
       const se = statusEntrega(d.codigo);
@@ -4285,36 +4442,23 @@ function ordenarDemandas(arr){
 
 /* ══ ITEM 9 (2ª rodada): VALOR DA DEMANDA ══
    Conceito único para os dois tipos:
-   · Emissão inicial      → valor total do EV (sem risco) gerado pela demanda;
-   · Revisão de orçamento → DIFERENÇA entre o novo EV e o EV anterior.
-   Fontes, em ordem: (1) valorAlteracaoEV gravado na conclusão; (2) versão do
-   EV etiquetada com o código da demanda; (3) para revisões CONCLUÍDAS antes
-   do versionamento por demanda: a última versão da obra — desde que não
-   pertença a OUTRA demanda — comparada com a versão anterior. */
+   · Emissão inicial      → valor total do EV (sem risco) gerado pela demanda
+     (calculado automaticamente pela versão do EV);
+   · Revisão de orçamento → DIFERENÇA informada MANUALMENTE pelo analista na
+     conclusão (ver processarConclusao / informarValorRevisao). NÃO é mais
+     calculada automaticamente pela diferença entre versões do EV. */
 function valorDaDemanda(codigo){
   const d = demandas.find(x=>x.codigo===codigo);
   if(!d) return null;
-  const obra = obras.find(o=>o.nome===d.obra);
-  const ehRevisao = d.tipo === 'Revisão de orçamento';
 
-  if(ehRevisao){
+  if(d.tipo === 'Revisão de orçamento'){
     if(d.valorAlteracaoEV !== undefined && d.valorAlteracaoEV !== null)
       return {valor: d.valorAlteracaoEV, ehDiferenca: true};
-    if(!obra) return null;
-    const versoes = evVersions.filter(v=>v.obraId===obra.id).sort((a,b)=>a.versao-b.versao);
-    let vDem = versoes.filter(v=>v.demandaCodigo===codigo).pop();
-    if(!vDem && d.status==='Concluído' && versoes.length){
-      const ultima = versoes[versoes.length-1];
-      if(!ultima.demandaCodigo || ultima.demandaCodigo===codigo) vDem = ultima;
-    }
-    if(!vDem) return null;
-    const anterior = versoes.filter(v=>v.versao < vDem.versao).pop();
-    const valorNovo = vDem.valorTotalSemRisco || vDem.valorTotal || 0;
-    const valorAnt  = anterior ? (anterior.valorTotalSemRisco || anterior.valorTotal || 0) : 0;
-    return {valor: valorNovo - valorAnt, ehDiferenca: true};
+    return null; // ainda não informado
   }
 
   // Emissão inicial (e demais tipos): total do EV da demanda
+  const obra = obras.find(o=>o.nome===d.obra);
   if(!obra) return null;
   const vDem = evVersions.filter(v=>v.obraId===obra.id && v.demandaCodigo===codigo).sort((a,b)=>b.versao-a.versao)[0];
   if(vDem) return {valor: vDem.valorTotalSemRisco || vDem.valorTotal || 0, ehDiferenca: false};
@@ -4323,21 +4467,25 @@ function valorDaDemanda(codigo){
   return null;
 }
 
-/* ITEM 9 (2ª rodada): revisões concluídas ANTES desta atualização não têm a
-   diferença gravada (o caminho antigo de conclusão pulava o versionamento).
-   No carregamento, calcula pelo histórico de versões e PERSISTE, para o valor
-   ficar estável no card dali em diante. */
-async function backfillValorDemanda(){
-  for(const d of demandas){
-    if(d.tipo!=='Revisão de orçamento' || d.status!=='Concluído') continue;
-    if(d.valorAlteracaoEV !== undefined && d.valorAlteracaoEV !== null) continue;
-    const vd = valorDaDemanda(d.codigo);
-    if(vd && vd.ehDiferenca){
-      d.valorAlteracaoEV = vd.valor;
-      await dbSave('demandas', demandaToDb(d));
-      console.info('[Traço] Valor da demanda retro-calculado para '+d.codigo+': '+vd.valor);
-    }
-  }
+/* NOVA REGRA: revisões sem o valor manual informado ficam sem "Valor da
+   Demanda" — a interface oferece um link "✎ informar valor" (ver badges
+   abaixo em renderKanban/renderLista) para preencher retroativamente, em vez
+   de calcular automaticamente pela diferença de versões do EV. */
+async function informarValorRevisao(codigo){
+  const d = demandas.find(x=>x.codigo===codigo);
+  if(!d) return;
+  if(!podeMexerNaDemanda(d)){ alert('Você não tem permissão para informar o valor desta demanda.'); return; }
+  const entrada = prompt(
+    'Informe o VALOR DA DIFERENÇA deste EV em relação ao EV anterior (R$).\n\nUse sinal negativo para redução de orçamento.',
+    d.valorAlteracaoEV!=null ? String(d.valorAlteracaoEV) : ''
+  );
+  if(entrada === null) return;
+  const valor = parseValorBR(entrada);
+  if(valor === null){ alert('Valor inválido. Informe um número (ex.: 15000 ou -8500,50).'); return; }
+  d.valorAlteracaoEV = valor;
+  await dbSave('demandas', demandaToDb(d));
+  renderKanban();
+  if(typeof _viewMode!=='undefined' && _viewMode==='lista' && typeof renderLista==='function') renderLista();
 }
 
 function renderKanban(){
@@ -4366,7 +4514,7 @@ function renderKanban(){
           } else if(vd && vd.valor>0){
             evBadge = `<div class="task-ev-total" title="Total do EV gerado pela demanda">Valor da Demanda<strong>${moneyBR(vd.valor)}</strong></div>`;
           } else if(item.tipo==='Revisão de orçamento'){
-            evBadge = `<div class="task-ev-total" title="Não há versão do EV registrada para esta demanda — conclua-a novamente ou crie uma revisão manual do EV">Valor da Demanda<strong style="color:var(--muted)">—</strong></div>`;
+            evBadge = `<div class="task-ev-total" style="cursor:pointer" onclick="event.stopPropagation();informarValorRevisao('${item.codigo}')" title="Clique para informar o valor da diferença">Valor da Demanda<strong style="color:var(--muted)">✎ informar valor</strong></div>`;
           }
         }
         const pendBadge = (concluida && item.pendencia)
@@ -4498,6 +4646,8 @@ function renderLista(){
         valorStr = `<span style="color:${cor};font-weight:700" title="Diferença do novo EV para o EV anterior">${sinal}${moneyBR(Math.abs(vd.valor))}</span>`;
       } else if(vd && vd.valor>0){
         valorStr = `<span style="font-weight:700" title="Total do EV gerado pela demanda">${moneyBR(vd.valor)}</span>`;
+      } else if(item.tipo==='Revisão de orçamento'){
+        valorStr = `<span style="color:var(--blue-600);cursor:pointer;font-weight:600" onclick="event.stopPropagation();informarValorRevisao('${item.codigo}')" title="Clique para informar o valor da diferença">✎ informar</span>`;
       }
     }
     return `<tr onclick="openDemandaDrawer('${item.codigo}')" style="cursor:pointer">
@@ -4518,13 +4668,10 @@ function renderLista(){
 /* OBRAS TABLE */
 function renderObras(){
   const search=document.getElementById("obraSearch").value.toLowerCase();
-  const uf=document.getElementById("ufFilter").value;
-  const tipo=document.getElementById("tipoFilter").value;
-  const regiao=document.getElementById("regiaoFilter").value;
   const filtered=obras.filter(o=>{
     const chave=gerarChave(o);
     const src=[o.id,o.evId,o.codigoOriginal,o.nome,o.cidade,o.uf,o.tipo,o.regiao,o.classificacao,o.tipologia,chave].join(" ").toLowerCase();
-    return(!search||src.includes(search))&&(!uf||o.uf===uf)&&(!tipo||o.tipo===tipo)&&(!regiao||o.regiao===regiao);
+    return(!search||src.includes(search))&&mselHas("ufFilter",o.uf)&&mselHas("tipoFilter",o.tipo)&&mselHas("regiaoFilter",o.regiao);
   });
   document.getElementById("obraCountChip").textContent=`${filtered.length} obras`;
   const _soc=document.getElementById("sideObrasCount"); if(_soc) _soc.textContent=obras.length;
@@ -4553,7 +4700,7 @@ function renderObras(){
         <button class="action-btn" onclick="openEV('${o.id}')">Abrir EV</button>${
         demandas.some(d=>d.obra===o.nome) && temPendenciaEV(o.id)
           ? '<span class="ev-pend-dot" title="EV com itens pendentes de cotação">⚠</span>' : ''
-      }${pode(['Administrador','Gestão']) ? `<button class="action-btn obra-edit-btn" onclick="editarObra('${o.id}')" title="Editar dados da obra">✎</button><button class="action-btn obra-del-btn" onclick="excluirObra('${o.id}')" title="Excluir obra">🗑</button>` : ''}
+      }<button class="action-btn obra-edit-btn" onclick="editarObra('${o.id}')" title="Editar dados da obra">✎</button>${pode(['Administrador','Gestão']) ? `<button class="action-btn obra-del-btn" onclick="excluirObra('${o.id}')" title="Excluir obra">🗑</button>` : ''}
       </td>
     </tr>`;
   }).join("");
@@ -4859,7 +5006,8 @@ function openNovaObra(){
 
 // ITEM 1: editar uma obra já cadastrada
 function editarObra(obraId){
-  if(!pode(['Administrador','Gestão'])){ alert('Somente Gestão ou Administrador podem editar obras.'); return; }
+  // NOVA SOLICITAÇÃO: analistas também alimentam os dados na Gestão de Obras.
+  // A exclusão de obras continua restrita a Gestão/Administrador.
   const o = obras.find(x=>x.id===obraId);
   if(!o) return;
   _obraEditandoId = obraId;
@@ -5513,12 +5661,14 @@ function aplicarModoLeituraEV(){
 function openEV(obraId, viaDemanda){
   const obra=obras.find(o=>o.id===obraId);if(!obra)return;
 
-  // NOVA SOLICITAÇÃO: analistas podem ACESSAR as informações das obras.
-  // O acesso direto a um EV já salvo abre em MODO CONSULTA (somente leitura)
-  // para Analistas — a edição direta segue restrita a Gestão/Administrador
-  // (analistas alteram valores através da demanda vinculada).
+  // NOVA SOLICITAÇÃO: analistas ALIMENTAM os dados na Gestão de Obras — o EV
+  // abre editável para qualquer usuário logado. A proteção é o versionamento:
+  // toda edição direta de um EV já salvo gera uma revisão manual registrada
+  // (quem alterou, quando e o motivo). O mecanismo de modo consulta
+  // (_evSomenteLeitura / aplicarModoLeituraEV) fica disponível caso alguma
+  // restrição por nível volte a ser necessária.
   const jaSalvo = !!evStore[obraId];
-  _evSomenteLeitura = !viaDemanda && jaSalvo && !pode(['Administrador','Gestão']);
+  _evSomenteLeitura = false;
 
   _evMostrarNA = false;
   _evViaDemanda = !!viaDemanda;
@@ -5666,12 +5816,10 @@ function getEVdaObraPorDemanda(codigo){
 
 /* EVENTS & INIT */
 document.getElementById("obraSearch").addEventListener("input",renderObras);
-document.getElementById("ufFilter").addEventListener("change",renderObras);
-document.getElementById("tipoFilter").addEventListener("change",renderObras);
-document.getElementById("regiaoFilter").addEventListener("change",renderObras);
-document.getElementById("sprintFilter").addEventListener("change",()=>{renderKanban();if(_viewMode==="lista")renderLista();});
-document.getElementById("analistaFilter").addEventListener("change",()=>{renderKanban();});
-document.getElementById("tipoAtividadeFilter").addEventListener("change",()=>{renderKanban();});
+// ufFilter/tipoFilter/regiaoFilter/sprintFilter/analistaFilter/tipoAtividadeFilter
+// agora são multi-select (msel) — o próprio componente dispara o onChange
+// passado em mselSync(), então os listeners "change" antigos (que não fariam
+// nada em uma <div>) foram removidos.
 document.getElementById("entregaFilter").addEventListener("change",()=>{renderKanban();});
 document.getElementById("pendenciaFilter").addEventListener("change",()=>{renderKanban();});
 /* Item 1: drawers só fecham pelo botão X, não ao clicar fora */
