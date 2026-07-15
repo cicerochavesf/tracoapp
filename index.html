@@ -8,14 +8,14 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     /* ═══════════════════════════════
        TOKENS
     ═══════════════════════════════ */
     :root {
-      --font-display:"Space Grotesk",system-ui,sans-serif;
-      --font-body:"Inter",system-ui,sans-serif;
+      --font-display:"Syne",system-ui,sans-serif;
+      --font-body:"DM Sans",system-ui,sans-serif;
       --font-mono:"DM Mono",monospace;
 
       --blue-900:#003A72; --blue-700:#004B93; --blue-600:#005EB8;
@@ -44,13 +44,13 @@
       --s-ast:#A06200;   --s-aobras:#0878A0;
       --s-concluido:#047857; --s-cancelado:#4A6080;
 
-      --r:10px; --r-lg:14px; --r-xl:18px;
+      --r:9px; --r-lg:12px; --r-xl:14px;
       --sh-sm:0 1px 2px rgba(10,22,36,.05),0 2px 8px rgba(10,22,36,.05);
       --sh:0 4px 12px rgba(10,22,36,.07),0 14px 34px rgba(10,22,36,.09);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{-webkit-font-smoothing:antialiased}
-    body{font-family:var(--font-body);font-size:13.5px;background:var(--bg);color:var(--text);line-height:1.55}
+    body{font-family:var(--font-body);font-size:13px;background:var(--bg);color:var(--text);line-height:1.5}
     button,input,select,textarea{font-family:inherit}
     ::selection{background:rgba(0,94,184,.16)}
     :focus-visible{outline:2px solid var(--blue-600);outline-offset:2px;border-radius:4px}
@@ -77,8 +77,8 @@
     .nav-icon svg{width:16px;height:16px}
     .nav-item.active .nav-icon{opacity:1}
     .nav-item:hover{background:var(--nb2);color:rgba(255,255,255,.88)}
-    .nav-item.active{background:rgba(255,255,255,.08);color:#fff;font-weight:600}
-    .nav-item.active::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:16px;background:var(--orange-700);border-radius:0 2px 2px 0}
+    .nav-item.active{background:linear-gradient(90deg,rgba(255,255,255,.13) 0%,rgba(255,255,255,.05) 100%);color:#fff;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+    .nav-item.active::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;background:linear-gradient(180deg,var(--orange-700),var(--orange-600));border-radius:0 3px 3px 0;box-shadow:0 0 8px rgba(255,107,0,.5)}
     /* (rodapé informativo removido — o cartão de usuário ancora a base) */
 
     /* ═══ CONTENT ═══ */
@@ -94,26 +94,36 @@
     .topbar-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 
     /* ═══ BUTTONS ═══ */
-    .btn{appearance:none;border:none;border-radius:var(--r);padding:7px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:all .14s ease}
-    .btn-primary{background:var(--orange-700);color:#fff;box-shadow:0 1px 2px rgba(255,107,0,.3),0 4px 12px rgba(255,107,0,.22)}
-    .btn-primary:hover{background:#E86200;box-shadow:0 2px 4px rgba(255,107,0,.3),0 8px 20px rgba(255,107,0,.3);transform:translateY(-1px)}
+    .btn{appearance:none;border:none;border-radius:var(--r);padding:6px 12px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:all .14s ease}
+    .btn-primary{background:linear-gradient(135deg,var(--orange-700) 0%,var(--orange-600) 100%);color:#fff;box-shadow:0 1px 2px rgba(255,107,0,.3),0 4px 12px rgba(255,107,0,.22)}
+    .btn-primary:hover{background:linear-gradient(135deg,#E86200 0%,var(--orange-700) 100%);box-shadow:0 2px 4px rgba(255,107,0,.3),0 8px 20px rgba(255,107,0,.34);transform:translateY(-1px)}
     .btn-ghost{background:var(--surface);color:var(--text);border:1px solid var(--line)}
     .btn-ghost:hover{border-color:var(--blue-600);color:var(--blue-700);background:var(--blue-50)}
     .btn-sm{padding:4px 9px;font-size:11.5px}
     .btn-danger{background:var(--red-d);color:var(--red);border:1px solid rgba(192,32,10,.18)}
 
     /* ═══ PILLS ═══ */
-    .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;background:var(--blue-d);color:var(--blue-700);border:1px solid rgba(0,75,147,.16)}
+    .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-family:var(--font-mono);font-size:10.5px;font-weight:500;white-space:nowrap;background:var(--blue-d);color:var(--blue-700);border:1px solid rgba(0,75,147,.16)}
     .pill.neutral{background:var(--sf2);color:var(--muted);border-color:var(--line)}
 
     /* ═══ KPI ═══ */
     .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
     .kpi-grid-7{grid-template-columns:repeat(7,1fr)}
+    .kpi-grid-6{grid-template-columns:repeat(6,1fr)}
     .kpi-grid-7 .kpi-value{font-size:24px}
-    .kpi-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px 12px;box-shadow:var(--sh-sm);position:relative;overflow:hidden;transition:box-shadow .18s,border-color .18s}
+    .kpi-card{background:linear-gradient(180deg,var(--surface) 0%,#FBFCFE 100%);border:1px solid var(--line);border-radius:var(--r-lg);padding:11px 13px 10px;box-shadow:var(--sh-sm);position:relative;overflow:hidden;transition:box-shadow .18s,border-color .18s,transform .18s}
     /* ITEM 14 (2ª rodada): KPIs clicáveis */
     .kpi-card.kpi-click{cursor:pointer}
     .kpi-card.kpi-click:hover{border-color:var(--blue-600);box-shadow:var(--sh);transform:translateY(-1px)}
+    /* NOVA SOLICITAÇÃO: acento colorido à esquerda nos KPIs, inspirado no
+       layout de referência enviado pelo Cícero — cada card ganha uma cor de
+       identidade via CSS var --kc (definida inline por card). */
+    .kpi-card[style*="--kc"]{border-left:3px solid var(--kc)}
+    .kpi-card .kpi-value.kv-green{color:#047857}
+    .kpi-card .kpi-value.kv-orange{color:#B45309}
+    .kpi-card .kpi-value.kv-red{color:#C0200A}
+    .kpi-card .kpi-value.kv-teal{color:#0878A0}
+    .kpi-card .kpi-value.kv-muted{color:#5F7488}
     .kpi-filtro-chip{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--blue-50);border:1px solid rgba(0,75,147,.22);border-radius:var(--r-lg);padding:9px 13px;margin-bottom:10px;font-size:12.5px;color:var(--blue-700)}
 
     /* ══ VISÃO GERENCIAL ══ */
@@ -149,11 +159,11 @@
     .kpi-card:hover{box-shadow:var(--sh);border-color:rgba(0,75,147,.22)}
     .kpi-card::after{content:"";position:absolute;bottom:0;left:16px;width:22px;height:3px;background:var(--orange-700);border-radius:2px 2px 0 0;opacity:0;transition:opacity .2s}
     .kpi-card:hover::after{opacity:1}
-    .kpi-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);margin-bottom:7px;min-height:26px;display:flex;align-items:flex-start;line-height:1.35}
-    .kpi-value{font-family:var(--font-display);font-size:30px;font-weight:700;letter-spacing:-.03em;color:var(--ink);line-height:1}
+    .kpi-label{font-family:var(--font-mono);font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:7px;min-height:26px;display:flex;align-items:flex-start;line-height:1.35}
+    .kpi-value{font-family:var(--font-display);font-size:30px;font-weight:700;letter-spacing:-.03em;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
 
     /* ═══ PANEL ═══ */
-    .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);box-shadow:var(--sh-sm);padding:16px;margin-bottom:14px}
+    .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);box-shadow:var(--sh-sm);padding:13px;margin-bottom:11px}
     .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
     .panel-title{font-size:13.5px;font-weight:650;color:var(--ink);letter-spacing:-.01em}
 
@@ -163,7 +173,7 @@
     .field{display:flex;flex-direction:column;gap:4px;min-width:150px}
     /* ══ MULTI-SELECT DE FILTROS ══ (permite marcar mais de um valor por filtro) */
     .msel{position:relative;min-width:150px}
-    .msel-btn{width:100%;text-align:left;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:7px 9px;font-size:13px;color:var(--ink);font-family:inherit;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .msel-btn{width:100%;text-align:left;border:1px solid var(--line);border-radius:var(--r);background:var(--sf2);padding:7px 9px;font-size:13px;color:var(--ink);font-family:inherit;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .14s,border-color .14s}
     .msel-btn:hover{border-color:var(--blue-600)}
     .msel.msel-open .msel-btn{border-color:var(--blue-600);box-shadow:0 0 0 3px var(--blue-d)}
     .msel-caret{font-size:10px;color:var(--muted);flex-shrink:0}
@@ -175,9 +185,9 @@
     .msel-opt{display:flex;align-items:center;gap:8px;padding:5px 6px;font-size:12.5px;color:var(--text);border-radius:6px;cursor:pointer;white-space:nowrap}
     .msel-opt:hover{background:var(--sf2)}
     .msel-opt input{width:auto;flex-shrink:0}
-    .field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
-    select,input,textarea{width:100%;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:7px 9px;font-size:13px;color:var(--ink);font-family:inherit;outline:none;transition:border-color .14s,box-shadow .14s}
-    select:focus,input:focus,textarea:focus{border-color:var(--blue-600);box-shadow:0 0 0 3px var(--blue-d)}
+    .field label{font-family:var(--font-mono);font-size:9.5px;font-weight:500;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+    select,input,textarea{width:100%;border:1px solid var(--line);border-radius:var(--r);background:var(--sf2);padding:7px 9px;font-size:13px;color:var(--ink);font-family:inherit;outline:none;transition:border-color .14s,box-shadow .14s,background .14s}
+    select:focus,input:focus,textarea:focus{border-color:var(--blue-600);background:var(--surface);box-shadow:0 0 0 3px var(--blue-d)}
     select:hover,input:hover{border-color:var(--ghost)}
     .search-input{min-width:260px;flex:1}
 
@@ -222,9 +232,9 @@
     .kanban-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
     .kanban-body::-webkit-scrollbar-thumb:hover{background:#B8C6D8}
     .kanban-head{padding:10px 12px 8px;display:flex;justify-content:space-between;align-items:center;border-top:3px solid var(--cc);border-bottom:1px solid var(--line);background:var(--surface)}
-    .kh-label{font-size:11.5px;font-weight:650;color:var(--ink);letter-spacing:.01em}
-    .kh-count{background:var(--cc);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;min-width:20px;text-align:center;font-family:var(--font-mono)}
-    .task{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--cc);border-radius:var(--r);padding:11px;cursor:pointer;transition:box-shadow .14s,transform .14s,border-color .14s}
+    .kh-label{font-family:var(--font-mono);font-size:10px;font-weight:500;color:var(--ink);text-transform:uppercase;letter-spacing:.07em}
+    .kh-count{background:var(--cc);color:#fff;background:color-mix(in srgb, var(--cc) 12%, white);color:var(--cc);border:1px solid color-mix(in srgb, var(--cc) 28%, white);font-size:10px;font-weight:600;padding:1px 7px;border-radius:999px;min-width:20px;text-align:center;font-family:var(--font-mono)}
+    .task{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--cc);border-radius:var(--r);padding:9px;cursor:pointer;box-shadow:0 1px 2px rgba(10,22,36,.04);transition:box-shadow .14s,transform .14s,border-color .14s}
     .task:hover{box-shadow:var(--sh);transform:translateY(-1px);border-color:rgba(0,75,147,.24);border-left-color:var(--cc)}
     .task-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px}
     .task-code{font-family:var(--font-mono);font-size:10px;color:var(--ghost);font-weight:500;letter-spacing:.03em}
@@ -245,10 +255,10 @@
     .table-wrap{border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--surface)}
     .table-scroll{overflow:auto;max-height:calc(100vh - 250px)}
     table{width:100%;border-collapse:collapse;font-size:13px}
-    thead th{padding:9px 11px;text-align:left;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--muted);background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2;white-space:nowrap}
-    tbody td{padding:10px 11px;border-bottom:1px solid var(--line-2);color:var(--text);vertical-align:middle}
+    thead th{padding:7px 10px;text-align:left;font-family:var(--font-mono);font-size:9.5px;font-weight:500;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);background:var(--sf2);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2;white-space:nowrap}
+    tbody td{padding:7px 10px;border-bottom:1px solid var(--line-2);color:var(--text);vertical-align:middle}
     tbody tr:last-child td{border-bottom:none}
-    tbody tr:hover td{background:var(--sf2)}
+    tbody tr:hover td{background:rgba(0,75,147,.035)}
     .td-name{font-weight:600;color:var(--ink);min-width:250px}
     .td-code{font-family:"DM Mono",monospace;font-size:11px;color:var(--ghost)}
     .td-loc{color:var(--muted);font-size:12.5px;white-space:nowrap}
@@ -259,13 +269,13 @@
     .overlay{position:fixed;inset:0;background:rgba(7,17,32,.52);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:26px;z-index:100}
     .overlay.open{display:flex}
     .drawer{width:min(960px,95vw);height:auto;max-height:calc(100vh - 52px);border-radius:var(--r-xl);background:var(--surface);box-shadow:0 24px 80px rgba(7,17,32,.34);display:flex;flex-direction:column;overflow:hidden;animation:drIn .16s ease-out}
-    @keyframes drIn{from{transform:scale(.975) translateY(8px);opacity:0}to{transform:none;opacity:1}}
-    .drawer-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-shrink:0;background:var(--surface)}
-    .drawer-title{font-family:var(--font-display);font-size:19px;font-weight:700;color:var(--ink);letter-spacing:-.015em;line-height:1.2}
-    .drawer-title::before{content:"";display:block;width:22px;height:3px;background:var(--orange-700);border-radius:2px;margin-bottom:6px}
-    .drawer-sub{font-size:11.5px;color:var(--muted);margin-top:3px}
-    .drawer-body{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px}
-    .close-btn{appearance:none;border:1px solid var(--line);background:var(--surface);width:34px;height:34px;border-radius:var(--r);cursor:pointer;font-size:15px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .14s;flex-shrink:0}
+    @keyframes drIn{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .drawer-head{padding:11px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-shrink:0;background:var(--surface)}
+    .drawer-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.015em;line-height:1.2}
+    .drawer-title::before{content:"";display:block;width:22px;height:3px;background:var(--orange-700);border-radius:2px;margin-bottom:5px}
+    .drawer-sub{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);margin-top:3px;letter-spacing:.01em}
+    .drawer-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+    .close-btn{appearance:none;border:1px solid var(--line);background:var(--surface);width:30px;height:30px;border-radius:var(--r);cursor:pointer;font-size:14px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .14s;flex-shrink:0}
     .close-btn:hover{background:var(--red-d);border-color:rgba(192,32,10,.2);color:var(--red)}
 
     /* ═══ EV SUMMARY ═══ */
@@ -410,10 +420,10 @@
     .fsec:last-child{margin-bottom:0}
     .fsec-head{display:flex;align-items:center;gap:8px;margin-bottom:11px;padding-bottom:8px;border-bottom:1px solid var(--line-2)}
     .fsec-ico{font-size:15px;line-height:1}
-    .fsec-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--blue-700)}
+    .fsec-title{font-family:var(--font-mono);font-size:10.5px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--blue-700)}
     .fsec-req{color:var(--orange-700);font-weight:800;font-size:13px}
     .ffield{display:flex;flex-direction:column}
-    .ffield label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+    .ffield label{font-family:var(--font-mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px}
     .ffield input,.ffield select,.ffield textarea{border:1px solid transparent;border-radius:var(--r);background:var(--field-bg);padding:10px 12px;font-family:inherit;font-size:13.5px;color:var(--ink);transition:border-color .13s,box-shadow .13s,background .13s;width:100%}
     .ffield input:focus,.ffield select:focus,.ffield textarea:focus{outline:none;border-color:var(--blue-600);background:var(--surface);box-shadow:0 0 0 3px var(--blue-d)}
     .ffield textarea{resize:vertical;min-height:64px}
@@ -470,10 +480,10 @@
     .vt-btn:not(.active):hover{background:var(--blue-50);color:var(--blue-700)}
     .lista-demandas{overflow:auto}
     .lista-table{width:100%;border-collapse:collapse;font-size:13px}
-    .lista-table thead th{padding:9px 11px;text-align:left;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--muted);background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2;white-space:nowrap}
+    .lista-table thead th{padding:7px 10px;text-align:left;font-family:var(--font-mono);font-size:9.5px;font-weight:500;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);background:var(--sf2);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2;white-space:nowrap}
     .lista-table tbody td{padding:10px 11px;border-bottom:1px solid var(--line-2);color:var(--text);vertical-align:middle}
     .lista-table tbody tr:last-child td{border-bottom:none}
-    .lista-table tbody tr:hover td{background:var(--sf2);cursor:pointer}
+    .lista-table tbody tr:hover td{background:rgba(0,75,147,.035);cursor:pointer}
     .lista-status-dot{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
     .lista-status-dot::before{content:'';width:8px;height:8px;border-radius:50%;flex-shrink:0}
     .lista-pend{font-size:11px;color:var(--amber);font-weight:600}
@@ -497,9 +507,9 @@
     .proj-row.open .proj-body{max-height:340px;padding:13px;border-top:1px solid var(--line-2)}
 
     /* ═══ BADGE ═══ */
-    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
-    .badge-blue{background:var(--blue-d);color:var(--blue-700)}
-    .badge-green{background:var(--green-d);color:var(--green)}
+    .badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-family:var(--font-mono);font-size:10.5px;font-weight:500;letter-spacing:.01em}
+    .badge-blue{background:var(--blue-d);color:var(--blue-700);border:1px solid rgba(0,75,147,.18)}
+    .badge-green{background:var(--green-d);color:var(--green);border:1px solid rgba(4,120,87,.2)}
     .badge-neutral{background:var(--sf2);color:var(--muted);border:1px solid var(--line)}
 
     /* ═══ COMING SOON ═══ */
@@ -544,7 +554,7 @@
 
     /* ═══ SCROLLBAR ═══ */
     ::-webkit-scrollbar{width:5px;height:5px}
-    ::-webkit-scrollbar-track{background:var(--line-2)}
+    ::-webkit-scrollbar-track{background:transparent}
     ::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
     ::-webkit-scrollbar-thumb:hover{background:var(--ghost)}
 
@@ -561,7 +571,7 @@
 
     @media(max-width:860px){
       /* Header fixo com hambúrguer */
-      .mobile-header{display:flex;align-items:center;justify-content:space-between;position:fixed;top:0;left:0;right:0;height:54px;background:linear-gradient(180deg,var(--navy-1) 0%,var(--navy-2) 100%);z-index:900;padding:0 10px;box-shadow:0 2px 12px rgba(0,0,0,.22)}
+      .mobile-header{display:flex;align-items:center;justify-content:space-between;position:fixed;top:0;left:0;right:0;height:54px;background:linear-gradient(180deg,var(--navy-1) 0%,var(--navy-2) 100%);border-bottom:3px solid var(--orange-700);z-index:900;padding:0 10px;box-shadow:0 2px 12px rgba(0,0,0,.22)}
       .mobile-menu-overlay{display:block;position:fixed;inset:0;background:rgba(7,17,32,.55);z-index:940;opacity:0;pointer-events:none;transition:opacity .22s}
       .mobile-menu-overlay.visible{opacity:1;pointer-events:auto}
 
@@ -580,7 +590,7 @@
       .page-heading p{font-size:12px}
 
       /* KPIs em 2 colunas compactas */
-      .kpi-grid,.kpi-grid-7{grid-template-columns:repeat(2,1fr);gap:8px}
+      .kpi-grid,.kpi-grid-7,.kpi-grid-6{grid-template-columns:repeat(2,1fr);gap:8px}
       .kpi-grid-7 .kpi-value{font-size:26px}
       .kpi-card{padding:10px 12px}
       .kpi-sprint-grid{grid-template-columns:repeat(2,1fr)}
@@ -627,7 +637,7 @@
       .ev-row-valor input,.ev-row-status select{font-size:13px!important}
     }
 
-    @media(max-width:1150px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.kpi-grid-7{grid-template-columns:repeat(4,1fr)}.ev-summary{grid-template-columns:repeat(2,1fr)}.g4{grid-template-columns:repeat(2,1fr)}.legend-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:1150px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.kpi-grid-7{grid-template-columns:repeat(4,1fr)}.kpi-grid-6{grid-template-columns:repeat(3,1fr)}.ev-summary{grid-template-columns:repeat(2,1fr)}.g4{grid-template-columns:repeat(2,1fr)}.legend-grid{grid-template-columns:1fr 1fr}}
     /* mobile agora tratado pelo bloco MOBILE acima */
   </style>
 </head>
@@ -737,7 +747,7 @@
       <!-- ITEM 14: filtros ANTES dos KPIs -->
       <div class="panel" style="margin-bottom:14px;padding:14px 16px">
         <div class="ffield" style="margin-bottom:12px">
-          <label style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px;display:block">Buscar demanda</label>
+          <label style="font-family:var(--font-mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px;display:block">Buscar demanda</label>
           <input id="demandaSearch" type="text" placeholder="Buscar por código, obra ou descrição…" oninput="renderKanban()">
         </div>
         <div class="filter-bar" style="margin-bottom:0">
@@ -752,6 +762,7 @@
               <option value="atrasada">🔴 Atrasada</option>
               <option value="entregue-prazo">✓ Entregue no prazo</option>
               <option value="entregue-atraso">⚠ Entregue fora do prazo</option>
+              <option value="semdata">— Sem data registrada</option>
             </select>
           </div>
           <div class="field"><label>Pendência de cotação</label>
@@ -767,15 +778,14 @@
           </div>
         </div>
       </div>
-      <!-- ITEM 14 (2ª rodada): KPIs clicáveis — abrem a visão em lista filtrada pelo status -->
-      <div class="kpi-grid kpi-grid-7">
-        <div class="kpi-card kpi-click" title="Ver todas as demandas em lista" onclick="filtrarPorKPI(null)"><div class="kpi-label">Total na Sprint</div><div class="kpi-value" id="kpiTotal">0</div></div>
-        <div class="kpi-card kpi-click" title="Ver em lista" onclick="filtrarPorKPI(['Fazer'],'A Iniciar')"><div class="kpi-label">A Iniciar</div><div class="kpi-value" id="kpiFazer">0</div></div>
-        <div class="kpi-card kpi-click" title="Ver em lista" onclick="filtrarPorKPI(['Fazendo'],'Em Execução')"><div class="kpi-label">Em Execução</div><div class="kpi-value" id="kpiFazendo">0</div></div>
-        <div class="kpi-card kpi-click" title="Ver em lista" onclick="filtrarPorKPI(['Pausado'],'Pausado')"><div class="kpi-label">Pausado</div><div class="kpi-value" id="kpiPausado">0</div></div>
-        <div class="kpi-card kpi-click" title="Ver em lista" onclick="filtrarPorKPI(['Aguardando Validação Sala Técnica','Aguardando Validação Obras'],'Aguardando Validação')"><div class="kpi-label">Aguardando Validação</div><div class="kpi-value" id="kpiValidacao">0</div></div>
-        <div class="kpi-card kpi-click" title="Ver em lista" onclick="filtrarPorKPI(['Concluído'],'Concluído')"><div class="kpi-label">Concluído</div><div class="kpi-value" id="kpiConcluidas">0</div></div>
-        <div class="kpi-card kpi-click" title="Ver em lista" onclick="filtrarPorKPI(['Cancelado'],'Cancelado')"><div class="kpi-label">Cancelado</div><div class="kpi-value" id="kpiCancelado">0</div></div>
+      <!-- NOVA SOLICITAÇÃO: KPIs de situação de prazo, também clicáveis -->
+      <div class="kpi-grid kpi-grid-6">
+        <div class="kpi-card kpi-click" style="--kc:#047857" title="Ver em lista" onclick="filtrarPorPrazo(['em-dia'],'🟢 Em dia')"><div class="kpi-label">🟢 Em dia</div><div class="kpi-value kv-green" id="kpiPzEmDia">0</div></div>
+        <div class="kpi-card kpi-click" style="--kc:#B45309" title="Ver em lista" onclick="filtrarPorPrazo(['proximo'],'🟠 Próximas do marco')"><div class="kpi-label">🟠 Próximas do marco</div><div class="kpi-value kv-orange" id="kpiPzProximo">0</div></div>
+        <div class="kpi-card kpi-click" style="--kc:#C0200A" title="Ver em lista" onclick="filtrarPorPrazo(['atrasada'],'🔴 Atrasadas')"><div class="kpi-label">🔴 Atrasadas</div><div class="kpi-value kv-red" id="kpiPzAtrasada">0</div></div>
+        <div class="kpi-card kpi-click" style="--kc:#0878A0" title="Ver em lista" onclick="filtrarPorPrazo(['entregue-prazo'],'✓ Entregues no prazo')"><div class="kpi-label">✓ Entregues no prazo</div><div class="kpi-value kv-teal" id="kpiPzEntreguePrazo">0</div></div>
+        <div class="kpi-card kpi-click" style="--kc:#8f1807" title="Ver em lista" onclick="filtrarPorPrazo(['entregue-atraso'],'⚠ Entregues fora do prazo')"><div class="kpi-label">⚠ Entregues fora do prazo</div><div class="kpi-value" style="color:#8f1807" id="kpiPzEntregueAtraso">0</div></div>
+        <div class="kpi-card kpi-click" style="--kc:#5F7488" title="Ver em lista" onclick="filtrarPorPrazo(['semdata'],'Sem data registrada')"><div class="kpi-label">Sem data registrada</div><div class="kpi-value kv-muted" id="kpiPzSemData">0</div></div>
       </div>
       <div class="panel">
         <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:12px">
@@ -990,7 +1000,7 @@
       <div class="panel" id="panelUsuarios" style="display:none">
         <div class="panel-head">
           <div class="panel-title">👥 Usuários</div>
-          <span class="pill neutral">Somente Administrador</span>
+          <span class="pill neutral">Administrador e Gestão</span>
         </div>
         <div class="table-scroll" style="max-height:calc(100vh - 420px);margin-bottom:18px">
           <table>
@@ -998,7 +1008,7 @@
             <tbody id="usuariosTable"></tbody>
           </table>
         </div>
-        <div class="fsec">
+        <div class="fsec" id="fsecCriarUsuario">
           <div class="fsec-head"><span class="fsec-ico">➕</span><span class="fsec-title">Criar novo usuário</span></div>
           <div class="fgrid2" style="margin-bottom:10px">
             <div class="ffield"><label>Nome completo</label><input id="nouNome" placeholder="Ex.: João Silva"></div>
@@ -1310,7 +1320,7 @@
         <div class="fgrid2">
           <div class="ffield">
             <label>1 · Data prevista de início</label>
-            <input id="ei_dataPrevInicio" type="date" onchange="registrarMudancaData(this);prefillEntrega();autosaveEI()">
+            <input id="ei_dataPrevInicio" type="date" onchange="registrarMudancaData(this);autosaveEI()">
           </div>
           <div class="ffield">
             <label>2 · Data de início real</label>
@@ -1321,7 +1331,7 @@
         <div class="fgrid2" style="margin-top:12px">
           <div class="ffield">
             <label>3 · 🎯 Prev. envio p/ validação Obras</label>
-            <input id="ei_dataMetaObras" type="date" title="Meta exibida no kanban · pré-preenchida 48h antes da entrega prevista" onchange="registrarMudancaData(this);autosaveEI()">
+            <input id="ei_dataMetaObras" type="date" title="Meta exibida no kanban" onchange="registrarMudancaData(this);autosaveEI()">
           </div>
           <div class="ffield">
             <label>4 · ⚡ Envio real p/ validação Obras</label>
@@ -1343,7 +1353,7 @@
           </div>
           <div class="ffield">
             <label>6 · Data prevista da entrega</label>
-            <input id="ei_dataPrevista" type="date" title="Pré-preenchida com 14 dias após o início previsto" onchange="registrarMudancaData(this);prefillMetaObras();autosaveEI()">
+            <input id="ei_dataPrevista" type="date" onchange="registrarMudancaData(this);autosaveEI()">
           </div>
         </div>
 
@@ -1493,7 +1503,6 @@
       </div>
 
       <div style="display:flex;gap:8px;padding-top:2px">
-        <div id="evLeituraAviso" style="display:none;align-items:center;gap:8px;background:var(--blue-50);border:1px solid rgba(0,75,147,.22);border-radius:10px;padding:9px 13px;font-size:12.5px;color:var(--blue-700);flex:1">🔒 <strong>Modo consulta</strong> — analistas podem visualizar este EV; alterações são feitas pela demanda vinculada ou por Gestão/Administrador.</div>
         <button class="btn btn-ghost" onclick="salvarEVrascunho()">Salvar rascunho</button>
         <button class="btn btn-primary" onclick="salvarEV()">Salvar EV</button>
       </div>
@@ -2094,6 +2103,7 @@ function openNovaDemanda(tipoInicial){
   renderProjetosGrid(ei);
 
   trocarTipoAtividade(); // ajusta visibilidade conforme tipo
+  aplicarBloqueioDatas(false); // NOVA SOLICITAÇÃO: datas só para Gestão/Admin, mesmo na criação
 
   document.getElementById('eiOverlay').classList.add('open');
   setTimeout(()=>document.getElementById('ei_obraSearch').focus(), 60);
@@ -2187,6 +2197,7 @@ function avancarEtapa2(){
   document.getElementById('ei_resumoDesc').textContent =
     document.getElementById('ei_descricao').value.trim();
   document.getElementById('eiSub').textContent = 'Etapa 2 de 2 · Detalhamento';
+  aplicarBloqueioDatas(false); // reforça o bloqueio (defesa em profundidade)
   mostrarEtapa(2);
   setTimeout(()=>document.getElementById('ei_dataInicio').focus(), 60);
 }
@@ -2194,31 +2205,10 @@ function avancarEtapa2(){
 /* ══ ITEM 2: AUTOSAVE ══ */
 let _autosaveTimer = null;
 
-/* ══ ITEM 4: prefills de data + trava "não enviado p/ Obras" ══ */
-function addDias(dateStr, dias){
-  if(!dateStr) return '';
-  const d = new Date(dateStr+'T00:00:00');
-  d.setDate(d.getDate()+dias);
-  return d.toISOString().slice(0,10);
-}
-// Campo 6 = início real + 14 dias (só se vazio)
-// ITEM 3: Campo 6 = data PREVISTA de início (campo 1) + 14 dias (só se vazio)
-function prefillEntrega(){
-  const ini = valOf('ei_dataPrevInicio');
-  const prev = document.getElementById('ei_dataPrevista');
-  if(ini && prev && !prev.value){
-    prev.value = addDias(ini, 14);
-    prefillMetaObras();
-  }
-}
-// Campo 3 = entrega prevista - 2 dias (48h) (só se vazio)
-function prefillMetaObras(){
-  const prev = valOf('ei_dataPrevista');
-  const meta = document.getElementById('ei_dataMetaObras');
-  if(prev && meta && !meta.value){
-    meta.value = addDias(prev, -2);
-  }
-}
+/* NOVA SOLICITAÇÃO: removidos os pré-preenchimentos automáticos de data
+   (addDias/prefillEntrega/prefillMetaObras) — toda data agora é preenchida
+   manualmente, e somente por Gestão/Administrador. */
+
 // Checkbox: trava e limpa campos 4 e 5 enquanto marcada
 function toggleNaoEnviadoObras(){
   const marcado = document.getElementById('ei_naoEnviadoObras').checked;
@@ -2489,6 +2479,22 @@ function openEIForm(codigo){
 // Desabilita todos os campos de preenchimento da demanda quando o usuário
 // não está autorizado a mexer nela (analista não atribuído). Ele continua
 // vendo tudo, só não consegue editar.
+// NOVA SOLICITAÇÃO: campos de DATA são exclusivos de Gestão/Administrador —
+// mesmo o analista atribuído (líder ou complementar), ou quem está criando a
+// demanda, só visualiza. Reutilizada tanto na edição quanto na criação.
+function aplicarBloqueioDatas(somenteLeituraGeral){
+  const podeDatas = pode(['Administrador','Gestão']);
+  const idsDatas = ['ei_dataPrevInicio','ei_dataInicio','ei_dataMetaObras','ei_dataEnvioObras',
+    'ei_dataValidacaoObras','ei_dataPrevista','ei_dataEntregaReal','ei_naoEnviadoObras'];
+  idsDatas.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){
+      el.disabled = !!somenteLeituraGeral || !podeDatas;
+      el.title = podeDatas ? '' : 'Somente Gestão/Administrador podem preencher ou alterar datas';
+    }
+  });
+}
+
 function aplicarModoSomenteLeituraForm(somenteLeitura){
   const banner = document.getElementById('eiReadonlyBanner');
   if(banner) banner.style.display = somenteLeitura ? 'flex' : 'none';
@@ -2500,6 +2506,9 @@ function aplicarModoSomenteLeituraForm(somenteLeitura){
     const el = document.getElementById(id);
     if(el) el.disabled = somenteLeitura;
   });
+
+  // NOVA SOLICITAÇÃO: campos de data — ver aplicarBloqueioDatas()
+  aplicarBloqueioDatas(somenteLeitura);
 
   // ITEM: mudar a sprint é privilégio de Gestão/Admin — mesmo o analista
   // atribuído (líder ou complementar) não pode mudar, só visualizar
@@ -2636,37 +2645,20 @@ function processarConclusao(codigo){
   if(d.tipo === 'Revisão de orçamento'){
     const entrada = prompt(
       'Informe o VALOR DA DIFERENÇA deste EV em relação ao EV anterior (R$).\n\n' +
-      'Use sinal negativo para redução de orçamento. Este valor é obrigatório e será exibido como "Valor da Demanda" no card.\n\n' +
+      'Use sinal negativo para redução de orçamento. Este valor será exibido como "Valor da Demanda" no card.\n\n' +
       'Ex.: 15000  ou  -8500,50',
       d.valorAlteracaoEV!=null ? String(d.valorAlteracaoEV) : ''
     );
     if(entrada === null) return false; // cancelou
-    valorManual = parseValorBR(entrada);
-    if(valorManual === null){
-      alert('Valor inválido. Informe um número (ex.: 15000 ou -8500,50). A demanda não foi concluída.');
-      return false;
-    }
+    // NOVA SOLICITAÇÃO: eliminada a validação bloqueante — um valor não
+    // numérico não impede mais a conclusão, apenas é tratado como 0.
+    valorManual = parseValorBR(entrada) ?? 0;
   }
 
-  // 2. Pergunta sobre pendência de cotação
-  const temPendencia = confirm('Esta demanda possui alguma pendência de cotação?\n\nOK = Sim, há pendência\nCancelar = Não, sem pendências');
-  if(temPendencia){
-    let desc = prompt('Descreva a pendência de cotação:', d.pendenciaDesc || '');
-    if(desc === null){
-      // usuário cancelou o prompt → não conclui
-      return false;
-    }
-    desc = desc.trim();
-    if(!desc){
-      alert('É obrigatório descrever a pendência para concluir com pendência.');
-      return false;
-    }
-    d.pendencia = true;
-    d.pendenciaDesc = desc;
-  } else {
-    d.pendencia = false;
-    d.pendenciaDesc = '';
-  }
+  // NOVA SOLICITAÇÃO: eliminada a pergunta "possui pendência de cotação?"
+  // ao concluir — a demanda é concluída sem marcar pendência automaticamente.
+  d.pendencia = false;
+  d.pendenciaDesc = '';
   dbSave('demandas', demandaToDb(d));
 
   // 3. Cria uma nova versão do EV da obra (premissa: toda conclusão gera versão)
@@ -2714,19 +2706,6 @@ function criarVersaoEV(obraId, opts){
 
   const versaoNum = evVersions.filter(v=>v.obraId===obraId).length + 1;
 
-  // ITEM 7/8: na primeira versão, perguntar sobre subestação se ainda não informado
-  if(versaoNum === 1 && !obra.novaSubestacao){
-    const precisa = confirm('📋 Cadastro complementar da obra\n\nEsta obra vai precisar de NOVA SUBESTAÇÃO?\n\nOK = Sim · Cancelar = Não');
-    if(precisa){
-      const cap = prompt('Qual a capacidade da subestação? (Ex.: 500 kVA)') || '';
-      obra.novaSubestacao = 'sim';
-      obra.capacidadeSubestacao = cap.trim();
-    } else {
-      obra.novaSubestacao = 'nao';
-      obra.capacidadeSubestacao = '';
-    }
-    dbSave('obras', obraToDb(obra));
-  }
 
   const novaVersao = {
     obraId: obraId,
@@ -2769,7 +2748,7 @@ function analistaDoUsuario(){
   return (_currentUser && usuarioAnalista[_currentUser.id]) || null;
 }
 async function vincularAnalista(userId, nome){
-  if(!pode(['Administrador'])){ alert('Somente o Administrador pode vincular analistas.'); return; }
+  if(!pode(['Administrador','Gestão'])){ alert('Somente Administrador ou Gestão podem vincular analistas.'); return; }
   if(nome) usuarioAnalista[userId] = nome;
   else delete usuarioAnalista[userId];
   await dbSave('configuracoes', {chave:'usuarioAnalista', valor:usuarioAnalista});
@@ -2858,12 +2837,8 @@ async function onAutoDate(fieldId, targetStatus){
     document.getElementById(fieldId).value = '';
     return;
   }
-  // CONFIRMAÇÃO EXPLÍCITA: informar esta data move o card de coluna no kanban
-  const confMsg = 'Ao informar esta data, o card será movido no kanban de\n"'+d.status+'" → "'+targetStatus+'"\n\nDeseja continuar?';
-  if(!confirm(confMsg)){
-    document.getElementById(fieldId).value = ''; // reverte a data
-    return;
-  }
+  // NOVA SOLICITAÇÃO: eliminado o aviso de confirmação "Ao informar esta
+  // data, o card será movido..." — a mudança de status agora é direta.
   if(targetStatus === 'Concluído'){
     if(!processarConclusao(_eiCodigo)){
       document.getElementById(fieldId).value = ''; // reverte a data
@@ -3227,8 +3202,12 @@ function aplicarPermissoes(){
   const navCfg=document.querySelector('[data-view="configuracoes"]');
   if(navCfg) navCfg.style.display=pode(['Administrador','Gestão'])?'':'none';
   // Painel usuários (só Admin)
+  // Painel usuários — Admin e Gestão veem a lista e podem vincular analistas;
+  // "Criar novo usuário" continua exclusivo do Administrador.
   const pu=document.getElementById('panelUsuarios');
-  if(pu) pu.style.display=pode(['Administrador'])?'block':'none';
+  if(pu) pu.style.display=pode(['Administrador','Gestão'])?'block':'none';
+  const fcu=document.getElementById('fsecCriarUsuario');
+  if(fcu) fcu.style.display=pode(['Administrador'])?'':'none';
   const pb=document.getElementById('panelBackups');
   if(pb) pb.style.display=pode(['Administrador'])?'block':'none';
   const pnEV=document.getElementById('panelNomenclaturasEV');
@@ -3575,38 +3554,21 @@ function registrarMudancaData(input){
   const id = input.id;
   const anterior = _datasOriginais[id] || '';
   const novo = input.value;
-  if(_eiModoCriacao || _eiCodigo==='__novo__') return; // criação: livre
   if(anterior === novo) return; // sem mudança real
 
-  // Defesa em profundidade: analista não atribuído não pode alterar nenhuma data
-  const dGuard = demandas.find(x=>x.codigo===_eiCodigo);
-  if(!podeMexerNaDemanda(dGuard)){
-    alert('Você não está atribuído a esta demanda. Apenas o(s) analista(s) responsável(is) ou Gestão/Administrador podem alterar datas.');
-    input.value = anterior;
-    return;
-  }
-
-  // ITEM: "Data prevista de início" pode ser mudada livremente por quem está
-  // atribuído à demanda (ou Gestão/Admin), sem exigir motivo ou registro em histórico.
-  if(id === 'ei_dataPrevInicio'){ _datasOriginais[id] = novo; return; }
-  if(!anterior){ _datasOriginais[id] = novo; return; } // primeiro preenchimento: livre
-
-  // Mudança de data existente: só Gestão/Admin
+  // NOVA SOLICITAÇÃO: campos de data são exclusivos de Gestão/Administrador,
+  // em qualquer situação (preencher OU alterar, inclusive na criação da
+  // demanda) — sem exceções e sem prompt de motivo. O campo já vem desabilitado
+  // visualmente para quem não é Gestão/Admin (aplicarModoSomenteLeituraForm);
+  // esta é só a defesa em profundidade, silenciosa (sem alert).
   if(!pode(['Administrador','Gestão'])){
-    alert('Apenas Gestão ou Administrador podem alterar datas já preenchidas.');
     input.value = anterior; // reverte
     return;
   }
-  const motivo = prompt(
-    'Alterando "'+ (NOMES_CAMPOS_DATA[id]||id) +'"\n' +
-    'De: ' + (anterior?new Date(anterior+'T00:00:00').toLocaleDateString('pt-BR'):'—') +
-    ' → Para: ' + (novo?new Date(novo+'T00:00:00').toLocaleDateString('pt-BR'):'—') +
-    '\n\nMotivo da alteração (opcional):'
-  );
-  if(motivo === null){ input.value = anterior; return; } // cancelou
+
   const reg = {
     demandaCodigo:_eiCodigo, campo:NOMES_CAMPOS_DATA[id]||id,
-    de:anterior, para:novo, motivo:(motivo||'').trim(),
+    de:anterior, para:novo, motivo:'',
     quem:_currentUser?_currentUser.nome:'Sistema', quando:new Date().toISOString()
   };
   dateLog.push(reg);
@@ -3918,7 +3880,7 @@ function limparFiltrosOP(){
   const ef=document.getElementById('entregaFilter');   if(ef) ef.value='';
   const pf=document.getElementById('pendenciaFilter'); if(pf) pf.value='';
   const bs=document.getElementById('demandaSearch');   if(bs) bs.value='';
-  _kpiStatusFiltro=null; _kpiFiltroRotulo='';
+  _kpiStatusFiltro=null; _kpiEntregaFiltro=null; _kpiFiltroRotulo='';
   renderSprintTabs();
   fillAllSelects(); renderSprintSelects(); // re-renderiza os msel já limpos
   renderKanban();
@@ -3947,7 +3909,7 @@ function limparFiltrosEVs(){
    Gráficos em SVG/CSS puros (sem bibliotecas).
    Universo: demandas conforme os filtros; "produção" = demandas Concluídas.
    ═══════════════════════════════════════════ */
-const GER_CORES = ['#004B93','#F58220','#047857','#6530C8','#0878A0','#C0200A','#B45309','#4A6080','#1D6FEB','#A06200'];
+const GER_CORES = ['#005EB8','#F58220','#047857','#6530C8','#0878A0','#C0200A','#B45309','#4A6080','#1D6FEB','#A06200'];
 
 function moneyCompact(v){
   const abs = Math.abs(v||0);
@@ -4303,7 +4265,7 @@ function filteredDemandas(){
     let okEntrega = true;
     if(entrega){
       const se = statusEntrega(d.codigo);
-      okEntrega = se ? se.classe===entrega : false;
+      okEntrega = entrega==='semdata' ? !se : (se ? se.classe===entrega : false);
     }
     let okPendencia = true;
     if(pendenciaF==='com') okPendencia = !!d.pendencia;
@@ -4414,9 +4376,9 @@ async function informarValorRevisao(codigo){
     d.valorAlteracaoEV!=null ? String(d.valorAlteracaoEV) : ''
   );
   if(entrada === null) return;
-  const valor = parseValorBR(entrada);
-  if(valor === null){ alert('Valor inválido. Informe um número (ex.: 15000 ou -8500,50).'); return; }
-  d.valorAlteracaoEV = valor;
+  // NOVA SOLICITAÇÃO: eliminada a validação bloqueante — valor não numérico
+  // não impede mais o registro, apenas é tratado como 0.
+  d.valorAlteracaoEV = parseValorBR(entrada) ?? 0;
   await dbSave('demandas', demandaToDb(d));
   renderKanban();
   if(typeof _viewMode!=='undefined' && _viewMode==='lista' && typeof renderLista==='function') renderLista();
@@ -4507,6 +4469,18 @@ function renderKanban(){
   const kc=document.getElementById('kpiConcluidas'); if(kc) kc.textContent = data.filter(d=>d.status==='Concluído').length;
   const kcn=document.getElementById('kpiCancelado'); if(kcn) kcn.textContent = data.filter(d=>d.status==='Cancelado').length;
 
+  // NOVA SOLICITAÇÃO: KPIs de situação de prazo (mesmo universo "data" dos demais KPIs)
+  const _pzSit = data.map(d=>statusEntrega(d.codigo));
+  const _pzSet = (id,classe) => { const el=document.getElementById(id); if(el) el.textContent = classe==='semdata'
+    ? _pzSit.filter(se=>!se).length
+    : _pzSit.filter(se=>se && se.classe===classe).length; };
+  _pzSet('kpiPzEmDia','em-dia');
+  _pzSet('kpiPzProximo','proximo');
+  _pzSet('kpiPzAtrasada','atrasada');
+  _pzSet('kpiPzEntreguePrazo','entregue-prazo');
+  _pzSet('kpiPzEntregueAtraso','entregue-atraso');
+  _pzSet('kpiPzSemData','semdata');
+
   renderKPIsSprint();
   if(document.getElementById('listaDemandas')?.style.display!=='none') renderLista();
 }
@@ -4519,11 +4493,23 @@ let _viewMode = 'kanban';
    refletindo os filtros gerais). Um chip acima da lista mostra o filtro
    ativo e permite removê-lo. */
 let _kpiStatusFiltro = null;   // array de status ou null
+let _kpiEntregaFiltro = null;  // NOVA SOLICITAÇÃO: array de classes de statusEntrega() ou null
 let _kpiFiltroRotulo = '';
 
 function filtrarPorKPI(statuses, rotulo){
   _kpiStatusFiltro = (statuses && statuses.length) ? statuses : null;
+  _kpiEntregaFiltro = null; // mutuamente exclusivo com o filtro por prazo
   _kpiFiltroRotulo = _kpiStatusFiltro ? (rotulo || statuses.join(', ')) : '';
+  setViewMode('lista');
+  const lista = document.getElementById('listaDemandas');
+  if(lista) lista.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// NOVA SOLICITAÇÃO: KPIs de situação de prazo também clicáveis
+function filtrarPorPrazo(classes, rotulo){
+  _kpiEntregaFiltro = (classes && classes.length) ? classes : null;
+  _kpiStatusFiltro = null; // mutuamente exclusivo com o filtro por status
+  _kpiFiltroRotulo = _kpiEntregaFiltro ? (rotulo || classes.join(', ')) : '';
   setViewMode('lista');
   const lista = document.getElementById('listaDemandas');
   if(lista) lista.scrollIntoView({behavior:'smooth', block:'start'});
@@ -4531,6 +4517,7 @@ function filtrarPorKPI(statuses, rotulo){
 
 function limparFiltroKPI(){
   _kpiStatusFiltro = null;
+  _kpiEntregaFiltro = null;
   _kpiFiltroRotulo = '';
   renderLista();
 }
@@ -4538,7 +4525,7 @@ function limparFiltroKPI(){
 function renderChipFiltroKPI(){
   const el = document.getElementById('kpiFiltroChip');
   if(!el) return;
-  if(!_kpiStatusFiltro){ el.style.display='none'; el.innerHTML=''; return; }
+  if(!_kpiStatusFiltro && !_kpiEntregaFiltro){ el.style.display='none'; el.innerHTML=''; return; }
   el.style.display='flex';
   el.innerHTML = `<span>Filtrando pelo KPI: <strong>${_kpiFiltroRotulo}</strong></span>
     <button class="btn btn-ghost btn-sm" onclick="limparFiltroKPI()">✕ Remover filtro</button>`;
@@ -4559,6 +4546,10 @@ function renderLista(){
   let data = filteredDemandas();
   // ITEM 14 (2ª rodada): filtro vindo do clique em um KPI
   if(_kpiStatusFiltro) data = data.filter(d=>_kpiStatusFiltro.includes(d.status));
+  if(_kpiEntregaFiltro) data = data.filter(d=>{
+    const se = statusEntrega(d.codigo);
+    return se ? _kpiEntregaFiltro.includes(se.classe) : _kpiEntregaFiltro.includes('semdata');
+  });
   // ITEM 8 (2ª rodada): mesma ordenação do kanban
   data = ordenarDemandas(data);
   const tbody = document.getElementById('listaDemandasBody');
@@ -5580,16 +5571,16 @@ const evStore = {}; // evStore[obraId] = {obra:[...], outros:[...], areaEq, area
 let _evObraAtual = null;
 
 let _evViaDemanda = false; // true = aberto de dentro da demanda (fluxo normal do analista)
+// NOVA SOLICITAÇÃO: analistas alimentam dados na Gestão de Obras — o EV é
+// sempre editável para qualquer usuário logado (o mecanismo de somente-leitura
+// foi removido; a proteção passou a ser o versionamento de cada edição direta).
 let _evSomenteLeitura = false;
 function aplicarModoLeituraEV(){
-  const ro = !!_evSomenteLeitura;
-  document.querySelectorAll('#evOverlay input, #evOverlay select').forEach(el=>{ el.disabled = ro; });
+  document.querySelectorAll('#evOverlay input, #evOverlay select').forEach(el=>{ el.disabled = false; });
   const b1 = document.querySelector('#evOverlay [onclick="salvarEV()"]');
   const b2 = document.querySelector('#evOverlay [onclick="salvarEVrascunho()"]');
-  if(b1) b1.style.display = ro ? 'none' : '';
-  if(b2) b2.style.display = ro ? 'none' : '';
-  const aviso = document.getElementById('evLeituraAviso');
-  if(aviso) aviso.style.display = ro ? 'flex' : 'none';
+  if(b1) b1.style.display = '';
+  if(b2) b2.style.display = '';
 }
 
 function openEV(obraId, viaDemanda){
@@ -5677,7 +5668,6 @@ function computeEVTotals(obraVals, otherVals, statusObra, statusOutros, areaEq){
 }
 
 function salvarEV(){
-  if(_evSomenteLeitura){ alert('Este EV está aberto em modo consulta. Alterações são feitas pela demanda vinculada, ou por Gestão/Administrador.'); return; }
   if(!_evObraAtual){ closeDrawer("evOverlay"); return; }
   const jaSalvoAntes = !!evStore[_evObraAtual]; // ITEM 4: para saber se é edição de um EV já existente
   const obraVals  = [...document.querySelectorAll("#obraCosts input")].map(i=>Number(i.value||0));
@@ -5715,7 +5705,6 @@ function salvarEV(){
 }
 
 function salvarEVrascunho(){
-  if(_evSomenteLeitura){ alert('Este EV está aberto em modo consulta. Alterações são feitas pela demanda vinculada, ou por Gestão/Administrador.'); return; }
   // Mesma persistência, mas mantém o drawer aberto
   if(!_evObraAtual) return;
   const obraVals  = [...document.querySelectorAll("#obraCosts input")].map(i=>Number(i.value||0));
