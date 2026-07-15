@@ -531,7 +531,17 @@
     .tr-btn:hover{transform:translateX(3px);box-shadow:var(--sh-sm);border-color:var(--line)}
     .tr-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
     .tr-arrow{margin-left:auto;color:var(--ghost);font-size:15px}
-    .status-current{border-radius:var(--r-lg);padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:4px}
+    .status-current{border-radius:var(--r-lg);padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:4px;position:relative}
+    /* NOVA SOLICITAÇÃO: mover a demanda clicando no STATUS ATUAL */
+    .status-current.sc-click{cursor:pointer;transition:box-shadow .14s,transform .14s}
+    .status-current.sc-click:hover{box-shadow:var(--sh-sm);transform:translateY(-1px)}
+    .sc-caret{font-size:9px;opacity:.55;margin-left:5px}
+    .status-menu{position:absolute;top:calc(100% + 6px);left:0;min-width:250px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--sh);z-index:120;padding:5px;display:none;flex-direction:column;gap:2px}
+    .status-menu.open{display:flex}
+    .status-menu-title{font-family:var(--font-mono);font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding:5px 8px 4px;border-bottom:1px solid var(--line-2);margin-bottom:3px}
+    .status-menu-opt{appearance:none;border:none;background:none;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--text);padding:8px 9px;border-radius:7px;cursor:pointer;display:flex;align-items:center;gap:9px;text-align:left;width:100%;transition:background .12s}
+    .status-menu-opt:hover{background:var(--sf2)}
+    .status-menu-opt .tr-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
     .move-locked-note{flex:1;font-size:12px;color:#8A4A00;background:var(--orange-50);border:1px solid rgba(255,107,0,.22);border-radius:var(--r);padding:10px 13px;line-height:1.4}
     .ei-readonly-banner{display:flex;align-items:center;gap:9px;background:var(--sf2);border:1px solid var(--line);border-radius:var(--r-lg);padding:11px 14px;font-size:12.5px;color:var(--muted);margin-bottom:12px}
     .ei-readonly-banner strong{color:var(--ink)}
@@ -778,14 +788,15 @@
           </div>
         </div>
       </div>
-      <!-- NOVA SOLICITAÇÃO: KPIs de situação de prazo, também clicáveis -->
-      <div class="kpi-grid kpi-grid-6">
-        <div class="kpi-card kpi-click" style="--kc:#047857" title="Ver em lista" onclick="filtrarPorPrazo(['em-dia'],'🟢 Em dia')"><div class="kpi-label">🟢 Em dia</div><div class="kpi-value kv-green" id="kpiPzEmDia">0</div></div>
-        <div class="kpi-card kpi-click" style="--kc:#B45309" title="Ver em lista" onclick="filtrarPorPrazo(['proximo'],'🟠 Próximas do marco')"><div class="kpi-label">🟠 Próximas do marco</div><div class="kpi-value kv-orange" id="kpiPzProximo">0</div></div>
-        <div class="kpi-card kpi-click" style="--kc:#C0200A" title="Ver em lista" onclick="filtrarPorPrazo(['atrasada'],'🔴 Atrasadas')"><div class="kpi-label">🔴 Atrasadas</div><div class="kpi-value kv-red" id="kpiPzAtrasada">0</div></div>
-        <div class="kpi-card kpi-click" style="--kc:#0878A0" title="Ver em lista" onclick="filtrarPorPrazo(['entregue-prazo'],'✓ Entregues no prazo')"><div class="kpi-label">✓ Entregues no prazo</div><div class="kpi-value kv-teal" id="kpiPzEntreguePrazo">0</div></div>
-        <div class="kpi-card kpi-click" style="--kc:#8f1807" title="Ver em lista" onclick="filtrarPorPrazo(['entregue-atraso'],'⚠ Entregues fora do prazo')"><div class="kpi-label">⚠ Entregues fora do prazo</div><div class="kpi-value" style="color:#8f1807" id="kpiPzEntregueAtraso">0</div></div>
-        <div class="kpi-card kpi-click" style="--kc:#5F7488" title="Ver em lista" onclick="filtrarPorPrazo(['semdata'],'Sem data registrada')"><div class="kpi-label">Sem data registrada</div><div class="kpi-value kv-muted" id="kpiPzSemData">0</div></div>
+      <!-- KPIs de STATUS (clicáveis) — restaurados na Operacional a pedido -->
+      <div class="kpi-grid kpi-grid-7">
+        <div class="kpi-card kpi-click" title="Ver todas as demandas em lista" onclick="filtrarPorKPI(null)"><div class="kpi-label">Total na Sprint</div><div class="kpi-value" id="kpiTotal">0</div></div>
+        <div class="kpi-card kpi-click" style="--kc:#1D6FEB" title="Ver em lista" onclick="filtrarPorKPI(['Fazer'],'A Iniciar')"><div class="kpi-label">A Iniciar</div><div class="kpi-value" id="kpiFazer">0</div></div>
+        <div class="kpi-card kpi-click" style="--kc:#6530C8" title="Ver em lista" onclick="filtrarPorKPI(['Fazendo'],'Em Execução')"><div class="kpi-label">Em Execução</div><div class="kpi-value" id="kpiFazendo">0</div></div>
+        <div class="kpi-card kpi-click" style="--kc:#C0200A" title="Ver em lista" onclick="filtrarPorKPI(['Pausado'],'Pausado')"><div class="kpi-label">Pausado</div><div class="kpi-value" id="kpiPausado">0</div></div>
+        <div class="kpi-card kpi-click" style="--kc:#A06200" title="Ver em lista" onclick="filtrarPorKPI(['Aguardando Validação Sala Técnica','Aguardando Validação Obras'],'Aguardando Validação')"><div class="kpi-label">Aguardando Validação</div><div class="kpi-value" id="kpiValidacao">0</div></div>
+        <div class="kpi-card kpi-click" style="--kc:#047857" title="Ver em lista" onclick="filtrarPorKPI(['Concluído'],'Concluído')"><div class="kpi-label">Concluído</div><div class="kpi-value" id="kpiConcluidas">0</div></div>
+        <div class="kpi-card kpi-click" style="--kc:#4A6080" title="Ver em lista" onclick="filtrarPorKPI(['Cancelado'],'Cancelado')"><div class="kpi-label">Cancelado</div><div class="kpi-value" id="kpiCancelado">0</div></div>
       </div>
       <div class="panel">
         <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:12px">
@@ -931,6 +942,17 @@
         <button class="gsc" data-esc="andamento" onclick="setGerEscopo('andamento')">⚙️ Em andamento</button>
         <button class="gsc" data-esc="canceladas" onclick="setGerEscopo('canceladas')">🚫 Canceladas</button>
         <button class="gsc" data-esc="todas" onclick="setGerEscopo('todas')">📚 Todas</button>
+      </div>
+
+      <!-- NOVA SOLICITAÇÃO: KPIs de situação de prazo agora vivem na GERENCIAL.
+           Calculados sobre TODAS as demandas do filtro (qualquer status/escopo). -->
+      <div class="kpi-grid kpi-grid-6" id="gerKpisPrazo">
+        <div class="kpi-card" style="--kc:#047857"><div class="kpi-label">🟢 Em dia</div><div class="kpi-value kv-green" id="gerPzEmDia">0</div></div>
+        <div class="kpi-card" style="--kc:#B45309"><div class="kpi-label">🟠 Próximas do marco</div><div class="kpi-value kv-orange" id="gerPzProximo">0</div></div>
+        <div class="kpi-card" style="--kc:#C0200A"><div class="kpi-label">🔴 Atrasadas</div><div class="kpi-value kv-red" id="gerPzAtrasada">0</div></div>
+        <div class="kpi-card" style="--kc:#0878A0"><div class="kpi-label">✓ Entregues no prazo</div><div class="kpi-value kv-teal" id="gerPzEntreguePrazo">0</div></div>
+        <div class="kpi-card" style="--kc:#8f1807"><div class="kpi-label">⚠ Entregues fora do prazo</div><div class="kpi-value" style="color:#8f1807" id="gerPzEntregueAtraso">0</div></div>
+        <div class="kpi-card" style="--kc:#5F7488"><div class="kpi-label">Sem data registrada</div><div class="kpi-value kv-muted" id="gerPzSemData">0</div></div>
       </div>
 
       <!-- KPIs -->
@@ -1157,10 +1179,7 @@
         <h4>Detalhes</h4>
         <div class="dd-grid" id="ddDetails"></div>
       </div>
-      <div class="sblock">
-        <h4>Mover para</h4>
-        <div id="ddTransitions"></div>
-      </div>
+
     </div>
   </div>
 </div>
@@ -2103,6 +2122,7 @@ function openNovaDemanda(tipoInicial){
   renderProjetosGrid(ei);
 
   trocarTipoAtividade(); // ajusta visibilidade conforme tipo
+  aplicarModoSomenteLeituraForm(false); // criação: form editável (corrige resíduo de uma demanda aberta antes em somente-leitura)
   aplicarBloqueioDatas(false); // NOVA SOLICITAÇÃO: datas só para Gestão/Admin, mesmo na criação
 
   document.getElementById('eiOverlay').classList.add('open');
@@ -2541,31 +2561,56 @@ function aplicarModoSomenteLeituraForm(somenteLeitura){
   }
 }
 
-function renderEIStatus(d){
+/* NOVA SOLICITAÇÃO: o layout de "Mover para" (select separado) foi substituído —
+   agora o próprio STATUS ATUAL é clicável e abre um menu com as transições
+   permitidas. Usado tanto no formulário da demanda quanto no drawer genérico. */
+function statusClicavelHTML(d, fnMover){
   const color  = STATUS_COLORS[d.status] || '#667085';
   const dimBg  = STATUS_DIM[d.status]    || 'rgba(0,0,0,.05)';
   const allowed = TRANSITIONS[d.status]  || [];
   const podeMexer = podeMexerNaDemanda(d);
+  const clicavel = allowed.length > 0 && podeMexer;
+  return `
+    <div class="status-current${clicavel ? ' sc-click' : ''}" style="background:${dimBg};border:1px solid ${color}30;flex-shrink:0"
+      ${clicavel ? `onclick="toggleStatusMenu(event)" title="Clique para mover a demanda"` : ''}>
+      <div class="sc-dot" style="background:${color}"></div>
+      <div>
+        <div class="sc-label">Status atual${clicavel ? ' · clique para mover' : ''}</div>
+        <div class="sc-status" style="color:${color};font-size:13px">${d.status}${clicavel ? '<span class="sc-caret">▼</span>' : ''}</div>
+      </div>
+      ${clicavel ? `<div class="status-menu" onclick="event.stopPropagation()">
+        <div class="status-menu-title">Mover para</div>
+        ${allowed.map(t=>{
+          const tc = STATUS_COLORS[t] || '#667085';
+          return `<button class="status-menu-opt" onclick="fecharStatusMenus();${fnMover}('${d.codigo}','${t.replace(/'/g,"\\'")}')"><span class="tr-dot" style="background:${tc}"></span>${t}</button>`;
+        }).join('')}
+      </div>` : ''}
+    </div>`;
+}
+
+function toggleStatusMenu(ev){
+  const wrap = ev.currentTarget;
+  const menu = wrap.querySelector('.status-menu');
+  if(!menu) return;
+  const estavaAberto = menu.classList.contains('open');
+  fecharStatusMenus();
+  if(!estavaAberto) menu.classList.add('open');
+}
+function fecharStatusMenus(){
+  document.querySelectorAll('.status-menu.open').forEach(m=>m.classList.remove('open'));
+}
+document.addEventListener('click', e=>{
+  if(e.target.closest && e.target.closest('.status-current')) return;
+  fecharStatusMenus();
+});
+
+function renderEIStatus(d){
+  const allowed = TRANSITIONS[d.status]  || [];
+  const podeMexer = podeMexerNaDemanda(d);
   document.getElementById('eiTransitions').innerHTML = `
     <div class="ei-transitions">
-      <div class="status-current" style="background:${dimBg};border:1px solid ${color}30;flex-shrink:0">
-        <div class="sc-dot" style="background:${color}"></div>
-        <div>
-          <div class="sc-label">Status atual</div>
-          <div class="sc-status" style="color:${color};font-size:13px">${d.status}</div>
-        </div>
-      </div>
-      ${(allowed.length && podeMexer) ? `
-        <div class="move-select-wrap">
-          <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px;display:block">Mover para</label>
-          <select class="move-select" onchange="if(this.value){moverDemandaEI('${d.codigo}',this.value);this.value=''}">
-            <option value="">Selecione o status…</option>
-            ${allowed.map(t=>{
-              const tc=STATUS_COLORS[t]||'#667085';
-              return `<option value="${t}">${t}</option>`;
-            }).join('')}
-          </select>
-        </div>` : (allowed.length && !podeMexer) ? `
+      ${statusClicavelHTML(d, 'moverDemandaEI')}
+      ${(allowed.length && !podeMexer) ? `
         <div class="move-locked-note">🔒 Você não está atribuído a esta demanda — apenas o(s) analista(s) responsável(is) ou Gestão/Administrador podem movê-la.</div>` : ''}
     </div>`;
 }
@@ -3650,21 +3695,12 @@ function openDemandaDrawer(codigo){
   const d = demandas.find(x=>x.codigo===codigo);
   if(!d) return;
   _demandaAtiva = codigo;
-  const color  = STATUS_COLORS[d.status] || '#667085';
-  const dimBg  = STATUS_DIM[d.status]    || 'rgba(0,0,0,.05)';
 
   document.getElementById('ddTitle').textContent = d.codigo + ' — ' + d.obra;
   document.getElementById('ddSub').textContent   = d.sprint + ' · ' + d.analista;
 
-  /* Status atual */
-  document.getElementById('ddStatusBadge').innerHTML = `
-    <div class="status-current" style="background:${dimBg};border:1px solid ${color}30">
-      <div class="sc-dot" style="background:${color}"></div>
-      <div>
-        <div class="sc-label">Status atual</div>
-        <div class="sc-status" style="color:${color}">${d.status}</div>
-      </div>
-    </div>`;
+  /* Status atual — clicável para mover (novo layout) */
+  document.getElementById('ddStatusBadge').innerHTML = statusClicavelHTML(d, 'moverDemanda');
 
   /* Detalhes */
   document.getElementById('ddDetails').innerHTML = [
@@ -3676,24 +3712,6 @@ function openDemandaDrawer(codigo){
       <div class="dd-field-label">${lbl}</div>
       <div class="dd-field-value">${val||'—'}</div>
     </div>`).join('');
-
-  /* Botões de transição */
-  const allowed = TRANSITIONS[d.status] || [];
-  if(allowed.length === 0){
-    document.getElementById('ddTransitions').innerHTML =
-      '<div class="no-transitions">Nenhuma transição disponível para este status.</div>';
-  } else {
-    document.getElementById('ddTransitions').innerHTML = allowed.map(target=>{
-      const tc = STATUS_COLORS[target] || '#667085';
-      const td = STATUS_DIM[target]    || 'rgba(0,0,0,.05)';
-      return `<button class="tr-btn" style="background:${td};border-color:${tc}28"
-        onclick="moverDemanda('${codigo}','${target}')">
-        <span class="tr-dot" style="background:${tc}"></span>
-        <span>${target}</span>
-        <span class="tr-arrow">→</span>
-      </button>`;
-    }).join('');
-  }
 
   document.getElementById('demandaOverlay').classList.add('open');
 }
@@ -4040,6 +4058,18 @@ function renderGerencial(){
     return true;
   });
   const grupo = base.filter(d=>esc.match(d.status));
+
+  // KPIs de situação de prazo — sobre TODO o universo filtrado (independe do escopo)
+  const _pzSit = base.map(d=>statusEntrega(d.codigo));
+  const _pzSet = (id,classe) => { const el=document.getElementById(id); if(el) el.textContent = classe==='semdata'
+    ? _pzSit.filter(se=>!se).length
+    : _pzSit.filter(se=>se && se.classe===classe).length; };
+  _pzSet('gerPzEmDia','em-dia');
+  _pzSet('gerPzProximo','proximo');
+  _pzSet('gerPzAtrasada','atrasada');
+  _pzSet('gerPzEntreguePrazo','entregue-prazo');
+  _pzSet('gerPzEntregueAtraso','entregue-atraso');
+  _pzSet('gerPzSemData','semdata');
   const andamentoGlobal = base.filter(d=>d.status!=='Concluído' && d.status!=='Cancelado');
 
   const stats = grupo.map(d=>({
@@ -4468,18 +4498,6 @@ function renderKanban(){
   const kv=document.getElementById('kpiValidacao'); if(kv) kv.textContent = data.filter(d=>d.status==='Aguardando Validação Sala Técnica'||d.status==='Aguardando Validação Obras').length;
   const kc=document.getElementById('kpiConcluidas'); if(kc) kc.textContent = data.filter(d=>d.status==='Concluído').length;
   const kcn=document.getElementById('kpiCancelado'); if(kcn) kcn.textContent = data.filter(d=>d.status==='Cancelado').length;
-
-  // NOVA SOLICITAÇÃO: KPIs de situação de prazo (mesmo universo "data" dos demais KPIs)
-  const _pzSit = data.map(d=>statusEntrega(d.codigo));
-  const _pzSet = (id,classe) => { const el=document.getElementById(id); if(el) el.textContent = classe==='semdata'
-    ? _pzSit.filter(se=>!se).length
-    : _pzSit.filter(se=>se && se.classe===classe).length; };
-  _pzSet('kpiPzEmDia','em-dia');
-  _pzSet('kpiPzProximo','proximo');
-  _pzSet('kpiPzAtrasada','atrasada');
-  _pzSet('kpiPzEntreguePrazo','entregue-prazo');
-  _pzSet('kpiPzEntregueAtraso','entregue-atraso');
-  _pzSet('kpiPzSemData','semdata');
 
   renderKPIsSprint();
   if(document.getElementById('listaDemandas')?.style.display!=='none') renderLista();
