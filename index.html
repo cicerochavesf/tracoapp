@@ -969,6 +969,156 @@
   }
 </style>
 
+
+<style id="index5-dashboard-kanban">
+  /* INDEX5 · INÍCIO MAIS LIMPO */
+  #view-dashboard .project-home-heading{margin-bottom:14px}
+  #view-dashboard .project-home-eyebrow,
+  #view-dashboard .project-home-heading p,
+  #view-dashboard .home-purpose-strip,
+  #view-dashboard .dashboard-section-title span,
+  #view-dashboard .dashboard-section-title>small,
+  #view-dashboard .home-panel-head p,
+  #view-dashboard .executive-kpi .kpi-meta{display:none!important}
+  #view-dashboard .dashboard-section-title{margin-bottom:10px;align-items:center}
+  #view-dashboard .dashboard-section-title h2{margin:0}
+  #view-dashboard .executive-kpi{min-height:112px!important}
+  #view-dashboard .executive-kpi .kpi-value{margin-top:16px}
+  #view-dashboard .home-panel-head{align-items:center;margin-bottom:12px}
+
+
+  #view-operacional.controls-collapsed #operationalFiltersPanel,
+  #view-operacional.controls-collapsed #operationalKpis{display:none!important}
+  #view-operacional.controls-collapsed .topbar{margin-bottom:9px}
+
+    /* INDEX5 · QUADRO OPERACIONAL COM MAIS ÁREA ÚTIL E MAIS FORMAS DE ROLAR */
+  #view-operacional .operational-board-panel{padding:10px!important;overflow:hidden;min-width:0}
+  .operational-board-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;min-height:36px}
+  .operational-board-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+  .op-board-btn{height:32px!important;padding:0 10px!important;font-size:10px!important;white-space:nowrap}
+  .op-icon-btn{appearance:none;width:32px;height:32px;border:1px solid #dce5ed;background:#fff;border-radius:9px;color:#52677b;font:800 17px/1 var(--font-body);cursor:pointer;display:grid;place-items:center}
+  .op-icon-btn:hover{border-color:#9fc1ef;color:#1769e0;background:#f7faff}
+
+  .kanban-top-scroll{height:15px;overflow-x:auto;overflow-y:hidden;margin:0 1px 6px;scrollbar-width:auto;overscroll-behavior-x:contain}
+  .kanban-top-scroll>div{height:1px;min-width:100%}
+  .kanban-top-scroll::-webkit-scrollbar{height:11px}
+  .kanban-top-scroll::-webkit-scrollbar-track{background:#eef3f7;border-radius:99px}
+  .kanban-top-scroll::-webkit-scrollbar-thumb{background:#aebdca;border:2px solid #eef3f7;border-radius:99px}
+  .kanban-top-scroll::-webkit-scrollbar-thumb:hover{background:#8296a8}
+
+  #view-operacional .kanban{height:calc(100dvh - 180px);min-height:520px;max-height:none!important;overflow-x:auto;overflow-y:hidden;padding:0 0 12px;overscroll-behavior:contain;scrollbar-gutter:stable both-edges;align-items:stretch}
+  #view-operacional .kanban::-webkit-scrollbar{height:13px}
+  #view-operacional .kanban::-webkit-scrollbar-track{background:#e7edf3;border-radius:99px}
+  #view-operacional .kanban::-webkit-scrollbar-thumb{background:#9fb0bf;border:3px solid #e7edf3;border-radius:99px}
+  #view-operacional .kanban-col{height:100%;min-height:0;max-height:none!important}
+  #view-operacional .kanban-body{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:22px;scrollbar-gutter:stable}
+  #view-operacional .kanban-body::-webkit-scrollbar{width:9px}
+  #view-operacional .kanban-body::-webkit-scrollbar-track{background:transparent}
+  #view-operacional .kanban-body::-webkit-scrollbar-thumb{background:#becbd6;border:2px solid transparent;background-clip:padding-box;border-radius:99px}
+
+  /* Cartões compactos: mostram mais tarefas sem perder responsável, prazo e situação */
+  #kanban.compact .task{padding:7px 8px;border-radius:10px;box-shadow:0 2px 8px rgba(23,50,77,.045)}
+  #kanban.compact .task-hd{margin-bottom:4px}
+  #kanban.compact .task-title{font-size:12px;line-height:1.25;margin-bottom:4px}
+  #kanban.compact .task-desc{display:none}
+  #kanban.compact .task-attrs{gap:1px;font-size:10.5px;line-height:1.25}
+  #kanban.compact .task-attrs>div:nth-child(2),
+  #kanban.compact .task-attrs>div:nth-child(3){display:none}
+  #kanban.compact .task-entrega{margin-top:5px;padding:4px 7px;font-size:9.5px;border-radius:6px}
+  #kanban.compact .task-ev-total{margin-top:5px;padding:5px 7px;border-radius:6px;font-size:8.5px;line-height:1.15}
+  #kanban.compact .task-ev-total strong{font-size:12px}
+  #kanban.compact .task-pendencia{margin-top:5px;padding:5px 7px;border-radius:6px;font-size:9px}
+  #kanban.compact .task-pendencia span{display:none}
+
+  /* Quadro expandido abaixo do cabeçalho fixo */
+  body.operational-board-fullscreen{overflow:hidden}
+  body.operational-board-fullscreen #operationalBoardPanel{position:fixed;top:var(--app-header-height,118px);left:0;right:0;bottom:0;z-index:490;margin:0!important;border-radius:0!important;border-left:0;border-right:0;border-bottom:0;display:flex;flex-direction:column;background:#f4f7fa;padding:10px 14px 8px!important}
+  body.operational-board-fullscreen #operationalBoardPanel .kanban{height:auto;min-height:0;flex:1}
+  body.operational-board-fullscreen #operationalBoardPanel .lista-demandas{min-height:0;flex:1;overflow:auto}
+  body.operational-board-fullscreen #operationalBoardPanel .table-scroll{max-height:none!important;height:100%}
+
+  @media(max-width:860px){
+    .operational-board-toolbar{align-items:flex-start;flex-direction:column}
+    .operational-board-actions{width:100%;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
+    .op-board-btn{flex:0 0 auto}
+    #view-operacional .kanban{height:calc(100dvh - 165px);min-height:440px;grid-template-columns:repeat(7,82vw)}
+    #view-operacional .kanban-col{scroll-snap-align:start}
+    .kanban-top-scroll{height:18px}
+    body.operational-board-fullscreen #operationalBoardPanel{padding:8px!important}
+  }
+</style>
+
+
+
+<style id="index6-global-overlay-fix">
+  /* INDEX6 · TODAS AS JANELAS ACIMA DO CABEÇALHO FIXO */
+  :root{
+    --t360-header-layer:500;
+    --t360-floating-layer:1800;
+    --t360-modal-layer:3000;
+  }
+
+  .app-header{z-index:var(--t360-header-layer)!important}
+
+  /* Formulários, detalhes, EVs, históricos e demais janelas */
+  .overlay{
+    z-index:var(--t360-modal-layer)!important;
+    padding-top:max(18px,env(safe-area-inset-top))!important;
+    padding-bottom:max(18px,env(safe-area-inset-bottom))!important;
+    overscroll-behavior:contain;
+  }
+  .overlay.open{isolation:isolate}
+  .overlay .drawer{
+    position:relative;
+    isolation:isolate;
+    max-height:calc(100dvh - 36px)!important;
+  }
+  .overlay .drawer-head,
+  .overlay .ev-doc-head{
+    position:relative;
+    z-index:30;
+    flex-shrink:0;
+    background:var(--surface,#fff);
+    box-shadow:0 1px 0 var(--line,#dce5ed);
+  }
+  .overlay .close-btn{
+    position:relative;
+    z-index:40;
+    flex:0 0 auto;
+  }
+
+  /* Enquanto alguma janela estiver aberta, o cabeçalho não pode cobri-la. */
+  body.t360-modal-open .app-header{
+    z-index:20!important;
+    pointer-events:none;
+  }
+  body.t360-modal-open .overlay.open{pointer-events:auto}
+
+  /* Menus flutuantes usados fora dos modais */
+  .msel-panel,
+  .status-menu{
+    z-index:var(--t360-floating-layer)!important;
+  }
+
+  @media(max-width:860px){
+    .overlay{
+      padding:0!important;
+      align-items:stretch!important;
+    }
+    .overlay .drawer{
+      width:100vw!important;
+      max-width:none!important;
+      height:100dvh!important;
+      max-height:100dvh!important;
+      border-radius:0!important;
+    }
+    .overlay .drawer-head,
+    .overlay .ev-doc-head{
+      padding-top:max(11px,env(safe-area-inset-top))!important;
+    }
+  }
+</style>
+
 </head>
 <body>
 <!-- Login overlay -->
@@ -1088,9 +1238,7 @@
     <section id="view-dashboard" class="view active">
       <div class="project-home-heading">
         <div>
-          <div class="project-home-eyebrow">Página inicial</div>
           <h1>Central de Projetos</h1>
-          <p>Resumo rápido do momento atual. As análises completas permanecem separadas nas visões Operacional, Gerencial e Estratégica.</p>
         </div>
         <div class="project-home-actions">
           <button class="btn btn-ghost" onclick="showView('obras')">Consultar obras</button>
@@ -1098,17 +1246,7 @@
         </div>
       </div>
 
-      <div class="home-purpose-strip">
-        <div class="home-purpose-copy">
-          <span class="home-purpose-badge">Início</span>
-          <div><strong>O que esta página mostra?</strong><small>Alertas, prazos e números essenciais para decidir onde atuar primeiro. Ela não é uma quarta visão do sistema.</small></div>
-        </div>
-        <button class="home-purpose-pulse" onclick="abrirKPIDetalhe('dashAtivas')">
-          <small>Situação das demandas ativas</small><strong id="dashPulse">—</strong><em id="dashPulseSub">Carregando situação das entregas…</em>
-        </button>
-      </div>
-
-      <div class="dashboard-section-title"><div><span>Resumo do momento</span><h2>Indicadores principais</h2></div><small>Clique em qualquer indicador para abrir os registros que compõem o número.</small></div>
+      <div class="dashboard-section-title"><div><h2>Indicadores principais</h2></div></div>
 
       <div class="executive-kpi-grid" id="dashboardKpis">
         <div class="kpi-card executive-kpi" data-kpi="dashProjetos" style="--kc:#1769E0"><div class="kpi-top"><span class="kpi-label">Obras no portfólio</span><span class="kpi-arrow">↗</span></div><div class="kpi-value" id="dashProjetos">0</div><div class="kpi-meta">Base consolidada de projetos</div></div>
@@ -1126,19 +1264,19 @@
 
       <div class="project-home-grid">
         <div class="panel home-panel home-panel-critical">
-          <div class="home-panel-head"><div><span class="panel-kicker danger">Prioridade</span><h3>Fila crítica</h3><p>Demandas atrasadas ordenadas pelo maior desvio de prazo.</p></div><button class="dash-link" onclick="abrirKPIDetalhe('dashAtrasadas')">Ver todas →</button></div>
+          <div class="home-panel-head"><div><span class="panel-kicker danger">Prioridade</span><h3>Fila crítica</h3></div><button class="dash-link" onclick="abrirKPIDetalhe('dashAtrasadas')">Ver todas →</button></div>
           <div class="dash-list" id="dashCriticalList"></div>
         </div>
         <div class="panel home-panel">
-          <div class="home-panel-head"><div><span class="panel-kicker">Portfólio</span><h3>Obras com maior carga ativa</h3><p>Concentração das demandas ainda em andamento.</p></div><button class="dash-link" onclick="showView('obras')">Abrir obras →</button></div>
+          <div class="home-panel-head"><div><span class="panel-kicker">Portfólio</span><h3>Obras com maior carga ativa</h3></div><button class="dash-link" onclick="showView('obras')">Abrir obras →</button></div>
           <div class="dash-list" id="dashPortfolioList"></div>
         </div>
         <div class="panel home-panel">
-          <div class="home-panel-head"><div><span class="panel-kicker">Equipe</span><h3>Capacidade em uso</h3><p>Distribuição das demandas ativas por analista.</p></div><button class="dash-link" onclick="showView('gerencial')">Visão gerencial →</button></div>
+          <div class="home-panel-head"><div><span class="panel-kicker">Equipe</span><h3>Capacidade em uso</h3></div><button class="dash-link" onclick="showView('gerencial')">Visão gerencial →</button></div>
           <div class="mini-bars" id="dashWorkload"></div>
         </div>
         <div class="panel home-panel">
-          <div class="home-panel-head"><div><span class="panel-kicker">Cobertura</span><h3>Distribuição regional</h3><p>Quantidade de obras cadastradas em cada região.</p></div><button class="dash-link" onclick="abrirKPIDetalhe('totalRegioesCard')">Detalhar →</button></div>
+          <div class="home-panel-head"><div><span class="panel-kicker">Cobertura</span><h3>Distribuição regional</h3></div><button class="dash-link" onclick="abrirKPIDetalhe('totalRegioesCard')">Detalhar →</button></div>
           <div class="mini-bars" id="dashRegions"></div>
         </div>
       </div>
@@ -1151,12 +1289,13 @@
         <div class="page-heading"><h2>Visão Operacional</h2><p>Planejamento, fluxo de trabalho e controle dos marcos de entrega por sprint.</p></div>
         <div class="topbar-actions">
           <span class="pill" id="activeSprintChip">Sprint 11</span>
+          <button class="btn btn-ghost" id="btnToggleOperationalControls" type="button" onclick="toggleOperationalControls()">▴ Ocultar filtros e KPIs</button>
           <button class="btn btn-ghost">Exportar</button>
           <button class="btn btn-primary btn-nova-demanda" onclick="escolherTipoDemanda()">+ Nova demanda</button>
         </div>
       </div>
       <!-- ITEM 14: filtros ANTES dos KPIs -->
-      <div class="panel" style="margin-bottom:14px;padding:14px 16px">
+      <div class="panel" id="operationalFiltersPanel" style="margin-bottom:14px;padding:14px 16px">
         <div class="ffield" style="margin-bottom:12px">
           <label style="font-family:var(--font-mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px;display:block">Buscar demanda</label>
           <input id="demandaSearch" type="text" placeholder="Buscar por código, obra ou descrição…" oninput="renderKanban()">
@@ -1190,7 +1329,7 @@
         </div>
       </div>
       <!-- KPIs de STATUS (clicáveis) — restaurados na Operacional a pedido -->
-      <div class="kpi-grid kpi-grid-7">
+      <div class="kpi-grid kpi-grid-7" id="operationalKpis">
         <div class="kpi-card kpi-click" title="Ver todas as demandas em lista" onclick="filtrarPorKPI(null)"><div class="kpi-label">Total na Sprint</div><div class="kpi-value" id="kpiTotal">0</div></div>
         <div class="kpi-card kpi-click" style="--kc:#1D6FEB" title="Ver em lista" onclick="filtrarPorKPI(['Fazer'],'A Iniciar')"><div class="kpi-label">A Iniciar</div><div class="kpi-value" id="kpiFazer">0</div></div>
         <div class="kpi-card kpi-click" style="--kc:#6530C8" title="Ver em lista" onclick="filtrarPorKPI(['Fazendo'],'Em Execução')"><div class="kpi-label">Em Execução</div><div class="kpi-value" id="kpiFazendo">0</div></div>
@@ -1199,14 +1338,21 @@
         <div class="kpi-card kpi-click" style="--kc:#047857" title="Ver em lista" onclick="filtrarPorKPI(['Concluído'],'Concluído')"><div class="kpi-label">Concluído</div><div class="kpi-value" id="kpiConcluidas">0</div></div>
         <div class="kpi-card kpi-click" style="--kc:#4A6080" title="Ver em lista" onclick="filtrarPorKPI(['Cancelado'],'Cancelado')"><div class="kpi-label">Cancelado</div><div class="kpi-value" id="kpiCancelado">0</div></div>
       </div>
-      <div class="panel">
-        <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:12px">
+      <div class="panel operational-board-panel" id="operationalBoardPanel">
+        <div class="operational-board-toolbar">
           <div class="view-toggle">
             <button class="vt-btn active" id="btnKanban" onclick="setViewMode('kanban')">⬛ Kanban</button>
             <button class="vt-btn" id="btnLista" onclick="setViewMode('lista')">☰ Lista</button>
           </div>
+          <div class="operational-board-actions">
+            <button class="op-icon-btn" type="button" onclick="scrollKanbanBy(-1)" title="Rolar uma coluna para a esquerda" aria-label="Rolar para a esquerda">←</button>
+            <button class="op-icon-btn" type="button" onclick="scrollKanbanBy(1)" title="Rolar uma coluna para a direita" aria-label="Rolar para a direita">→</button>
+            <button class="btn btn-ghost op-board-btn" id="btnCompactKanban" type="button" onclick="toggleKanbanCompact()">▤ Exibir detalhes</button>
+            <button class="btn btn-ghost op-board-btn" id="btnExpandKanban" type="button" onclick="toggleOperationalFullscreen()">⛶ Expandir quadro</button>
+          </div>
         </div>
-        <div id="kanban" class="kanban"></div>
+        <div id="kanbanTopScroll" class="kanban-top-scroll" aria-label="Rolagem horizontal superior do Kanban"><div id="kanbanTopScrollInner"></div></div>
+        <div id="kanban" class="kanban compact"></div>
         <div id="listaDemandas" class="lista-demandas" style="display:none">
           <div id="kpiFiltroChip" class="kpi-filtro-chip" style="display:none"></div>
           <div class="table-wrap">
@@ -6410,6 +6556,148 @@ if(_sb){
 </script>
 
 
+
+
+<script id="index5-kanban-controls">
+(function(){
+  let syncingScroll=false;
+  function els(){
+    return {
+      kanban:document.getElementById('kanban'),
+      top:document.getElementById('kanbanTopScroll'),
+      inner:document.getElementById('kanbanTopScrollInner')
+    };
+  }
+  function updateTopScrollWidth(){
+    const {kanban,top,inner}=els();
+    if(!kanban||!top||!inner) return;
+    inner.style.width=Math.max(kanban.scrollWidth,top.clientWidth)+'px';
+    top.style.display=(kanban.style.display==='none')?'none':'';
+  }
+  window.scrollKanbanBy=function(direction){
+    const {kanban}=els(); if(!kanban) return;
+    const col=kanban.querySelector('.kanban-col');
+    const amount=(col?col.getBoundingClientRect().width:260)+13;
+    kanban.scrollBy({left:direction*amount,behavior:'smooth'});
+  };
+  window.toggleKanbanCompact=function(){
+    const {kanban}=els(); if(!kanban) return;
+    const compact=kanban.classList.toggle('compact');
+    const btn=document.getElementById('btnCompactKanban');
+    if(btn) btn.textContent=compact?'▤ Exibir detalhes':'▦ Compactar cartões';
+    setTimeout(updateTopScrollWidth,80);
+  };
+
+  window.toggleOperationalControls=function(){
+    const view=document.getElementById('view-operacional'); if(!view) return;
+    const hidden=view.classList.toggle('controls-collapsed');
+    const btn=document.getElementById('btnToggleOperationalControls');
+    if(btn) btn.textContent=hidden?'▾ Mostrar filtros e KPIs':'▴ Ocultar filtros e KPIs';
+    setTimeout(updateTopScrollWidth,80);
+  };
+
+    window.toggleOperationalFullscreen=function(){
+    const active=document.body.classList.toggle('operational-board-fullscreen');
+    const header=document.querySelector('.app-header');
+    if(header) document.documentElement.style.setProperty('--app-header-height',Math.ceil(header.getBoundingClientRect().height)+'px');
+    const btn=document.getElementById('btnExpandKanban');
+    if(btn) btn.textContent=active?'✕ Sair do modo expandido':'⛶ Expandir quadro';
+    setTimeout(updateTopScrollWidth,120);
+  };
+  function init(){
+    const {kanban,top}=els(); if(!kanban||!top) return;
+    top.addEventListener('scroll',()=>{
+      if(syncingScroll) return; syncingScroll=true; kanban.scrollLeft=top.scrollLeft; requestAnimationFrame(()=>syncingScroll=false);
+    },{passive:true});
+    kanban.addEventListener('scroll',()=>{
+      if(syncingScroll) return; syncingScroll=true; top.scrollLeft=kanban.scrollLeft; requestAnimationFrame(()=>syncingScroll=false);
+    },{passive:true});
+    kanban.addEventListener('wheel',e=>{
+      if(e.shiftKey && Math.abs(e.deltaY)>Math.abs(e.deltaX)){
+        e.preventDefault(); kanban.scrollLeft+=e.deltaY;
+      }
+    },{passive:false});
+    if(window.ResizeObserver) new ResizeObserver(updateTopScrollWidth).observe(kanban);
+    new MutationObserver(()=>requestAnimationFrame(updateTopScrollWidth)).observe(kanban,{childList:true,subtree:true});
+    window.addEventListener('resize',updateTopScrollWidth,{passive:true});
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Escape' && document.body.classList.contains('operational-board-fullscreen')) toggleOperationalFullscreen();
+    });
+    if(typeof window.setViewMode==='function'){
+      const original=window.setViewMode;
+      window.setViewMode=function(mode){
+        original(mode);
+        top.style.display=mode==='kanban'?'':'none';
+        setTimeout(updateTopScrollWidth,60);
+      };
+    }
+    updateTopScrollWidth();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>
+
+
+
+<script id="index6-global-overlay-script">
+(() => {
+  let layer = 3000;
+
+  function syncOverlayLayers(){
+    const overlays = Array.from(document.querySelectorAll('.overlay'));
+    let abertas = 0;
+
+    overlays.forEach(overlay => {
+      const aberta = overlay.classList.contains('open');
+      if(aberta){
+        abertas++;
+        if(overlay.dataset.t360LayerActive !== '1'){
+          layer += 2;
+          overlay.style.setProperty('z-index', String(layer), 'important');
+          overlay.dataset.t360LayerActive = '1';
+        }
+      }else{
+        delete overlay.dataset.t360LayerActive;
+      }
+    });
+
+    document.body.classList.toggle('t360-modal-open', abertas > 0);
+  }
+
+  function initOverlayFix(){
+    const overlays = Array.from(document.querySelectorAll('.overlay'));
+    overlays.forEach(overlay => {
+      new MutationObserver(syncOverlayLayers).observe(overlay, {
+        attributes:true,
+        attributeFilter:['class','style']
+      });
+    });
+    syncOverlayLayers();
+  }
+
+  document.addEventListener('keydown', event => {
+    if(event.key !== 'Escape') return;
+    const abertas = Array.from(document.querySelectorAll('.overlay.open'));
+    if(!abertas.length) return;
+    const topo = abertas.sort((a,b) => {
+      const za = Number.parseInt(getComputedStyle(a).zIndex,10) || 0;
+      const zb = Number.parseInt(getComputedStyle(b).zIndex,10) || 0;
+      return zb - za;
+    })[0];
+    if(topo?.id && typeof window.closeDrawer === 'function'){
+      window.closeDrawer(topo.id);
+      event.preventDefault();
+    }
+  });
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initOverlayFix, {once:true});
+  }else{
+    initOverlayFix();
+  }
+})();
+</script>
 
 </body>
 </html>
